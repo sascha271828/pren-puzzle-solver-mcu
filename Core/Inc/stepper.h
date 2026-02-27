@@ -17,16 +17,16 @@
 /* TODO: get set microstep implementation done*/
 
 typedef enum{
+    STEPPER_ERROR = 1,
     STEPPER_IDLE,
-    STEPPER_MOVING,
     STEPPER_HOMING,
-    STEPPER_ERROR
+    STEPPER_MOVING
 }StepperState_t;
 
 
 typedef struct{
 #if CONFIG_FOR_ENABLE_DRIVER
-    GPIO_Pin_t enable; 
+    GPIO_Pin_t enable;
 #endif
 #if CONFIG_FOR_NSLEEP_DRIVER
     GPIO_Pin_t nsleep; 
@@ -37,13 +37,16 @@ typedef struct{
     GPIO_Pin_t step; 
     GPIO_Pin_t dir; 
     GPIO_Pin_t m0; 
-    GPIO_Pin_t m1; 
+    GPIO_Pin_t m1;
+    GPIO_Pin_t limit_switch_min;
+    GPIO_Pin_t limit_switch_max;
 }StepperPin_t;
 
 
 /*  STEPPER STRUCT  */
 typedef struct{
-    StepperPin_t pin;
+    StepperPin_t pins;
+
     volatile StepperState_t state;
     volatile int32_t current_position;
 
@@ -59,7 +62,7 @@ typedef struct{
     uint32_t min_interval;
     uint32_t max_interval;
     
-    float acceleartion_rate;
+    float acceleration_rate;
     float interval_accumulator;
 
     uint32_t pulse_start_time;    
@@ -88,24 +91,9 @@ void Stepper_PrepareMove(Stepper_t *self, int32_t relative_steps, uint32_t speed
 void Stepper_SetMicrostep(Stepper_t *self);
 void Stepper_Update(Stepper_t *self);
 
+void Stepper_Abort(void);
+
 bool Stepper_IsBusy(Stepper_t *self);
-
-
-
-/*
-{
-    self->total_steps = abs(relative_steps);
-    self->target_position = self->current_position + relative_steps;
-    
-    // Logic to calculate ramp points
-    // For a simple trapezoid, accel_until is usually 1/3 of total_steps 
-    // unless the move is too short to reach top speed.
-    self->accel_until = self->total_steps / 3; 
-    self->decel_at = self->total_steps - self->acc_until;
-    
-    self->current_interval = self->max_interval; // Start slow
-    self->state = STEPPER_MOVING;
-}*/
 
 
 #endif

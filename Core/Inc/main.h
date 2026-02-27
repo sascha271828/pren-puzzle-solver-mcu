@@ -31,7 +31,8 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "sys_init.h"
+#include "app.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

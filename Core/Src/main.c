@@ -18,7 +18,9 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "app.h"
 #include "gpio.h"
+#include "stm32h7xx_hal_gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -88,6 +90,8 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
 
+  Sys_Init();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -97,6 +101,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    App_Run();
+
   }
   /* USER CODE END 3 */
 }

@@ -2,34 +2,57 @@
 #define __STATE_MACHINE_H__
 
 #include "motion_planer.h"
-#include "stepper.h"
+#include "end_effector.h"
 
 
-
-enum machine_states_e{
-    IDLE = 1,
-    INITIALIZING,
-    WAIT_START,
-    WAIT_DATA,
-    MOVE_XY,
-    MOVE_Z,
-    HOMING,
-    GRAB,
-    DROP,
-    ERROR,
-    SIGNAL_COMPLETION
-};
-
-
-typedef struct{
+typedef enum {
+    STATE_ERROR = 1,
+    STATE_IDLE,
     
+    STATE_HOMING_START,
+    STATE_LIMIT_HIT,
+    STATE_HOMING_CHECK,
+
+    STATE_REQUEST_DATA,
+    STATE_WAIT_DATA,
+    
+    STATE_PROCESS_DATA,
+    STATE_DECIDE_NEXT_ACTION,
+    
+    STATE_MOVE_XY,
+
+    STATE_PICKUP,
+    STATE_ROTATE,
+    STATE_PLACE,
+    
+    STATE_SIGNAL_COMPLETION,
+    STATE_MAX
+}MachineState_e;
 
 
-}state_machine_t;
 
 
 
+typedef struct {
+    MachineState_e previous_state;
+    MachineState_e current_state;
 
+    MotionPlanner_t *planner;
+    EndEffector_t   *tool;
+
+    uint32_t state_timer_start; 
+    uint32_t timeout_threshold;
+    
+    uint16_t current_move_index;
+    uint16_t total_moves;
+} StateMachine_t;
+
+
+// state table  
+
+
+void Machine_Init(StateMachine_t* self, MotionPlanner_t* p, EndEffector_t* t);
+void Machine_Run(StateMachine_t* self);
 
 
  #endif
