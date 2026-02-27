@@ -23,10 +23,11 @@ typedef struct{
     GPIO_Pin_t piston_2_high;
     GPIO_Pin_t piston_2_low;
     
-    bool state_piston_1;
-    bool state_piston_2;
+    bool piston_high_active;
+    bool piston_low_active;
     
 }Piston_t;
+
 
 void Piston_Set(Piston_t* self, PistonState_e action);
 

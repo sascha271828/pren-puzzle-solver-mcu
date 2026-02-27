@@ -48,11 +48,11 @@ typedef struct {
 } StateMachine_t;
 
 
-// state table  
 
 
-void Machine_Init(StateMachine_t* self, MotionPlanner_t* p, EndEffector_t* t);
+void Machine_Init(StateMachine_t* self, MotionPlanner_t* planner, EndEffector_t* tool);
 void Machine_Run(StateMachine_t* self);
 
+void Machine_Update(StateMachine_t* self);
 
  #endif

@@ -26,9 +26,13 @@ typedef struct{
 
 void Planner_Init(MotionPlaner_t* self, Stepper_t *motor_x, Stepper_t* motor_y);
 
+void Planer_SetMachineConstants(MotionPlaner_t* self,
+    float steps_per_mm_x,   float steps_per_mm_y
+    );
+
 void Planner_SetLimit(MotionPlaner_t* self,
-    float steps_per_mm_x,   float steps_per_mm_y,
-    float max_velocity,     float max_acceleration  );
+    float max_velocity,     float max_acceleration
+    );
 
 
 void Planner_MoveTo(MotionPlaner_t* self, float x, float y);

@@ -11,6 +11,7 @@ typedef enum {
     TOOL_ERROR
 } ToolState_t;
 
+//TODO translation rotation
 
 typedef struct {
     volatile ToolState_t state;
@@ -20,6 +21,11 @@ typedef struct {
 
     uint32_t last_action_time;    
 } EndEffector_t;
+
+
+void Tool_Init(EndEffector_t* self, BinaryActuator_t* magnet,
+    Piston_t* piston, Stepper_t* rotator);
+
 
 void Tool_PickUpSequence(EndEffector_t* self);
 void Tool_RotatePiece(EndEffector_t* self, int16_t degrees);

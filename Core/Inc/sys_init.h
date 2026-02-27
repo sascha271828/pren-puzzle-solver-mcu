@@ -8,6 +8,7 @@
 static Stepper_t stepper_x;
 static Stepper_t stepper_y;
 static Stepper_t stepper_rot;
+
 static MotionPlanner_t planner;
 static EndEffector_t tool;
 static StateMachine_t machine; // The actual memory for the state machine
