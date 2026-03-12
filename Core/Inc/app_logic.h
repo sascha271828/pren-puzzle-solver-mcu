@@ -10,6 +10,9 @@ typedef struct {
     void (*exit_action)(void);    // Runs once when leaving
 } StateTransition_t;
 
+
+
+
 /*
 const StateTransition_t StateTable[] = {
     {STATE_IDLE,          Idle_Entry,  Idle_Run,  Idle_Exit},

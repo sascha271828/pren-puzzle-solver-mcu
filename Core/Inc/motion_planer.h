@@ -2,6 +2,7 @@
 #define __MOTION_PLANER_H__
 
 #include "stepper.h"
+#include "step_generator.h"
 
 
 typedef struct{
@@ -17,31 +18,25 @@ typedef struct{
     float max_velocity;      // mm/s
     float max_acceleration;  // mm/s^2
 
-    bool is_busy;
-    float current_x_mm;
-    float current_y_mm;
+
+    /* optinal */
+    volatile float current_x_mm;    
+    volatile float current_y_mm;
 }MotionPlaner_t;
 
 
-
-void Planner_Init(MotionPlaner_t* self, Stepper_t *motor_x, Stepper_t* motor_y);
-
-void Planer_SetMachineConstants(MotionPlaner_t* self,
-    float steps_per_mm_x,   float steps_per_mm_y
-    );
-
-void Planner_SetLimit(MotionPlaner_t* self,
-    float max_velocity,     float max_acceleration
-    );
+void Planner_Init(MotionPlanner_t *self, Stepper_t *motor_x, Stepper_t *motor_y);
+void Planner_SetStepsPerMM(MotionPlanner_t *self, float steps_x, float steps_y);
+void Planner_SetLimits(MotionPlanner_t *self, float max_vel, float max_accel);
 
 
-void Planner_MoveTo(MotionPlaner_t* self, float x, float y);
+// Blocking move (waits until move completes)
+void Planner_MoveTo(MotionPlanner_t *self, float x_mm, float y_mm, float feedrate_mm_per_s);
 
-bool Planner_IsBusy(MotionPlaner_t* self);
-
-static void _Planner_CalculateSync(MotionPlaner_t* self, int32_t dx, int32_t dy);
-
-void Planner_Abort(void);
-
+// Non‑blocking start
+bool Planner_StartMoveTo(MotionPlanner_t *self, float x_mm, float y_mm, float feedrate_mm_per_s);
+bool Planner_IsBusy(MotionPlanner_t *self);
+void Planner_WaitForIdle(MotionPlanner_t *self);
+void Planner_Abort(MotionPlanner_t *self);
 
 #endif

@@ -1,11 +1,7 @@
 #ifndef __ACTUATOR_H__
 #define __ACTUATOR_H__
 
-#include "stdio.h"
-#include "stdint.h"
-#include "stdbool.h"
-
-#include "utils.h" 
+#include "utils.h"
 
 typedef enum{
     ACTUATOR_OFF = 0,
@@ -16,7 +12,7 @@ typedef enum{
 
 typedef struct {
     GPIO_Pin_t pin;
-    ActuatorState_e state;
+    volatile ActuatorState_e state;
     bool active_low;
 } BinaryActuator_t;
 

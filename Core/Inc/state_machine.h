@@ -34,8 +34,8 @@ typedef enum {
 
 
 typedef struct {
-    MachineState_e previous_state;
-    MachineState_e current_state;
+    volatile MachineState_e previous_state;
+    volatile MachineState_e current_state;
 
     MotionPlanner_t *planner;
     EndEffector_t   *tool;
@@ -43,7 +43,7 @@ typedef struct {
     uint32_t state_timer_start; 
     uint32_t timeout_threshold;
     
-    uint16_t current_move_index;
+    volatile uint16_t current_move_index;
     uint16_t total_moves;
 } StateMachine_t;
 

@@ -1,19 +1,21 @@
 #ifndef __PISTON_H__
 #define __PISTON_H__
 
+#include "utils.h"
+#include "sys_config.h"
 
 #include "actuator.h"
-#include "utils.h"
+
 
 typedef enum {
     PISTON_STOP,
     PISTON_EXTENDING,
-    PISTON_RETRACTING
+    PISTON_RETRACTING,
 } PistonState_e;
 
 
 typedef struct{
-    PistonState_e state;
+    volatile PistonState_e state;
     
     uint32_t movement_time;
 
@@ -23,12 +25,16 @@ typedef struct{
     GPIO_Pin_t piston_2_high;
     GPIO_Pin_t piston_2_low;
     
-    bool piston_high_active;
-    bool piston_low_active;
-    
+#if CONFIG_PISTON_HAS_LIMIT_SWITCH
+    GPIO_Pin_t limit_switch_extended;
+    GPIO_Pin_t limit_switch_contracted;
+#endif    
+bool piston_high_active;
+bool piston_low_active;
+
 }Piston_t;
 
 
 void Piston_Set(Piston_t* self, PistonState_e action);
 
-#endif
+#endif  /* end of __PISONT_H__ */

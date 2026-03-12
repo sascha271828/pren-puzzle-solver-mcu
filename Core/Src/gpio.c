@@ -46,6 +46,7 @@ void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
@@ -53,10 +54,29 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(TEST_GPIO_GPIO_Port, TEST_GPIO_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOE, STEPPER_Y_NSLEEP_Pin|STEPPER_Y_ENABLE_Pin|STEPPER_ROT_NSLEEP_Pin|STEPPER_ROT_ENABLE_Pin
+                          |STEPPER_X_NSLEEP_Pin|STEPPER_X_ENABLE_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOF, DOUT_1_Pin|DOUT_2_Pin|DOUT_3_Pin|DOUT_4_Pin
+                          |DOUT_5_Pin|DOUT_6_Pin|DOUT_7_Pin|DOUT_8_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LD1_Pin|LD3_Pin|LD2_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, STEPPER_X_M0_Pin|STEPPER_X_M1_Pin|STEPPER_Y_M0_Pin|STEPPER_Y_M1_Pin
+                          |STEPPER_ROT_M0_Pin|STEPPER_ROT_M1_Pin|STEPPER_X_STEP_Pin|STEPPER_Y_STEP_Pin
+                          |STEPPER_ROT_STEP_Pin|STEPPER_X_DIR_Pin|STEPPER_Y_DIR_Pin|STEPPER_ROT_DIR_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : STEPPER_Y_NSLEEP_Pin STEPPER_Y_ENABLE_Pin STEPPER_ROT_NSLEEP_Pin STEPPER_ROT_ENABLE_Pin
+                           STEPPER_X_NSLEEP_Pin STEPPER_X_ENABLE_Pin */
+  GPIO_InitStruct.Pin = STEPPER_Y_NSLEEP_Pin|STEPPER_Y_ENABLE_Pin|STEPPER_ROT_NSLEEP_Pin|STEPPER_ROT_ENABLE_Pin
+                          |STEPPER_X_NSLEEP_Pin|STEPPER_X_ENABLE_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
@@ -64,12 +84,14 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : TEST_GPIO_Pin */
-  GPIO_InitStruct.Pin = TEST_GPIO_Pin;
+  /*Configure GPIO pins : DOUT_1_Pin DOUT_2_Pin DOUT_3_Pin DOUT_4_Pin
+                           DOUT_5_Pin DOUT_6_Pin DOUT_7_Pin DOUT_8_Pin */
+  GPIO_InitStruct.Pin = DOUT_1_Pin|DOUT_2_Pin|DOUT_3_Pin|DOUT_4_Pin
+                          |DOUT_5_Pin|DOUT_6_Pin|DOUT_7_Pin|DOUT_8_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(TEST_GPIO_GPIO_Port, &GPIO_InitStruct);
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LD1_Pin LD3_Pin LD2_Pin */
   GPIO_InitStruct.Pin = LD1_Pin|LD3_Pin|LD2_Pin;
@@ -78,12 +100,46 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : DIN_1_Pin DIN_2_Pin DIN_9_Pin DIN_10_Pin
+                           DIN_11_Pin DIN_12_Pin DIN_3_Pin DIN_4_Pin
+                           DIN_5_Pin DIN_6_Pin DIN_7_Pin DIN_8_Pin */
+  GPIO_InitStruct.Pin = DIN_1_Pin|DIN_2_Pin|DIN_9_Pin|DIN_10_Pin
+                          |DIN_11_Pin|DIN_12_Pin|DIN_3_Pin|DIN_4_Pin
+                          |DIN_5_Pin|DIN_6_Pin|DIN_7_Pin|DIN_8_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : STEPPER_X_NFAULT_Pin STEPPER_Y_NFAULT_Pin STEPPER_ROT_NFAULT_Pin */
+  GPIO_InitStruct.Pin = STEPPER_X_NFAULT_Pin|STEPPER_Y_NFAULT_Pin|STEPPER_ROT_NFAULT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
   /*Configure GPIO pins : STLINK_RX_Pin STLINK_TX_Pin */
   GPIO_InitStruct.Pin = STLINK_RX_Pin|STLINK_TX_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : STEPPER_X_M0_Pin STEPPER_X_M1_Pin STEPPER_Y_M0_Pin STEPPER_Y_M1_Pin
+                           STEPPER_ROT_M0_Pin STEPPER_ROT_M1_Pin STEPPER_X_DIR_Pin STEPPER_Y_DIR_Pin
+                           STEPPER_ROT_DIR_Pin */
+  GPIO_InitStruct.Pin = STEPPER_X_M0_Pin|STEPPER_X_M1_Pin|STEPPER_Y_M0_Pin|STEPPER_Y_M1_Pin
+                          |STEPPER_ROT_M0_Pin|STEPPER_ROT_M1_Pin|STEPPER_X_DIR_Pin|STEPPER_Y_DIR_Pin
+                          |STEPPER_ROT_DIR_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : STEPPER_X_STEP_Pin STEPPER_Y_STEP_Pin STEPPER_ROT_STEP_Pin */
+  GPIO_InitStruct.Pin = STEPPER_X_STEP_Pin|STEPPER_Y_STEP_Pin|STEPPER_ROT_STEP_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
 }

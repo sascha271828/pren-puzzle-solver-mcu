@@ -1,6 +1,8 @@
 #ifndef __END_EFFECTOR_H__
 #define __END_EFFECTOR_H__
 
+#include "sys_config.h"
+
 #include "actuator.h"
 #include "piston.h"
 #include "stepper.h"
@@ -19,7 +21,7 @@ typedef struct {
     Piston_t* piston;
     Stepper_t* rotator;
 
-    uint32_t last_action_time;    
+    volatile uint32_t last_action_time;    
 } EndEffector_t;
 
 
