@@ -1,13 +1,13 @@
-#include "motion_planer.h"
+#include "motion_planner.h"
 
 #include <math.h>
 #include <stdlib.h>
 
-#include "step_generator"
+#include "step_generator.h"
 
 static MoveBlock_t block; /* temporary solution till queue implemented */
 
-oid Planner_Init(MotionPlanner_t *self, Stepper_t *mx, Stepper_t *my) {
+void Planner_Init(MotionPlanner_t *self, Stepper_t *mx, Stepper_t *my) {
   self->motor_x = mx;
   self->motor_y = my;
   self->steps_per_mm_x = 1.0f;  // default, must be set later

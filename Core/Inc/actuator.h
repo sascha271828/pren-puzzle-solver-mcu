@@ -2,7 +2,7 @@
 #define __ACTUATOR_H__
 
 #include "utils.h"
-
+/*
 typedef enum{
     ACTUATOR_OFF = 0,
     ACTUATOR_ON = 1
@@ -19,7 +19,7 @@ typedef struct {
 void Actuator_Set(Actuator_t *self, ActuatorState_e state);
 void Actuator_Toggle(Actuator_t *self);
 
-
+*/
 
 
 #endif 

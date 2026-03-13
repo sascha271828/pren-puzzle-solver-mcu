@@ -1,10 +1,10 @@
 #ifndef __STATE_MACHINE_H__
 #define __STATE_MACHINE_H__
 
-#include "motion_planer.h"
+#include "motion_planner.h"
 #include "end_effector.h"
 
-
+/*
 typedef enum {
     STATE_ERROR = 1,
     STATE_IDLE,
@@ -54,5 +54,6 @@ void Machine_Init(StateMachine_t* self, MotionPlanner_t* planner, EndEffector_t*
 void Machine_Run(StateMachine_t* self);
 
 void Machine_Update(StateMachine_t* self);
+*/
 
  #endif

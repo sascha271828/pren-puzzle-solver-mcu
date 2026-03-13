@@ -6,7 +6,7 @@
 #include "stepper.h"
 #include "stm32h7xx_hal.h"
 
-static StateMachine_t* machine;
+/*static StateMachine_t* machine;*/
 volatile uint32_t system_tick = 0;
 
 void App_Run(void) {
@@ -27,8 +27,8 @@ void App_Run(void) {
             // set decel_at = path_steps to skip decel phase.
 
   // Set motor directions based on step signs
-  Stepper_SetDirection(&stepper_x, test_block.steps_x > 0);
-  Stepper_SetDirection(&stepper_y, test_block.steps_y > 0);
+  // Stepper_SetDirection(&stepper_x, test_block.steps_x > 0);
+  // Stepper_SetDirection(&stepper_y, test_block.steps_y > 0);
 
   if (StepGenerator_AddBlock(&test_block)) {
     // Wait for completion

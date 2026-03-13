@@ -5,7 +5,7 @@
 #include "sys_config.h"
 
 #include "end_effector.h"
-#include "motion_planer.h"
+#include "motion_planner.h"
 #include "state_machine.h"
 #include "stepper.h"
 
@@ -27,8 +27,9 @@ void Sys_Init(void);
  * 
  * @return StateMachine_t* the initialized State Machine
  */
+ /*
 StateMachine_t* Sys_GetMachine(void);
-
+*/
 
 
 

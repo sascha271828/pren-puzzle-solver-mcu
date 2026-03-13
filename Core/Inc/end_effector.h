@@ -1,6 +1,6 @@
 #ifndef __END_EFFECTOR_H__
 #define __END_EFFECTOR_H__
-
+/*
 #include "sys_config.h"
 
 #include "actuator.h"
@@ -32,7 +32,7 @@ void Tool_Init(EndEffector_t* self, BinaryActuator_t* magnet,
 void Tool_PickUpSequence(EndEffector_t* self);
 void Tool_RotatePiece(EndEffector_t* self, int16_t degrees);
 void Tool_PlaceSequence(EndEffector_t* self);
-
+*/
 
 
 

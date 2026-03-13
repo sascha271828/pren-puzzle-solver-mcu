@@ -3,7 +3,7 @@
 #include "actuator.h"
 #include "end_effector.h"
 #include "main.h"
-#include "motion_planer.h"
+#include "motion_planner.h"
 #include "piston.h"
 #include "state_machine.h"
 #include "step_generator.h"
@@ -18,8 +18,8 @@ static const float planner_steps_per_mm_y = 0;
 static const float planner_max_velocity = 0;
 static const float planner_max_acceleration = 0;
 
-static const* Stepper_t stepper_x = NULL;
-static const* Stepper_t stepper_y = NULL;
+static Stepper_t* stepper_x = NULL;
+static Stepper_t* stepper_y = NULL;
 
 /* motor x-axis */
 static const StepperPin_t pins_stepper_x = {
@@ -57,14 +57,14 @@ static const StepperPin_t pins_stepper_x = {
     .port = STEPPER_X_M1_GPIO_Port, 
     .pin = STEPPER_X_M1_Pin 
     },
-  .limit_switch_min = { 
+  /*.limit_switch_min = { 
     .port = TEST_GPIO_GPIO_Port, 
     .pin = TEST_GPIO_Pin 
     },
   .limit_switch_max = { 
     .port = TEST_GPIO_GPIO_Port, 
     .pin = TEST_GPIO_Pin 
-}
+}*/
 };
 
 /* motor y-axis */
@@ -82,8 +82,8 @@ static const StepperPin_t pins_stepper_y = {
   .dir = { .port = STEPPER_Y_DIR_GPIO_Port, .pin = STEPPER_Y_DIR_Pin },
   .m0 = { .port = STEPPER_Y_M0_GPIO_Port, .pin = STEPPER_Y_M0_Pin },
   .m1 = { .port = STEPPER_Y_M1_GPIO_Port, .pin = STEPPER_Y_M1_Pin },
-  .limit_switch_min = { .port = TEST_GPIO_GPIO_Port, .pin = TEST_GPIO_Pin },
-  .limit_switch_max = { .port = TEST_GPIO_GPIO_Port, .pin = TEST_GPIO_Pin }
+  /*.limit_switch_min = { .port = TEST_GPIO_GPIO_Port, .pin = TEST_GPIO_Pin },
+  .limit_switch_max = { .port = TEST_GPIO_GPIO_Port, .pin = TEST_GPIO_Pin } */
 };
 
 /* motor rotation */
@@ -106,11 +106,12 @@ static const StepperPin_t pins_stepper_rot = {
   .dir = { .port = STEPPER_ROT_DIR_GPIO_Port, .pin = STEPPER_ROT_DIR_Pin },
   .m0 = { .port = STEPPER_ROT_M0_GPIO_Port, .pin = STEPPER_ROT_M0_Pin },
   .m1 = { .port = STEPPER_ROT_M1_GPIO_Port, .pin = STEPPER_ROT_M1_Pin },
-  .limit_switch_min = { .port = TEST_GPIO_GPIO_Port, .pin = TEST_GPIO_Pin },
-  .limit_switch_max = { .port = TEST_GPIO_GPIO_Port, .pin = TEST_GPIO_Pin }
+  /*.limit_switch_min = { .port = TEST_GPIO_GPIO_Port, .pin = TEST_GPIO_Pin },
+  .limit_switch_max = { .port = TEST_GPIO_GPIO_Port, .pin = TEST_GPIO_Pin }*/
 };
 
 /* piston */
+/*
 static Piston_t piston = {
   .state = PISTON_STOP,
   .movement_time = 0,
@@ -142,9 +143,10 @@ static Piston_t piston = {
 #endif
   .piston_high_active = false,
   .piston_low_active = false
-};
+};*/
 
 /* magnet */
+/*
 static BinaryActuator_t magnet = { 
     .pin = { 
         .port = TEST_GPIO_GPIO_Port,
@@ -152,18 +154,18 @@ static BinaryActuator_t magnet = {
     },
     .state = ACTUATOR_OFF,
     .active_low = false 
-};
+};*/
 
 /* clang-format on */
 
 void Sys_Init(void) {
   /* --- STEPPER INIT --- */
-  Stepper_Init(&stepper_x, pins_stepper_x);
-  Stepper_Init(&stepper_y, pins_stepper_y);
+  Stepper_Init(stepper_x, pins_stepper_x);
+  Stepper_Init(stepper_y, pins_stepper_y);
 
-  Stepper_Init(&stepper_rot, pins_stepper_rot);
+  /*  Stepper_Init(&stepper_rot, pins_stepper_rot); */
 
-  StepGenerator_Init(&stepper_x, &stepper_y);
+  StepGenerator_Init(stepper_x, stepper_y);
 
   /* --- PLANER INIT --- */
 
@@ -173,5 +175,5 @@ void Sys_Init(void) {
   /* --- MACHINE INIT --- */
   // Machine_Init(&machine, &planner, &tool);
 }
-
-StateMachine_t* Sys_GetMachine(void) { return &machine; }
+/*
+StateMachine_t* Sys_GetMachine(void) { return &machine; }*/

@@ -1,7 +1,7 @@
 #ifndef __APP_LOGIC__
 #define __APP_LOGIC__
 
-
+/*
 
 typedef struct {
     MachineState_e state;
@@ -9,7 +9,7 @@ typedef struct {
     void (*run_action)(void);     // Runs repeatedly while in the state
     void (*exit_action)(void);    // Runs once when leaving
 } StateTransition_t;
-
+*/
 
 
 

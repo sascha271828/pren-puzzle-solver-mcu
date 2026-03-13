@@ -59,7 +59,7 @@ typedef struct {
 #endif
   volatile bool direction;
   volatile bool is_homed;
-  volatile bool pulse_active
+  volatile bool pulse_active;
   volatile bool has_fault;
 } Stepper_t;
 

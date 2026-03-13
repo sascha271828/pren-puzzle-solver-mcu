@@ -1,7 +1,6 @@
-#ifndef __MOTION_PLANER_H__
-#define __MOTION_PLANER_H__
+#ifndef __MOTION_PLANNER_H__
+#define __MOTION_PLANNER_H__
 
-#include "stepper.h"
 #include "step_generator.h"
 
 
@@ -22,10 +21,9 @@ typedef struct{
     /* optinal */
     volatile float current_x_mm;    
     volatile float current_y_mm;
-}MotionPlaner_t;
+}MotionPlanner_t;
 
-
-void Planner_Init(MotionPlanner_t *self, Stepper_t *motor_x, Stepper_t *motor_y);
+void Planner_Init(MotionPlanner_t *self, Stepper_t *mx, Stepper_t *my);
 void Planner_SetStepsPerMM(MotionPlanner_t *self, float steps_x, float steps_y);
 void Planner_SetLimits(MotionPlanner_t *self, float max_vel, float max_accel);
 

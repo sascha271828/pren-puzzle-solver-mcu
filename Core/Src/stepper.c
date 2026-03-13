@@ -7,23 +7,21 @@
 void Stepper_Init(Stepper_t *self, StepperPin_t pins) {}
 
 void Stepper_SetDirection(Stepper_t *self, bool dir) {
-  HAL_GPIO_WritePin(self->pins->dir->port,
-                    self->pins->dir->pin,
+  HAL_GPIO_WritePin(self->pins.dir.port,
+                    self->pins.dir.pin,
                     dir ? GPIO_PIN_SET : GPIO_PIN_RESET);
   self->direction = dir;
 }
 
 void Stepper_SetStep(Stepper_t *self) {
-  HAL_GPIO_WritePin(
-      self->pins->step->port, self->pins->step->pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(self->pins.step.port, self->pins.step.pin, GPIO_PIN_SET);
 
   self->pulse_active = true;
   self->current_position += (self->direction ? 1 : -1);
 }
 
 void Stepper_ClearStep(Stepper_t *self) {
-  HAL_GPIO_WritePin(
-      self->pins->step->port, self->pins->step->pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(self->pins.step.port, self->pins.step.pin, GPIO_PIN_RESET);
 
   self->pulse_active = false;
 }
@@ -37,12 +35,12 @@ void Stepper_Enable(Stepper_t *self, bool enable) {
 #endif
 
 void Stepper_SetMicrostep(Stepper_t *self, StepperMiro_e resolution) {
-  HAL_GPIO_WritePin(self->pins->m1->port,
-                    self->pins->m1->pin,
+  HAL_GPIO_WritePin(self->pins.m1.port,
+                    self->pins.m1.pin,
                     resolution & (1 << 0) ? GPIO_PIN_SET : GPIO_PIN_RESET);
 
-  HAL_GPIO_WritePin(self->pins->m1->port,
-                    self->pins->m1->pin,
+  HAL_GPIO_WritePin(self->pins.m1.port,
+                    self->pins.m1.pin,
                     resolution & (1 << 1) ? GPIO_PIN_SET : GPIO_PIN_RESET);
 
   self->current_position = resolution;

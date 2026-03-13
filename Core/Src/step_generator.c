@@ -16,7 +16,7 @@ void StepGenerator_Init(Stepper_t *mx, Stepper_t *my) {
   motor_y = my;
 }
 
-bool StepGenerator_AddBlock(const MoveBlock_t *block) {
+bool StepGenerator_AddBlock(MoveBlock_t *block) {
   if (block == NULL) {
     return false;
   }
@@ -62,7 +62,7 @@ void StepGenerator_Update(void) {
     }
 
     /* step */
-    if (y_step) Stepper_SetStep(motor_x);
+    if (x_step) Stepper_SetStep(motor_x);
     if (y_step) Stepper_SetStep(motor_y);
 
     current_block->step_index++;
@@ -73,7 +73,7 @@ void StepGenerator_Update(void) {
     } else if (current_block->step_index >= current_block->accel_until) {
       ; /* TODO: */
     } else {
-      current_block->current_interval = current_block->cruise_interval
+      current_block->current_interval = current_block->cruise_interval;
     }
     current_block->next_step_tick += current_block->current_interval;
   }

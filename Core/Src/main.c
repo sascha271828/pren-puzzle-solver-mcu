@@ -23,10 +23,10 @@
 #include "tim.h"
 #include "usart.h"
 
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "app.h"
+#include "sys_init.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -84,6 +84,7 @@ int main(void) {
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
+  Sys_Init(); /* initialize the system       */
 
   /* USER CODE END SysInit */
 
@@ -94,8 +95,6 @@ int main(void) {
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_Base_Start(&htim2); /* enable Timer for Steppers */
-
-  Sys_Init(); /* initialize the system       */
 
   /* USER CODE END 2 */
 

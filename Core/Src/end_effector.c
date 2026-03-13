@@ -1,5 +1,5 @@
 #include "end_effector.h"
-
+/*
 void Tool_Init(EndEffector_t* self,
                BinaryActuator_t* magnet,
                Piston_t* piston,
@@ -12,3 +12,4 @@ void Tool_Init(EndEffector_t* self,
   self->state = TOOL_IDLE;
   self->last_action_time = 0;  // TODO: change?
 }
+  */

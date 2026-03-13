@@ -26,7 +26,7 @@ typedef struct {
 
 void StepGenerator_Init(Stepper_t *mx, Stepper_t *my);
 
-bool StepGenerator_AddBlock(const MoveBlock_t *block); /* TODO implement queue*/
+bool StepGenerator_AddBlock(MoveBlock_t *block); /* TODO implement queue*/
 void StepGenerator_Update(void); /* in ISR */
 
 

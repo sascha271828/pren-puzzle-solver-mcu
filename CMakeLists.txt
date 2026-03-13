@@ -45,17 +45,33 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
+    Core/Src/app.c
+    Core/Src/stepper.c
+    Core/Src/communication.c
+    Core/Src/end_effector.c
+    Core/Src/motion_planner.c
+    Core/Src/state_machine.c
+    Core/Src/step_generator.c
+    Core/Src/sys_init.c
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    Core/Inc
     # Add user defined include paths
+    Drivers/STM32H7xx_HAL_Driver/Inc
+    Drivers/STM32H7xx_HAL_Driver/Inc/Legacy
+    Drivers/CMSIS/Device/ST/STM32H7xx/Include
+    Drivers/CMSIS/Include
 )
 
 # Add project symbols (macros)
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined symbols
+    USE_HAL_DRIVER
+    STM32H743xx
 )
+
 
 # Remove wrong libob.a library dependency when using cpp files
 list(REMOVE_ITEM CMAKE_C_IMPLICIT_LINK_LIBRARIES ob)
