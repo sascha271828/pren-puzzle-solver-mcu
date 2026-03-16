@@ -1,8 +1,8 @@
-#ifndef __SYS_CONFIG_H__
-#define __SYS_CONFIG_H__
+#ifndef __SYS_CONFIG_MY_H__
+#define __SYS_CONFIG_MY_H__
 
 /* Stepper */
-#define CONFIG_FOR_NFAULT_DRIVER                                               \
+#define CONFIG_FOR_NFAULT_DRIVER \
   (0) /* wheter the nFAULT detection of the stepper drivers is implemented */
 
 #define CONFIG_FOR_ENABLE_DRIVER                                               \
@@ -16,10 +16,6 @@
 
 /* TODO set value to something reasonable */
 
-/* piston */
-#define CONFIG_PISTON_HAS_LIMIT_SWITCH                                         \
-  (1) /* whetere the piston has a limit switch */
-
 /* Machine Constants */
 
 #define CONFIG_CONSTANT_X_STEPS_PER_MM (0.0f)
@@ -27,5 +23,14 @@
 
 #define CONFIG_MAX_VELOCITY_MM_S (0.0f)
 #define CONFIG_MAX_ACCELERATION_MM_SS (0.0f)
+
+/* piston */
+#define CONFIG_PISTON_HAS_LIMIT_SWITCH \
+  (0) /* whetere the piston has a limit switch */
+#define CONFIG_PISTON_SEPARAT_PINS (0)
+#define CONFIG_PISTON_TIME_START_MOVE_MS (500u)
+#define CONFIG_PISTON_TIME_GRAB_MOVE_MS (500u)
+#define CONFIG_PISTON_TIME_MOVE_RELEASE_MS (500u)
+#define CONFIG_PISTON_TIME_RETRACT_INIT (1000u)
 
 #endif /* __SYS_CONFIG_H__ */

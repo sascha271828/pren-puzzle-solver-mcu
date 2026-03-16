@@ -2,39 +2,39 @@
 #define __PISTON_H__
 
 #include "sys_config.h"
-
 #include "utils.h"
 
-
+#include <stdbool.h>
 
 typedef enum {
-    PISTON_STOP,
-    PISTON_EXTENDING,
-    PISTON_RETRACTING,
+  PISTON_INIT, /* only at the beginning */
+  PISTON_START_POS,
+  PISTON_EXTENDING,
+  PISTON_RETRACTING,
+  PISTON_GRAB,
+  PISTON_MOVE_POS,
+  PISTON_RELEASE
 } PistonState_e;
 
+typedef struct {
+  volatile PistonState_e state;
 
-typedef struct{
-    volatile PistonState_e state;
-    
-    uint32_t movement_time;
+  const GPIO_Pin_t piston_1_extend;
+  const GPIO_Pin_t piston_1_retract;
 
-    GPIO_Pin_t piston_1_high;
-    GPIO_Pin_t piston_1_low;
+#if CONFIG_PISTON_SEPARAT_PINS
+  const GPIO_Pin_t piston_2_extend;
+  const GPIO_Pin_t piston_2_retract;
+#endif
 
-    GPIO_Pin_t piston_2_high;
-    GPIO_Pin_t piston_2_low;
-    
 #if CONFIG_PISTON_HAS_LIMIT_SWITCH
-    GPIO_Pin_t limit_switch_extended;
-    GPIO_Pin_t limit_switch_contracted;
-#endif    
-bool piston_high_active;
-bool piston_low_active;
+  GPIO_Pin_t limit_switch_extended;
+  GPIO_Pin_t limit_switch_contracted;
+#endif
 
-}Piston_t;
+} Piston_t;
 
-
-void Piston_Set(Piston_t* self, PistonState_e action);
+bool Piston_Set(Piston_t* self, PistonState_e action);
+void Piston_Stop(Piston_t* self);
 
 #endif /* __PISTON_H__ */

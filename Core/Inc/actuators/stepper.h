@@ -2,8 +2,8 @@
 #define __STEPPER_H__
 
 #include "sys_config.h"
-
 #include "utils.h"
+
 #include <stdbool.h>
 
 #define STEPPER_MICRO_FULL (0)
@@ -36,17 +36,17 @@ typedef struct {
 #if CONFIG_FOR_NFAULT_DRIVER
   GPIO_Pin_t fault;
 #endif
-  GPIO_Pin_t step;
-  GPIO_Pin_t dir;
-  GPIO_Pin_t m0;
-  GPIO_Pin_t m1;
-  GPIO_Pin_t limit_switch_min;
-  GPIO_Pin_t limit_switch_max;
+  const GPIO_Pin_t step;
+  const GPIO_Pin_t dir;
+  const GPIO_Pin_t m0;
+  const GPIO_Pin_t m1;
+  const GPIO_Pin_t limit_switch_min;
+  const GPIO_Pin_t limit_switch_max;
 } StepperPin_t;
 
 /*  STEPPER STRUCT  */
 typedef struct {
-  StepperPin_t pins;
+  const StepperPin_t pins;
 
   volatile StepperState_e state;
   volatile int32_t current_position;

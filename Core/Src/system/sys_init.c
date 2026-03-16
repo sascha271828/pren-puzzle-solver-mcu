@@ -20,6 +20,22 @@ static const float planner_max_acceleration = CONFIG_MAX_ACCELERATION_MM_SS; */
 
 static Stepper_t* stepper_x = NULL;
 static Stepper_t* stepper_y = NULL;
+static Piston_t piston = {
+  .state = PISTON_INIT,
+  .piston_1_extend = {
+    .port = DOUT_2_GPIO_Port,
+    .pin = DOUT_2_Pin,
+  },
+  .piston_1_retract= {
+    .port = DOUT_3_GPIO_Port,
+    .pin = DOUT_3_Pin,
+  },
+  #if CONFIG_PISTON_SEPARAT_PINS
+  /* TODO if implemented */
+  #endif
+};
+
+
 
 /* motor x-axis */
 static const StepperPin_t pins_stepper_x = {
@@ -111,6 +127,7 @@ static const StepperPin_t pins_stepper_rot = {
   .limit_switch_max = { .port = TEST_GPIO_GPIO_Port, .pin = TEST_GPIO_Pin }
 };
 */
+
 /* clang-format on */
 
 void Sys_Init(void) {
@@ -122,3 +139,5 @@ void Sys_Init(void) {
 
   StepGenerator_Init(stepper_x, stepper_y);
 }
+
+Piston_t* Sys_GetPiston(void) { return &piston; }
