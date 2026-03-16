@@ -3,10 +3,6 @@
         {
             "name": "STM32",
             "includePath": [
-                "${workspaceFolder}\\Core\\Inc",
-                "${workspaceFolder}\\Drivers\\STM32H7xx_HAL_Driver\\Inc",
-                "${workspaceFolder}\\Drivers\\CMSIS\\Device\\ST\\STM32H7xx\\Include",
-                "${workspaceFolder}\\Drivers\\CMSIS\\Include"
             ],
             "intelliSenseMode": "windows-gcc-arm",
             "compilerPath": "C:/ArmGNUToolchain/14.3.rel1/bin/arm-none-eabi-gcc.exe",

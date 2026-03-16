@@ -45,11 +45,21 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
+    Core/Src/actuators/step_generator.c
+    Core/Src/actuators/stepper.c
+    Core/Src/communication/package.c
+    Core/Src/coordination/motion_planner.c
+    Core/Src/system/app.c
+    Core/Src/system/sys_init.c
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
+    Core/Inc/actuators
+    Core/Inc/communication
+    Core/Inc/coordination
+    Core/Inc/system
 )
 
 # Add project symbols (macros)

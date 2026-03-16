@@ -1,0 +1,50 @@
+BasedOnStyle: Google
+IndentWidth: 2
+ColumnLimit: 80
+
+# Brace placement
+BreakBeforeBraces: Custom
+BraceWrapping: 
+  AfterStruct: false
+  AfterFunction: false
+
+# Keep designated initializers on separate lines
+BreakConstructorInitializers: BeforeComma
+PackConstructorInitializers: Never
+
+
+# Initializer list formatting
+AlignAfterOpenBracket: Align
+BinPackArguments: false
+BinPackParameters: false
+
+
+
+# This is the key setting for nested initializers
+Cpp11BracedListStyle: false
+
+
+SortIncludes: true
+IncludeBlocks: Regroup
+
+# Define categories with priorities (lower number = higher priority)
+IncludeCategories:
+  # sys_config.h always comes first (negative priority ensures it beats main header)
+  - Regex:    '^"main\.h"$'
+    Priority: -100
+  
+  # Main header for this source file gets priority 0 (clang-format auto-detects this)
+  # Other project headers
+  - Regex:    '^".*\.h"$'
+    Priority: 1
+  
+  # C++ standard library headers
+  - Regex:    '^<[^/.]*>$'
+    Priority: 2
+  
+  # System headers with paths (like <STM32H7xx.h>)
+  - Regex:    '^<.*>$'
+    Priority: 3
+
+# Optional: set regex for detecting main header (adjust as needed)
+IncludeIsMainRegex: '([-_](test|unittest))?$'

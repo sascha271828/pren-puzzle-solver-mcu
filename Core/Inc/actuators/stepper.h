@@ -1,26 +1,23 @@
 #ifndef __STEPPER_H__
 #define __STEPPER_H__
 
-#include "utils.h"
-
 #include "sys_config.h"
 
+#include "utils.h"
+#include <stdbool.h>
 
-#define STEPPER_MICRO_FULL  (0)
-#define STEPPER_MICRO_1_16  (1)
-#define STEPPER_MICRO_1_2   (2)
-#define STEPPER_MICRO_1_4   (3)
-
+#define STEPPER_MICRO_FULL (0)
+#define STEPPER_MICRO_1_16 (1)
+#define STEPPER_MICRO_1_2 (2)
+#define STEPPER_MICRO_1_4 (3)
 
 /* can be used for microsteps bitwise M1 M0 */
 typedef enum {
   STEP_FULL = STEPPER_MICRO_FULL,
   STEP_1_16 = STEPPER_MICRO_1_16,
   STEP_1_2 = STEPPER_MICRO_1_2,
-  STEP_1_4 = STEPPER_MICRO_1_4 
+  STEP_1_4 = STEPPER_MICRO_1_4
 } StepperMiro_e;
-
-
 
 typedef enum {
   STEPPER_ERROR = 1,
@@ -47,8 +44,6 @@ typedef struct {
   GPIO_Pin_t limit_switch_max;
 } StepperPin_t;
 
-
-
 /*  STEPPER STRUCT  */
 typedef struct {
   StepperPin_t pins;
@@ -74,7 +69,5 @@ void Stepper_ClearStep(Stepper_t *self);
 void Stepper_Enable(Stepper_t *self, bool enable);
 #endif
 void Stepper_SetMicrostep(Stepper_t *self, StepperMiro_e resolution);
-
-
 
 #endif /* __STEPPER_H__ */

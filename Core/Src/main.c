@@ -24,6 +24,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "app.h"
+#include "sys_init.h"
 
 /* USER CODE END Includes */
 
@@ -83,7 +85,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  Sys_Init();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -91,6 +93,8 @@ int main(void)
   MX_TIM2_Init();
   MX_UART7_Init();
   /* USER CODE BEGIN 2 */
+
+  HAL_TIM_Base_Init(&htim2);
 
   /* USER CODE END 2 */
 
@@ -100,6 +104,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    App_Run();
   }
   /* USER CODE END 3 */
 }
