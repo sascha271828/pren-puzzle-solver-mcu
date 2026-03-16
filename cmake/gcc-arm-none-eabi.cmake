@@ -8,12 +8,28 @@ set(CMAKE_CXX_COMPILER_ID GNU)
 # arm-none-eabi- must be part of path environment
 set(TOOLCHAIN_PREFIX                arm-none-eabi-)
 
-set(CMAKE_C_COMPILER                ${TOOLCHAIN_PREFIX}gcc)
-set(CMAKE_ASM_COMPILER              ${CMAKE_C_COMPILER})
-set(CMAKE_CXX_COMPILER              ${TOOLCHAIN_PREFIX}g++)
-set(CMAKE_LINKER                    ${TOOLCHAIN_PREFIX}g++)
-set(CMAKE_OBJCOPY                   ${TOOLCHAIN_PREFIX}objcopy)
-set(CMAKE_SIZE                      ${TOOLCHAIN_PREFIX}size)
+find_program(CMAKE_C_COMPILER NAMES ${TOOLCHAIN_PREFIX}gcc
+    PATHS "C:/ArmGNUToolchain/14.3.rel1/bin"
+    NO_DEFAULT_PATH
+    )
+find_program(CMAKE_C_COMPILER NAMES ${TOOLCHAIN_PREFIX}gcc
+    PATHS "C:/ArmGNUToolchain/14.3.rel1/bin"
+    NO_DEFAULT_PATH
+    )
+set(CMAKE_ASM_COMPILER ${CMAKE_C_COMPILER})
+
+find_program(CMAKE_LINKER NAMES ${TOOLCHAIN_PREFIX}g++ ${TOOLCHAIN_PREFIX}ld
+    PATHS "C:/ArmGNUToolchain/14.3.rel1/bin"
+    NO_DEFAULT_PATH
+    )
+find_program(CMAKE_OBJCOPY NAMES ${TOOLCHAIN_PREFIX}objcopy
+    PATHS "C:/ArmGNUToolchain/14.3.rel1/bin"
+    NO_DEFAULT_PATH
+    )
+find_program(CMAKE_SIZE NAMES ${TOOLCHAIN_PREFIX}size
+    PATHS "C:/ArmGNUToolchain/14.3.rel1/bin"
+    NO_DEFAULT_PATH
+    )
 
 set(CMAKE_EXECUTABLE_SUFFIX_ASM     ".elf")
 set(CMAKE_EXECUTABLE_SUFFIX_C       ".elf")
@@ -26,7 +42,11 @@ set(TARGET_FLAGS "-mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard ")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${TARGET_FLAGS}")
 set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS} -x assembler-with-cpp -MMD -MP")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -fdata-sections -ffunction-sections")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -fdata-sections -ffunction-sections -fstack-usage")
+
+# The cyclomatic-complexity parameter must be defined for the Cyclomatic complexity feature in STM32CubeIDE to work.
+# However, most GCC toolchains do not support this option, which causes a compilation error; for this reason, the feature is disabled by default.
+# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fcyclomatic-complexity")
 
 set(CMAKE_C_FLAGS_DEBUG "-O0 -g3")
 set(CMAKE_C_FLAGS_RELEASE "-Os -g0")

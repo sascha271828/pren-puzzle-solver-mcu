@@ -17,10 +17,5 @@
 /* piston */
 #define CONFIG_PISTON_HAS_LIMIT_SWITCH (1)  /* whetere the piston has a limit switch */
 
- 
 
-
-
-
-
-#endif /* end of __SYS_CONFIG_H__ */
+#endif /* __SYS_CONFIG_H__ */

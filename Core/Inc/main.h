@@ -31,8 +31,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "sys_init.h"
-#include "app.h"
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -54,7 +53,7 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-extern volatile uint32_t system_tick;
+
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -66,8 +65,6 @@ extern volatile uint32_t system_tick;
 #define STEPPER_ROT_NSLEEP_GPIO_Port GPIOE
 #define STEPPER_ROT_ENABLE_Pin GPIO_PIN_5
 #define STEPPER_ROT_ENABLE_GPIO_Port GPIOE
-#define B1_Pin GPIO_PIN_13
-#define B1_GPIO_Port GPIOC
 #define DOUT_1_Pin GPIO_PIN_0
 #define DOUT_1_GPIO_Port GPIOF
 #define DOUT_2_Pin GPIO_PIN_1
@@ -88,8 +85,6 @@ extern volatile uint32_t system_tick;
 #define DOUT_7_GPIO_Port GPIOF
 #define DOUT_8_Pin GPIO_PIN_10
 #define DOUT_8_GPIO_Port GPIOF
-#define LD1_Pin GPIO_PIN_0
-#define LD1_GPIO_Port GPIOB
 #define DIN_1_Pin GPIO_PIN_1
 #define DIN_1_GPIO_Port GPIOB
 #define DIN_2_Pin GPIO_PIN_2
@@ -108,8 +103,6 @@ extern volatile uint32_t system_tick;
 #define DIN_11_GPIO_Port GPIOB
 #define DIN_12_Pin GPIO_PIN_13
 #define DIN_12_GPIO_Port GPIOB
-#define LD3_Pin GPIO_PIN_14
-#define LD3_GPIO_Port GPIOB
 #define STLINK_RX_Pin GPIO_PIN_8
 #define STLINK_RX_GPIO_Port GPIOD
 #define STLINK_TX_Pin GPIO_PIN_9
@@ -146,8 +139,6 @@ extern volatile uint32_t system_tick;
 #define DIN_5_GPIO_Port GPIOB
 #define DIN_6_Pin GPIO_PIN_6
 #define DIN_6_GPIO_Port GPIOB
-#define LD2_Pin GPIO_PIN_7
-#define LD2_GPIO_Port GPIOB
 #define DIN_7_Pin GPIO_PIN_8
 #define DIN_7_GPIO_Port GPIOB
 #define DIN_8_Pin GPIO_PIN_9

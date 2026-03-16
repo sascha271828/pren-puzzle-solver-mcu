@@ -1,8 +1,10 @@
 #ifndef __STEPPER_H__
 #define __STEPPER_H__
 
-#include "sys_config.h"
 #include "utils.h"
+
+#include "sys_config.h"
+
 
 #define STEPPER_MICRO_FULL  (0)
 #define STEPPER_MICRO_1_16  (1)
@@ -73,4 +75,6 @@ void Stepper_Enable(Stepper_t *self, bool enable);
 #endif
 void Stepper_SetMicrostep(Stepper_t *self, StepperMiro_e resolution);
 
-#endif
+
+
+#endif /* __STEPPER_H__ */
