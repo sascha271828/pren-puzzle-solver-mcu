@@ -18,10 +18,9 @@ static const float planner_steps_per_mm_y = CONFIG_CONSTANT_Y_STEPS_PER_MM;
 static const float planner_max_velocity = CONFIG_MAX_VELOCITY_MM_S;
 static const float planner_max_acceleration = CONFIG_MAX_ACCELERATION_MM_SS; */
 
-static Stepper_t* stepper_x = NULL;
-static Stepper_t* stepper_y = NULL;
+static Stepper_t stepper_x;
+static Stepper_t stepper_y;
 static Piston_t piston = {
-  .state = PISTON_INIT,
   .piston_1_extend = {
     .port = DOUT_2_GPIO_Port,
     .pin = DOUT_2_Pin,
@@ -38,7 +37,7 @@ static Piston_t piston = {
 
 
 /* motor x-axis */
-static const StepperPin_t pins_stepper_x = {
+static StepperPin_t pins_stepper_x = {
 #if CONFIG_FOR_ENABLE_DRIVER
   .enable = { 
     .port = STEPPER_X_ENABLE_GPIO_Port, 
@@ -84,7 +83,7 @@ static const StepperPin_t pins_stepper_x = {
 };
 
 /* motor y-axis */
-static const StepperPin_t pins_stepper_y = {
+static StepperPin_t pins_stepper_y = {
 #if CONFIG_FOR_ENABLE_DRIVER
   .enable = { .port = STEPPER_Y_ENABLE_GPIO_Port, .pin = STEPPER_Y_ENABLE_Pin },
 #endif
@@ -132,12 +131,12 @@ static const StepperPin_t pins_stepper_rot = {
 
 void Sys_Init(void) {
   /* --- STEPPER INIT --- */
-  Stepper_Init(stepper_x, pins_stepper_x);
-  Stepper_Init(stepper_y, pins_stepper_y);
+  Stepper_Init(&stepper_x, pins_stepper_x);
+  Stepper_Init(&stepper_y, pins_stepper_y);
 
-  /*  Stepper_Init(&stepper_rot, pins_stepper_rot); */
+  Piston_Init(&piston);
 
-  StepGenerator_Init(stepper_x, stepper_y);
+  StepGenerator_Init(&stepper_x, &stepper_y);
 }
 
 Piston_t* Sys_GetPiston(void) { return &piston; }

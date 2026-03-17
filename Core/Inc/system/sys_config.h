@@ -2,8 +2,7 @@
 #define __SYS_CONFIG_MY_H__
 
 /* Stepper */
-#define CONFIG_FOR_NFAULT_DRIVER \
-  (0) /* wheter the nFAULT detection of the stepper drivers is implemented */
+
 
 #define CONFIG_FOR_ENABLE_DRIVER                                               \
   (0) /* wheter the ENABLE pins for the stepper drivers are controlled through \
@@ -11,6 +10,8 @@
 #define CONFIG_FOR_NSLEEP_DRIVER                                               \
   (0) /* wheter the nSLEEP pins for the stepper drivers are controlled through \
          software */
+#define CONFIG_STEPPER_MICRO (0)
+#define CONFIG_STEPPER_NFAULT (0)
 #define CONFIG_DEFAULT_STEPPER_SPEED (100u)
 #define CONFIG_DEFAULT_STEPPER_ACCEL (100u)
 

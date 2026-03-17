@@ -33,31 +33,36 @@ typedef struct {
 #if CONFIG_FOR_NSLEEP_DRIVER
   GPIO_Pin_t nsleep;
 #endif
-#if CONFIG_FOR_NFAULT_DRIVER
+#if CONFIG_STEPPER_NFAULT
   GPIO_Pin_t fault;
 #endif
-  const GPIO_Pin_t step;
-  const GPIO_Pin_t dir;
-  const GPIO_Pin_t m0;
-  const GPIO_Pin_t m1;
-  const GPIO_Pin_t limit_switch_min;
-  const GPIO_Pin_t limit_switch_max;
+  GPIO_Pin_t step;
+  GPIO_Pin_t dir;
+  GPIO_Pin_t m0;
+  GPIO_Pin_t m1;
+  GPIO_Pin_t limit_switch_min;
+  GPIO_Pin_t limit_switch_max;
 } StepperPin_t;
 
 /*  STEPPER STRUCT  */
 typedef struct {
-  const StepperPin_t pins;
+  StepperPin_t pins;
 
   volatile StepperState_e state;
   volatile int32_t current_position;
+#if CONFIG_STEPPER_MICRO
   volatile StepperMiro_e current_micro;
+#endif
 #if CONFIG_FOR_ENABLE_DRIVER
   volatile bool is_enabled;
 #endif
+
   volatile bool direction;
   volatile bool is_homed;
   volatile bool pulse_active;
+#if CONFIG_STEPPER_NFAULT
   volatile bool has_fault;
+#endif
 } Stepper_t;
 
 /*  METHODS */

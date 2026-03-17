@@ -1,0 +1,24 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "STM32H753ZI Debug",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "openocd",
+            "cwd": "${workspaceFolder}",
+            // Update this to point to your actual .elf build output
+            "executable": "${workspaceFolder}/build/Debug/PuzzleSolver_MCU.elf",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32h7x.cfg"
+            ],
+            "openOCDPath": "C:/openocd/bin/openocd.exe",
+            // Update this to your actual arm-none-eabi-gdb.exe path
+            "gdbPath": "C:/ArmGNUToolchain/14.3.rel1/bin/arm-none-eabi-gdb.exe",
+            "svdFile": "${workspaceFolder}/STM32H753xx.svd",
+            "runToEntryPoint": "main",
+            "showDevDebugOutput": "none"
+        }
+    ]
+}

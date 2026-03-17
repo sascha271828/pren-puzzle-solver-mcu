@@ -2,7 +2,15 @@
 
 #include "stepper.h"
 
-void Stepper_Init(Stepper_t *self, StepperPin_t pins) {}
+void Stepper_Init(Stepper_t *self, StepperPin_t pins) {
+  self->pins = pins;
+  /* TODO implement */
+  self->direction = false;
+  self->is_homed = false;
+  self->pulse_active = false;
+  self->state = STEPPER_IDLE;
+  self->current_position = 0;
+}
 
 void Stepper_SetDirection(Stepper_t *self, bool dir) {
   HAL_GPIO_WritePin(self->pins.dir.port,
