@@ -1,5 +1,17 @@
 {
     "version": "0.2.0",
+    // ─────────────────────────────────────────────────────
+    //  SETUP — two things you need to configure locally:
+    //
+    //  Option A (recommended): set environment variables
+    //    ARM_TOOLCHAIN_PATH  →  path to your arm-none-eabi bin/ folder
+    //                           e.g. C:/ArmGNUToolchain/14.3.rel1/bin
+    //    OPENOCD_PATH        →  path to your OpenOCD bin/ folder
+    //                           e.g. C:/openocd/bin
+    //
+    //  Option B: replace ${env:...} below with your full paths directly
+    //            (don't commit those changes to git)
+    // ─────────────────────────────────────────────────────
     "configurations": [
         {
             "name": "STM32H753ZI Debug",
@@ -7,15 +19,13 @@
             "request": "launch",
             "servertype": "openocd",
             "cwd": "${workspaceFolder}",
-            // Update this to point to your actual .elf build output
             "executable": "${workspaceFolder}/build/Debug/PuzzleSolver_MCU.elf",
             "configFiles": [
                 "interface/stlink.cfg",
                 "target/stm32h7x.cfg"
             ],
-            "openOCDPath": "C:/openocd/bin/openocd.exe",
-            // Update this to your actual arm-none-eabi-gdb.exe path
-            "gdbPath": "C:/ArmGNUToolchain/14.3.rel1/bin/arm-none-eabi-gdb.exe",
+            "serverpath": "${env:OPENOCD_PATH}/openocd",
+            "gdbPath": "${env:ARM_TOOLCHAIN_PATH}/arm-none-eabi-gdb",
             "svdFile": "${workspaceFolder}/STM32H753xx.svd",
             "runToEntryPoint": "main",
             "showDevDebugOutput": "none"

@@ -1,8 +1,12 @@
 {
+// To find your compiler path run: where arm-none-eabi-gcc  (Windows)
+    //                              or: which arm-none-eabi-gcc  (macOS/Linux)
+    // Then set the ARM_TOOLCHAIN_PATH environment variable to the bin/ folder,
+    // OR just replace the ${env:ARM_TOOLCHAIN_PATH} below with your full path.
     "configurations": [
         {
             "name": "STM32",
-            "compilerPath": "C:/ArmGNUToolchain/14.3.rel1/bin/arm-none-eabi-gcc.exe",
+            "compilerPath": "${env:ARM_TOOLCHAIN_PATH}/arm-none-eabi-gcc",
             "intelliSenseMode": "gcc-arm",
             "cStandard": "gnu11",
             "cppStandard": "gnu++17",
@@ -11,3 +15,4 @@
     ],
     "version": 4
 }
+ 
