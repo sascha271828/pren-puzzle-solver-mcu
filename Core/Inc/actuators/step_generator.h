@@ -28,7 +28,7 @@ typedef struct {
 void StepGenerator_Init(Stepper_t *mx, Stepper_t *my);
 
 MoveBlock_t StepGenerator_GenerateBlock(int32_t steps_x,
-                                        uint32_t steps_y,
+                                        int32_t steps_y,
                                         uint32_t accel_until,
                                         uint32_t decel_at,
                                         uint32_t cruise_interval,

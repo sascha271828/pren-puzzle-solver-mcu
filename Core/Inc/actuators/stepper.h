@@ -17,7 +17,7 @@ typedef enum {
   STEP_1_16 = STEPPER_MICRO_1_16,
   STEP_1_2 = STEPPER_MICRO_1_2,
   STEP_1_4 = STEPPER_MICRO_1_4
-} StepperMiro_e;
+} StepperMicro_e;
 
 typedef enum {
   STEPPER_ERROR = 1,
@@ -51,7 +51,7 @@ typedef struct {
   volatile StepperState_e state;
   volatile int32_t current_position;
 #if CONFIG_STEPPER_MICRO
-  volatile StepperMiro_e current_micro;
+  volatile StepperMicro_e current_micro;
 #endif
 #if CONFIG_FOR_ENABLE_DRIVER
   volatile bool is_enabled;
@@ -73,6 +73,8 @@ void Stepper_ClearStep(Stepper_t *self);
 #if CONFIG_FOR_ENABLE_DRIVER
 void Stepper_Enable(Stepper_t *self, bool enable);
 #endif
-void Stepper_SetMicrostep(Stepper_t *self, StepperMiro_e resolution);
+#if CONFIG_STEPPER_MICRO
+  void Stepper_SetMicrostep(Stepper_t *self, StepperMicro_e resolution);
+#endif
 
 #endif /* __STEPPER_H__ */

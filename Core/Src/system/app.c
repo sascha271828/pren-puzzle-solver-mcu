@@ -18,13 +18,13 @@ void App_Run(void) {
   HAL_Delay(100);
 #if TEST_STEPPER
 
-  MoveBlock_t test_block =
-      StepGenerator_GenerateBlock(200000, 10000, 0, 180000, 100, 100);
-
   for (;;) {
+    MoveBlock_t test_block =
+        StepGenerator_GenerateBlock(500000, 250000, 200, 480000, 100, 100);
     StepGenerator_StartStep(&test_block);
-    while (StepGenerator_IsBusy());
-    HAL_Delay(500);
+    while (StepGenerator_IsBusy()) {
+    }
+    HAL_Delay(1000);
   }
 
 #endif

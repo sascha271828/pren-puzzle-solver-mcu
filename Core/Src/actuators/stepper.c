@@ -4,7 +4,7 @@
 
 void Stepper_Init(Stepper_t *self, StepperPin_t pins) {
   self->pins = pins;
-  /* TODO implement */
+  /* TODO implement homing */
   self->direction = false;
   self->is_homed = false;
   self->pulse_active = false;
@@ -40,7 +40,9 @@ void Stepper_Enable(Stepper_t *self, bool enable) {
 }
 #endif
 
-void Stepper_SetMicrostep(Stepper_t *self, StepperMiro_e resolution) {
+#if CONFIG_STEPPER_MICRO
+
+void Stepper_SetMicrostep(Stepper_t *self, StepperMicro_e resolution) {
   HAL_GPIO_WritePin(self->pins.m1.port,
                     self->pins.m1.pin,
                     resolution & (1 << 0) ? GPIO_PIN_SET : GPIO_PIN_RESET);
@@ -49,5 +51,6 @@ void Stepper_SetMicrostep(Stepper_t *self, StepperMiro_e resolution) {
                     self->pins.m1.pin,
                     resolution & (1 << 1) ? GPIO_PIN_SET : GPIO_PIN_RESET);
 
-  self->current_position = resolution;
+  self->current_micro = resolution;
 }
+#endif
