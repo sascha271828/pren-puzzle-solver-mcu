@@ -2,10 +2,12 @@
 
 #include "app.h"
 
+#include "command_dispatcher.h"
 #include "piston.h"
 #include "step_generator.h"
 #include "sys_config.h"
 #include "sys_init.h"
+#include "uart_receiver.h"
 
 #define TEST_STEPPER (1)
 #define TEST_PISTON (0)
@@ -66,5 +68,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
   if (htim->Instance == TIM2) {
     system_tick++;
     StepGenerator_Update();
+  }
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
+  if (huart->Instance == UART7) {
+    UartReceiver_RxCallback(Sys_GetUartReceiver());
   }
 }

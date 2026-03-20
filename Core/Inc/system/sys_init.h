@@ -1,8 +1,10 @@
 #ifndef __SYS_INIT_H__
 #define __SYS_INIT_H__
 
+#include "command_dispatcher.h"
 #include "piston.h"
 #include "sys_config.h"
+#include "uart_receiver.h"
 
 
 #define SYS_PISTON_SENSOR
@@ -14,6 +16,8 @@
 void Sys_Init(void);
 
 Piston_t* Sys_GetPiston(void);
+UartReceiver_t* Sys_GetUartReceiver(void);
+CommandDispatcher_t* Sys_GetCommandDispatcher(void);
 
 /**
  * @brief returns the initialized State Machine as a pointer

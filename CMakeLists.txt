@@ -49,6 +49,12 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/actuators/step_generator.c
     Core/Src/actuators/stepper.c
     Core/Src/communication/package.c
+    Core/Src/communication/puzzle.pb.c
+    Core/Src/communication/uart_receiver.c
+    Core/Src/communication/command_dispatcher.c
+    Core/third_party/nanopb/pb_common.c
+    Core/third_party/nanopb/pb_decode.c
+    Core/third_party/nanopb/pb_encode.c
     Core/Src/coordination/motion_planner.c
     Core/Src/system/app.c
     Core/Src/system/sys_init.c
@@ -61,6 +67,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Inc/communication
     Core/Inc/coordination
     Core/Inc/system
+    Core/third_party/nanopb
 )
 
 # Add project symbols (macros)

@@ -2,9 +2,12 @@
 
 #include "sys_init.h"
 
+#include "command_dispatcher.h"
 #include "motion_planner.h"
 #include "step_generator.h"
 #include "stepper.h"
+#include "uart_receiver.h"
+#include "usart.h"
 #include "utils.h"
 
 #include <stddef.h>
@@ -127,6 +130,9 @@ static const StepperPin_t pins_stepper_rot = {
 };
 */
 
+static UartReceiver_t uart_receiver;
+static CommandDispatcher_t command_dispatcher;
+
 /* clang-format on */
 
 void Sys_Init(void) {
@@ -137,6 +143,17 @@ void Sys_Init(void) {
   Piston_Init(&piston);
 
   StepGenerator_Init(&stepper_x, &stepper_y);
+
+  /* --- UART / COMMUNICATION INIT --- */
+  UartReceiver_Init(&uart_receiver, &huart7);
+  CommandDispatcher_Init(&command_dispatcher, &uart_receiver);
+  UartReceiver_Start(&uart_receiver);
 }
 
 Piston_t* Sys_GetPiston(void) { return &piston; }
+
+UartReceiver_t* Sys_GetUartReceiver(void) { return &uart_receiver; }
+
+CommandDispatcher_t* Sys_GetCommandDispatcher(void) {
+  return &command_dispatcher;
+}
