@@ -101,6 +101,9 @@ int main(void)
   HAL_TIM_Base_Init(&htim2);
   HAL_TIM_Base_Init(&htim3);
 
+  HAL_NVIC_SetPriority(UART7_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(UART7_IRQn);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
