@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "STM32",
-            "compilerPath": "${env:ARM_TOOLCHAIN_PATH}/arm-none-eabi-gcc",
+            "compilerPath": "${env:ARM_TOOLCHAIN_PATH}",
             "intelliSenseMode": "gcc-arm",
             "cStandard": "gnu11",
             "cppStandard": "gnu++17",

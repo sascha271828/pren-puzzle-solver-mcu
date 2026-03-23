@@ -1,6 +1,7 @@
 build
 mx.scratch
 !.settings
+*.code-workspace
 
 ##
 ## Visual Studio Code
