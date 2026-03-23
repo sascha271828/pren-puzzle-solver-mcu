@@ -3,7 +3,6 @@
 
 /* Stepper */
 
-
 #define CONFIG_FOR_ENABLE_DRIVER                                               \
   (0) /* wheter the ENABLE pins for the stepper drivers are controlled through \
          software */
@@ -12,18 +11,17 @@
          software */
 #define CONFIG_STEPPER_MICRO (0)
 #define CONFIG_STEPPER_NFAULT (0)
-#define CONFIG_DEFAULT_STEPPER_SPEED (100u)
-#define CONFIG_DEFAULT_STEPPER_ACCEL (100u)
 
-/* TODO set value to something reasonable */
 
 /* Machine Constants */
 
-#define CONFIG_CONSTANT_X_STEPS_PER_MM (0.0f)
-#define CONFIG_CONSTANT_Y_STEPS_PER_MM (0.0f)
-
-#define CONFIG_MAX_VELOCITY_MM_S (0.0f)
-#define CONFIG_MAX_ACCELERATION_MM_SS (0.0f)
+/* stepper */
+#define MAX_ACCEL_STEPS 256
+#define CONFIG_STEPS_PER_MM_X (80.0f)
+#define CONFIG_STEPS_PER_MM_Y (80.0f)
+#define CONFIG_MAX_SPEED_AXIS (100.0f)
+#define CONFIG_ACCEL_AXIS_MM_S2 (500.0f)
+#define TIMER_FREQ_HZ_STEP (120000000UL) /* TODO take from STM32 */
 
 /* piston */
 #define CONFIG_PISTON_HAS_LIMIT_SWITCH \

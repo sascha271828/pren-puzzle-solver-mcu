@@ -8,28 +8,21 @@ set(CMAKE_CXX_COMPILER_ID GNU)
 # arm-none-eabi- must be part of path environment
 set(TOOLCHAIN_PREFIX                arm-none-eabi-)
 
-find_program(CMAKE_C_COMPILER NAMES ${TOOLCHAIN_PREFIX}gcc
-    PATHS "C:/ArmGNUToolchain/14.3.rel1/bin"
-    NO_DEFAULT_PATH
-    )
-find_program(CMAKE_C_COMPILER NAMES ${TOOLCHAIN_PREFIX}gcc
-    PATHS "C:/ArmGNUToolchain/14.3.rel1/bin"
-    NO_DEFAULT_PATH
-    )
-set(CMAKE_ASM_COMPILER ${CMAKE_C_COMPILER})
-
-find_program(CMAKE_LINKER NAMES ${TOOLCHAIN_PREFIX}g++ ${TOOLCHAIN_PREFIX}ld
-    PATHS "C:/ArmGNUToolchain/14.3.rel1/bin"
-    NO_DEFAULT_PATH
-    )
-find_program(CMAKE_OBJCOPY NAMES ${TOOLCHAIN_PREFIX}objcopy
-    PATHS "C:/ArmGNUToolchain/14.3.rel1/bin"
-    NO_DEFAULT_PATH
-    )
-find_program(CMAKE_SIZE NAMES ${TOOLCHAIN_PREFIX}size
-    PATHS "C:/ArmGNUToolchain/14.3.rel1/bin"
-    NO_DEFAULT_PATH
-    )
+if(WIN32)
+    set(TOOLCHAIN_SEARCH_PATH "C:/ArmGNUToolchain/14.3.rel1/bin")
+    find_program(CMAKE_C_COMPILER   NAMES ${TOOLCHAIN_PREFIX}gcc    PATHS ${TOOLCHAIN_SEARCH_PATH} NO_DEFAULT_PATH)
+    find_program(CMAKE_CXX_COMPILER NAMES ${TOOLCHAIN_PREFIX}g++    PATHS ${TOOLCHAIN_SEARCH_PATH} NO_DEFAULT_PATH)
+    find_program(CMAKE_LINKER       NAMES ${TOOLCHAIN_PREFIX}g++ ${TOOLCHAIN_PREFIX}ld PATHS ${TOOLCHAIN_SEARCH_PATH} NO_DEFAULT_PATH)
+    find_program(CMAKE_OBJCOPY      NAMES ${TOOLCHAIN_PREFIX}objcopy PATHS ${TOOLCHAIN_SEARCH_PATH} NO_DEFAULT_PATH)
+    find_program(CMAKE_SIZE         NAMES ${TOOLCHAIN_PREFIX}size    PATHS ${TOOLCHAIN_SEARCH_PATH} NO_DEFAULT_PATH)
+else()
+    # On Linux/Arch, arm-none-eabi-gcc is on PATH after: sudo pacman -S arm-none-eabi-gcc
+    find_program(CMAKE_C_COMPILER   NAMES ${TOOLCHAIN_PREFIX}gcc)
+    find_program(CMAKE_CXX_COMPILER NAMES ${TOOLCHAIN_PREFIX}g++)
+    find_program(CMAKE_LINKER       NAMES ${TOOLCHAIN_PREFIX}g++ ${TOOLCHAIN_PREFIX}ld)
+    find_program(CMAKE_OBJCOPY      NAMES ${TOOLCHAIN_PREFIX}objcopy)
+    find_program(CMAKE_SIZE         NAMES ${TOOLCHAIN_PREFIX}size)
+endif()
 
 set(CMAKE_EXECUTABLE_SUFFIX_ASM     ".elf")
 set(CMAKE_EXECUTABLE_SUFFIX_C       ".elf")

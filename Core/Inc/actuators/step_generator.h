@@ -4,42 +4,98 @@
 #include "stepper.h"
 #include "sys_config.h"
 
+/**
+ * @brief Precomputed timer-tick intervals for the acceleration/deceleration
+ *        ramp. Entry [n] holds the number of ISR ticks to wait before step n
+ *        during the ramp. The same table is mirrored for deceleration.
+ *        Size is fixed at MAX_ACCEL_STEPS (defined in sys_config.h).
+ */
 typedef struct {
-  /* Move parameters (total steps) */
-  int32_t steps_x;
-  int32_t steps_y;
+  uint32_t interval[MAX_ACCEL_STEPS];
+} interval_table_t;
 
-  /* Acceleration profile */
-  uint32_t accel_until;
-  uint32_t decel_at;
-  uint32_t cruise_interval; /* minimum step interval (at full speed) in ticks */
-  uint32_t initial_interval; /* starting interval (c0) in ticks */
-
-  /* DDA accumulators (runtime) */
-  int32_t counter;
-  uint32_t step_index;  // path steps completed
-  uint32_t path_steps;  // MAX of abs(steps_x) and abs(steps_y)
-  uint32_t current_interval;
-  uint32_t next_step_tick;
-  uint32_t steps_minor;
-  bool x_dominant;
+/**
+ * @brief Fully describes a single linear move, including its trapezoidal
+ *        (or triangular) speed profile. Generated once by
+ *        StepGenerator_GenerateBlock() and treated as read-only thereafter.
+ *
+ * Profile layout (by step index):
+ *
+ *   0 ... accel_until : acceleration ramp  (interval_table lookup)
+ *   accel_until ... decel_at : cruise      (cruise_interval)
+ *   decel_at ... path_steps  : decel ramp  (interval_table mirrored)
+ *
+ *  speed
+ *   |      ___________
+ *   |     /           \
+ *   |    /             \
+ *   |___/               \___
+ *   0  ^accel_until  ^decel_at  ^path_steps
+ */
+typedef struct {
+  int32_t steps_x;           /**< Signed step count for X axis              */
+  int32_t steps_y;           /**< Signed step count for Y axis              */
+  uint32_t accel_until;      /**< Step index where acceleration phase ends  */
+  uint32_t decel_at;         /**< Step index where deceleration phase begins*/
+  uint32_t cruise_interval;  /**< Constant ISR-tick interval during cruise  */
+  uint32_t initial_interval; /**< ISR-tick interval for the very first step */
+  uint32_t path_steps;       /**< Total steps along the dominant axis       */
+  interval_table_t interval_table; /**< Precomputed ramp intervals           */
+  uint32_t table_len; /**< Number of valid entries in interval_table */
+  bool x_dominant;    /**< True if X axis drives the DDA             */
 } MoveBlock_t;
 
-void StepGenerator_Init(Stepper_t *mx, Stepper_t *my);
+/**
+ * @brief Initialises the step generator with pointers to the two stepper
+ *        motor instances. Must be called once before any other function.
+ *
+ * @param mx  Pointer to the X-axis Stepper_t instance.
+ * @param my  Pointer to the Y-axis Stepper_t instance.
+ */
+void StepGenerator_Init(Stepper_t* mx, Stepper_t* my);
 
-MoveBlock_t StepGenerator_GenerateBlock(int32_t steps_x,
-                                        int32_t steps_y,
-                                        uint32_t accel_until,
-                                        uint32_t decel_at,
-                                        uint32_t cruise_interval,
-                                        uint32_t intial_interval);
+/**
+ * @brief Computes a fully populated MoveBlock_t for the requested move,
+ *        including the trapezoidal speed profile and interval lookup table.
+ *        Automatically falls back to a triangular profile when the move is
+ *        too short to reach cruise speed.
+ *
+ * @note  At least one of steps_x / steps_y must be non-zero.
+ *
+ * @param steps_x  Signed number of steps on the X axis (negative = reverse).
+ * @param steps_y  Signed number of steps on the Y axis (negative = reverse).
+ * @return MoveBlock_t  The fully initialised, ready-to-execute move block.
+ */
+MoveBlock_t StepGenerator_GenerateBlock(int32_t steps_x, int32_t steps_y);
 
-void StepGenerator_Update(void); /* in ISR */
-void StepGenerator_StartStep(MoveBlock_t *block);
-bool StepGenerator_IsBusy(
-    void); /* Return true if a block is currently being executed or there are
-              blocks waiting in the queue.*/
-void StepGenerator_Abort(
-    void); /* Immediately stop all motion and clear the queue.*/
+/**
+ * @brief Loads a move block and immediately starts execution by enabling
+ *        the step timer interrupt. The caller retains ownership of the block
+ *        and must ensure it remains valid until StepGenerator_IsBusy()
+ *        returns false.
+ *
+ * @param block  Pointer to a MoveBlock_t produced by
+ * StepGenerator_GenerateBlock().
+ */
+void StepGenerator_StartMove(const MoveBlock_t* block);
+
+/**
+ * @brief Returns whether a move is currently in progress.
+ *
+ * @return true   A move is executing; do not call StepGenerator_StartMove().
+ * @return false  The step generator is idle and ready for a new block.
+ */
+bool StepGenerator_IsBusy(void);
+
+/* void StepGenerator_Abort(void); */ /* TODO: stop mid-move and clear state */
+
+/**
+ * @brief Step generator update routine — must be called from the timer ISR
+ *        on every tick. Handles pulse clearing, DDA stepping, interval
+ *        lookup, and move completion.
+ *
+ * @note  Not to be called from any other context.
+ */
+void StepGenerator_Update(void);
 
 #endif /* __STEP_GENERATOR_H__ */

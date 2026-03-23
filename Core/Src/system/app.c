@@ -10,7 +10,7 @@
 #include "uart_receiver.h"
 
 #define TEST_STEPPER (1)
-#define TEST_PISTON (0)
+#define TEST_PISTON ((0) && !TEST_STEPPER)
 
 /*static StateMachine_t* machine;*/
 volatile uint32_t system_tick = 0;
@@ -18,15 +18,21 @@ volatile bool piston_moving = false;
 
 void App_Run(void) {
   HAL_Delay(100);
+
 #if TEST_STEPPER
 
+  MoveBlock_t test_block_positive = StepGenerator_GenerateBlock(5000, 5000);
+  MoveBlock_t test_block_negative = StepGenerator_GenerateBlock(-5000, -5000);
   for (;;) {
-    MoveBlock_t test_block =
-        StepGenerator_GenerateBlock(500000, 250000, 200, 480000, 100, 100);
-    StepGenerator_StartStep(&test_block);
+    StepGenerator_StartMove(&test_block_positive);
     while (StepGenerator_IsBusy()) {
     }
-    HAL_Delay(1000);
+    HAL_Delay(5000);
+
+    StepGenerator_StartMove(&test_block_negative);
+    while (StepGenerator_IsBusy()) {
+    }
+    HAL_Delay(20000);
   }
 
 #endif

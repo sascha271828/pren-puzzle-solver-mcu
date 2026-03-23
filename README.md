@@ -75,6 +75,8 @@ Some files are auto-generated when the project config (`.ioc`) is updated. The p
 
 ## Prerequisites
 
+### 1. ARM GCC Toolchain
+
 This is the compiler that turns C code into firmware the STM32 can run.
 
 ```bash
@@ -84,10 +86,15 @@ brew install --cask gcc-arm-embedded
 # Ubuntu / Debian
 sudo apt install gcc-arm-none-eabi
 
+# Arch Linux
+sudo pacman -S arm-none-eabi-gcc arm-none-eabi-newlib
+
 # Windows
 # Download from: https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
 # Install it, then note the path to the bin/ folder (e.g. C:\ArmGNUToolchain\14.3.rel1\bin)
 ```
+
+> **Arch Linux note:** `arm-none-eabi-newlib` is required alongside the compiler — it provides the C standard library (`printf`, `malloc`, etc.) for bare-metal targets. The project uses `--specs=nano.specs` in its linker flags, which depends on it.
 
 Verify: `arm-none-eabi-gcc --version`
 
@@ -102,6 +109,9 @@ brew install open-ocd
 # Ubuntu / Debian
 sudo apt install openocd
 
+# Arch Linux
+sudo pacman -S openocd
+
 # Windows
 # Download from: https://github.com/openocd-org/openocd/releases
 # Note the path to the bin/ folder (e.g. C:\openocd\bin)
@@ -115,6 +125,9 @@ brew install cmake ninja
 
 # Ubuntu
 sudo apt install cmake ninja-build
+
+# Arch Linux
+sudo pacman -S cmake ninja
 
 # Windows
 # https://cmake.org/download/ and https://ninja-build.org/
