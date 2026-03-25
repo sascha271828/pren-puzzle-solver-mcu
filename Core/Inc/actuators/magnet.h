@@ -3,11 +3,46 @@
 
 #include "sys_config.h"
 #include "utils.h"
-
 #include <stdbool.h>
 
-void Magnet_Init(GPIO_Pin_t *pin);
+/**
+ * @file magnet.h
+ * @brief Thin driver for a GPIO-controlled electromagnet.
+ *
+ * Wraps a single output pin behind a simple on/off API.
+ * The module holds one internal pointer to the active GPIO pin,
+ * so only one magnet instance is supported at a time.
+ *
+ * Typical usage:
+ * @code
+ *   Magnet_Init(&magnetPin);
+ *   Magnet_Grab(true);   // engage
+ *   Magnet_Grab(false);  // release
+ * @endcode
+ */
 
-void Magnet_Grab(bool state);
+/**
+ * @brief Initialises the magnet driver with the GPIO pin to control.
+ *        Must be called before Magnet_Grab() or Magnet_GetState().
+ *
+ * @param pin  Pointer to a GPIO_Pin_t describing the output pin.
+ */
+void Magnet_Init(GPIO_Pin_t* pin);
+
+/**
+ * @brief Engages or releases the magnet.
+ *
+ * @param state  true  = activate magnet (GPIO high).
+ *               false = release magnet (GPIO low).
+ */
+void Magnet_SetState(bool state);
+
+/**
+ * @brief Returns the current drive state of the magnet pin.
+ *
+ * @return true   Pin is driven high (magnet active).
+ * @return false  Pin is driven low  (magnet inactive).
+ */
+bool Magnet_GetState(void);
 
 #endif /* __MAGNET_H__ */

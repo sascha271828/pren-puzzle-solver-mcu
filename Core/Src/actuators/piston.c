@@ -6,7 +6,7 @@
 
 // ── internal helpers ────────────────────────────────────────────────────────
 
-void set_extend_pins(Piston_t* self, GPIO_PinState state) {
+static void set_extend_pins(Piston_t* self, GPIO_PinState state) {
   HAL_GPIO_WritePin(
       self->piston_1_extend.port, self->piston_1_extend.pin, state);
 #if CONFIG_PISTON_SEPARAT_PINS
@@ -15,13 +15,18 @@ void set_extend_pins(Piston_t* self, GPIO_PinState state) {
 #endif
 }
 
-void set_retract_pins(Piston_t* self, GPIO_PinState state) {
+static void set_retract_pins(Piston_t* self, GPIO_PinState state) {
   HAL_GPIO_WritePin(
       self->piston_1_retract.port, self->piston_1_retract.pin, state);
 #if CONFIG_PISTON_SEPARAT_PINS
   HAL_GPIO_WritePin(
       self->piston_2_retract.port, self->piston_2_retract.pin, state);
 #endif
+}
+
+static void Piston_Stop(Piston_t* self) {
+  set_extend_pins(self, GPIO_PIN_RESET);
+  set_retract_pins(self, GPIO_PIN_RESET);
 }
 
 static void begin_move(Piston_t* self,
@@ -32,7 +37,7 @@ static void begin_move(Piston_t* self,
   set_extend_pins(self, GPIO_PIN_RESET);
   set_retract_pins(self, GPIO_PIN_RESET);
 
-  if (direction == PISTON_STATE_EXTENDED) {
+  if (direction == PISTON_STATE_EXTENDING) {
     set_extend_pins(self, GPIO_PIN_SET);
   } else {
     set_retract_pins(self, GPIO_PIN_SET);
@@ -49,37 +54,35 @@ void Piston_Init(Piston_t* self) {
   set_retract_pins(self, GPIO_PIN_RESET);
   self->physical = PISTON_STATE_UNKNOWN;
   self->target = PISTON_STATE_UNKNOWN;
+  self->logical = PISTON_POS_UNKNOWN;
+  self->target_logical = PISTON_STATE_UNKNOWN;
 }
 
 // Call from your timer ISR or main-loop tick.
 // Returns true when motion is complete (or timed out).
-PistonResult_e Piston_Update(Piston_t* self) {
-  if (self->physical != PISTON_STATE_MOVING) return PISTON_OK;
+void Piston_Update(Piston_t* self) {
+  if (self->physical == PISTON_STATE_SET ||
+      self->physical == PISTON_STATE_UNKNOWN) {
+    return;
+  }
 
 #if CONFIG_PISTON_HAS_LIMIT_SWITCH
-  GPIO_Pin_t* sw = (self->target == PISTON_STATE_EXTENDED)
+  GPIO_Pin_t* sw = (self->target == PISTON_STATE_EXTENDING)
                        ? &self->limit_switch_extended
                        : &self->limit_switch_retracted;
 
   if (HAL_GPIO_ReadPin(sw->port, sw->pin) == GPIO_PIN_SET) {
     Piston_Stop(self);  // limit switch hit → done
-    return PISTON_OK;
   }
 #endif
 
   // Timeout fallback (works with or without limit switches)
   if (HAL_GetTick() >= self->move_deadline_tick) {
     Piston_Stop(self);
-    return PISTON_OK;
+    self->logical = self->target_logical;
+    self->target_logical = PISTON_STATE_UNKNOWN;
+    self->target = PISTON_STATE_SET;
   }
-
-  return PISTON_BUSY;
-}
-
-void Piston_Stop(Piston_t* self) {
-  set_extend_pins(self, GPIO_PIN_RESET);
-  set_retract_pins(self, GPIO_PIN_RESET);
-  self->physical = self->target;  // best knowledge of where we are
 }
 
 // Map logical positions to physical direction + timing
@@ -95,28 +98,28 @@ static bool resolve_move(PistonLogical_e from,
   // Return false for illegal transitions.
   switch (to) {
     case PISTON_POS_START:
-      out->direction = PISTON_STATE_RETRACTED;
+      out->direction = PISTON_STATE_RETRACTING;
       out->timeout_ms = CONFIG_PISTON_TIME_RETRACT_INIT;
       return true;
 
     case PISTON_POS_GRAB:
       if (from != PISTON_POS_MOVE) return false;
-      out->direction = PISTON_STATE_EXTENDED;
+      out->direction = PISTON_STATE_EXTENDING;
       out->timeout_ms = CONFIG_PISTON_TIME_GRAB_MOVE_MS;
       return true;
 
     case PISTON_POS_MOVE:
       switch (from) {
         case PISTON_POS_START:
-          out->direction = PISTON_STATE_EXTENDED;
+          out->direction = PISTON_STATE_EXTENDING;
           out->timeout_ms = CONFIG_PISTON_TIME_START_MOVE_MS;
           return true;
         case PISTON_POS_GRAB:
-          out->direction = PISTON_STATE_RETRACTED;
+          out->direction = PISTON_STATE_RETRACTING;
           out->timeout_ms = CONFIG_PISTON_TIME_GRAB_MOVE_MS;
           return true;
         case PISTON_POS_RELEASE:
-          out->direction = PISTON_STATE_RETRACTED;
+          out->direction = PISTON_STATE_RETRACTING;
           out->timeout_ms = CONFIG_PISTON_TIME_MOVE_RELEASE_MS;
           return true;
         default:
@@ -125,7 +128,7 @@ static bool resolve_move(PistonLogical_e from,
 
     case PISTON_POS_RELEASE:
       if (from != PISTON_POS_MOVE) return false;
-      out->direction = PISTON_STATE_EXTENDED;
+      out->direction = PISTON_STATE_EXTENDING;
       out->timeout_ms = CONFIG_PISTON_TIME_MOVE_RELEASE_MS;
       return true;
 
@@ -142,17 +145,15 @@ PistonResult_e Piston_Set(Piston_t* self, PistonLogical_e target_pos) {
   if (!resolve_move(self->logical, target_pos, &params)) {
     return PISTON_ERR_INVALID_TRANSITION;
   }
+  self->target_logical = target_pos;
 
   begin_move(self, params.direction, params.timeout_ms);
 
-  // ── blocking wait (replace with state-machine loop if you go async) ──
-  PistonResult_e result;
-  while ((result = Piston_Update(self)) == PISTON_BUSY) {
-    ;  // or __WFI() to sleep until next interrupt
-  }
+  return PISTON_BUSY;
+}
 
-  if (result == PISTON_OK) {
-    self->logical = target_pos;
-  }
-  return result;
+void PisotnAbort(Piston_t* self) {
+  set_extend_pins(self, GPIO_PIN_RESET);
+  set_retract_pins(self, GPIO_PIN_RESET);
+  self->physical = PISTON_STATE_UNKNOWN;
 }
