@@ -67,6 +67,8 @@ extern volatile uint32_t system_tick;
 #define STEPPER_ROT_NSLEEP_GPIO_Port GPIOE
 #define STEPPER_ROT_ENABLE_Pin GPIO_PIN_5
 #define STEPPER_ROT_ENABLE_GPIO_Port GPIOE
+#define STEPPER_X_ENABLE_Pin GPIO_PIN_6
+#define STEPPER_X_ENABLE_GPIO_Port GPIOE
 #define DOUT_1_Pin GPIO_PIN_0
 #define DOUT_1_GPIO_Port GPIOF
 #define DOUT_2_Pin GPIO_PIN_1
@@ -147,8 +149,6 @@ extern volatile uint32_t system_tick;
 #define DIN_8_GPIO_Port GPIOB
 #define STEPPER_X_NSLEEP_Pin GPIO_PIN_0
 #define STEPPER_X_NSLEEP_GPIO_Port GPIOE
-#define STEPPER_X_ENABLE_Pin GPIO_PIN_1
-#define STEPPER_X_ENABLE_GPIO_Port GPIOE
 
 /* USER CODE BEGIN Private defines */
 

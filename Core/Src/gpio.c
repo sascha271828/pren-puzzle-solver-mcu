@@ -55,7 +55,7 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOE, STEPPER_Y_NSLEEP_Pin|STEPPER_Y_ENABLE_Pin|STEPPER_ROT_NSLEEP_Pin|STEPPER_ROT_ENABLE_Pin
-                          |STEPPER_X_NSLEEP_Pin|STEPPER_X_ENABLE_Pin, GPIO_PIN_RESET);
+                          |STEPPER_X_ENABLE_Pin|STEPPER_X_NSLEEP_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOF, DOUT_1_Pin|DOUT_2_Pin|DOUT_3_Pin|DOUT_4_Pin
@@ -67,9 +67,9 @@ void MX_GPIO_Init(void)
                           |STEPPER_ROT_STEP_Pin|STEPPER_X_DIR_Pin|STEPPER_Y_DIR_Pin|STEPPER_ROT_DIR_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : STEPPER_Y_NSLEEP_Pin STEPPER_Y_ENABLE_Pin STEPPER_ROT_NSLEEP_Pin STEPPER_ROT_ENABLE_Pin
-                           STEPPER_X_NSLEEP_Pin STEPPER_X_ENABLE_Pin */
+                           STEPPER_X_ENABLE_Pin STEPPER_X_NSLEEP_Pin */
   GPIO_InitStruct.Pin = STEPPER_Y_NSLEEP_Pin|STEPPER_Y_ENABLE_Pin|STEPPER_ROT_NSLEEP_Pin|STEPPER_ROT_ENABLE_Pin
-                          |STEPPER_X_NSLEEP_Pin|STEPPER_X_ENABLE_Pin;
+                          |STEPPER_X_ENABLE_Pin|STEPPER_X_NSLEEP_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
