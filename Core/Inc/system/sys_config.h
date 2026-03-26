@@ -23,6 +23,12 @@
 #define CONFIG_ACCEL_AXIS_MM_S2 (500.0f)
 #define TIMER_FREQ_HZ_STEP (120000000UL) /* TODO take from STM32 */
 
+/* rotation */
+#define MAX_ACCEL_STEPS_ROT 256
+#define CONFIG_STEPS_PER_01_DEGREE (80.0f)
+#define CONFIG_MAX_SPEED_ROT (100.0f)
+#define CONFIG_ACCEL_AXIS_ROT (500.0f)
+
 /* piston */
 #define CONFIG_PISTON_HAS_LIMIT_SWITCH \
   (0) /* whetere the piston has a limit switch */

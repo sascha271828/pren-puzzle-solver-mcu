@@ -69,15 +69,15 @@ void StepGenerator_Init(Stepper_t* mx, Stepper_t* my);
 MoveBlock_t StepGenerator_GenerateBlock(int32_t steps_x, int32_t steps_y);
 
 /**
- * @brief Loads a move block and immediately starts execution by enabling
- *        the step timer interrupt. The caller retains ownership of the block
- *        and must ensure it remains valid until StepGenerator_IsBusy()
- *        returns false.
+ * @brief Loads a move block and starts execution. Returns immediately.
+ *        The caller retains ownership of the block and must ensure it
+ *        remains valid until StepGenerator_IsBusy() returns false.
  *
- * @param block  Pointer to a MoveBlock_t produced by
- * StepGenerator_GenerateBlock().
+ * @param block  Pointer to a MoveBlock_t from StepGenerator_GenerateBlock().
+ * @return true   Move accepted and started.
+ * @return false  Rejected — a move is already in progress.
  */
-void StepGenerator_StartMove(const MoveBlock_t* block);
+bool StepGenerator_StartMove(const MoveBlock_t* block);
 
 /**
  * @brief Returns whether a move is currently in progress.

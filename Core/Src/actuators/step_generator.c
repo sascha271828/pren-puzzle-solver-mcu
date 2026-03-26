@@ -22,7 +22,8 @@ typedef struct {
   volatile uint32_t step_index;
   volatile uint32_t current_interval;
   volatile uint32_t next_step_tick;
-  uint32_t steps_minor;
+  volatile uint32_t steps_minor;
+  volatile uint32_t tick;
 } MoveExec_t;
 
 static MoveExec_t current_block;
@@ -37,13 +38,13 @@ void StepGenerator_Init(Stepper_t* mx, Stepper_t* my) {
 
 MoveBlock_t StepGenerator_GenerateBlock(int32_t steps_x, int32_t steps_y) {
   bool x_dom = (abs(steps_x)) > abs(steps_y);
-  uint32_t path_steps_int = x_dom ? abs(steps_x) : abs(steps_y);
+  uint32_t path_steps_uint = x_dom ? abs(steps_x) : abs(steps_y);
 
   uint32_t accel_steps = ACCEL_STEPS_IDEAL;
 
   /* trapezoid or triangle profile */
-  if (2 * ACCEL_STEPS_IDEAL >= path_steps_int) {
-    accel_steps = path_steps_int / 2; /* distance to short */
+  if (2 * ACCEL_STEPS_IDEAL >= path_steps_uint) {
+    accel_steps = path_steps_uint / 2; /* distance to short */
   }
 
   interval_table_t table;
@@ -60,17 +61,20 @@ MoveBlock_t StepGenerator_GenerateBlock(int32_t steps_x, int32_t steps_y) {
   MoveBlock_t newBlock = { .steps_x = steps_x,
                            .steps_y = steps_y,
                            .accel_until = accel_steps,
-                           .decel_at = path_steps_int - accel_steps,
+                           .decel_at = path_steps_uint - accel_steps,
                            .cruise_interval = CRUISE_INTERVAL,
                            .initial_interval = table.interval[0],
-                           .path_steps = path_steps_int,
+                           .path_steps = path_steps_uint,
                            .interval_table = table,
                            .table_len = table_len,
                            .x_dominant = x_dom };
   return newBlock;
 }
 
-void StepGenerator_StartMove(const MoveBlock_t* block) {
+bool StepGenerator_StartMove(const MoveBlock_t* block) {
+  if (StepGenerator_IsBusy()) {
+    return false;
+  }
   current_block.block = block;
   current_block.current_interval = block->initial_interval;
   current_block.dda_counter = 0;
@@ -78,8 +82,14 @@ void StepGenerator_StartMove(const MoveBlock_t* block) {
   current_block.step_index = 0;
   current_block.steps_minor =
       block->x_dominant ? abs(block->steps_x) : abs(block->steps_y);
-  system_tick = 0;
+  current_block.tick = 0;
+
+  /* direction */
+  Stepper_SetDirection(motor_x, (current_block.block->steps_x > 0));
+  Stepper_SetDirection(motor_y, (current_block.block->steps_y > 0));
+
   HAL_TIM_Base_Start_IT(&htim2);
+  return true;
 }
 
 void StepGenerator_Update(void) {
@@ -91,9 +101,10 @@ void StepGenerator_Update(void) {
   if (motor_y->pulse_active) {
     Stepper_ClearStep(motor_y);
   }
+  current_block.tick++;
 
   /* Decide with which axis to step */
-  if (system_tick >= current_block.next_step_tick) {
+  if (current_block.tick >= current_block.next_step_tick) {
     current_block.dda_counter += current_block.steps_minor;
 
     /* step */
@@ -133,10 +144,11 @@ void StepGenerator_Update(void) {
   }
   if (current_block.step_index >= current_block.block->path_steps) {
     current_block.block = NULL;
-    HAL_TIM_Base_Stop_IT(&htim2);
     Stepper_ClearStep(motor_x);
     Stepper_ClearStep(motor_y);
   }
 }
 
 bool StepGenerator_IsBusy(void) { return (current_block.block != NULL); }
+
+/* TODO extern  HAL_TIM_Base_Stop_IT(&htim2); */
