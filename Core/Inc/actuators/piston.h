@@ -22,13 +22,12 @@
  *
  * Typical usage:
  * @code
- *   Piston_t p = { .piston_1_extend = ..., .piston_1_retract = ... };
- *   Piston_Init(&p);
+ *   Piston_Init(piston_1_extend, piston_1_retract);
  *
  *   // kick off a move
- *   if (Piston_Set(&p, PISTON_POS_GRAB) == PISTON_BUSY) {
- *     while (Piston_IsBusy(&p)) {
- *       Piston_Update(&p);   // or let ISR handle this
+ *   if (Piston_Set(PISTON_POS_GRAB) == PISTON_BUSY) {
+ *     while (Piston_IsBusy()) {
+ *       Piston_Update();   // or let ISR handle this
  *     }
  *   }
  * @endcode
@@ -123,44 +122,35 @@ typedef enum {
   PISTON_ERR_INVALID_TRANSITION,
 } PistonResult_e;
 
-/**
- * @brief Initialises the piston and drives all coil pins low.
- *        Must be called once before any other function.
- *        Sets physical = UNKNOWN, logical = UNKNOWN.
- *
- * @param self  Pointer to a Piston_t with GPIO pin fields populated.
- */
-void Piston_Init(Piston_t* self);
+void Piston_Init(GPIO_Pin_t pin_extend, GPIO_Pin_t pin_retract);
+
 
 /**
  * @brief Requests a move to a new logical position.
  *        Validates the transition, starts the move, and returns immediately.
  *
- * @param self        Pointer to the piston instance.
  * @param target_pos  Desired logical position.
  * @return PISTON_OK                   if already at target.
  * @return PISTON_BUSY                 if move was successfully started.
  * @return PISTON_ERR_BUSY             if a move is already in progress.
  * @return PISTON_ERR_INVALID_TRANSITION if the requested transition is illegal.
  */
-PistonResult_e Piston_Set(Piston_t* self, PistonLogical_e target_pos);
+PistonResult_e Piston_Set( PistonLogical_e target_pos);
 
 /**
  * @brief Immediately de-energises all coils and marks state as UNKNOWN.
  *        Safe to call at any time, including mid-move.
  *
- * @param self  Pointer to the piston instance.
  */
-void PistonAbort(Piston_t* self);
+void PistonAbort(void);
 
 /**
  * @brief Returns whether a move is currently in progress.
  *
- * @param self  Pointer to the piston instance.
  * @return true   Piston is moving; do not call Piston_Set().
  * @return false  Piston is idle.
  */
-bool Piston_IsBusy(Piston_t* self);
+bool Piston_IsBusy(void);
 
 /**
  * @brief Advances the piston state machine. Must be called periodically
@@ -169,8 +159,7 @@ bool Piston_IsBusy(Piston_t* self);
  * Checks limit switches (if enabled) and the move timeout.
  * On completion, updates logical and physical state and de-energises coils.
  *
- * @param self  Pointer to the piston instance.
  */
-void Piston_Update(Piston_t* self);
+void Piston_Update(void);
 
 #endif /* __PISTON_H__ */

@@ -4,6 +4,7 @@
 
 #include "command_dispatcher.h"
 #include "piston.h"
+#include "rotator.h"
 #include "step_generator.h"
 #include "sys_config.h"
 #include "sys_init.h"
@@ -34,39 +35,8 @@ void App_Run(void) {
     }
     HAL_Delay(20000);
   }
-
 #endif
 #if TEST_PISTON
-  HAL_Delay(500);
-  Piston_t* piston = Sys_GetPiston();
-
-  // Drive to a known start state first
-  Piston_Set(piston, PISTON_POS_START);
-  HAL_Delay(1000);
-
-  for (;;) {
-    PistonResult_e r;
-
-    r = Piston_Set(piston, PISTON_POS_MOVE);
-    // assert(r == PISTON_OK);
-    HAL_Delay(1000);
-
-    r = Piston_Set(piston, PISTON_POS_GRAB);
-    // assert(r == PISTON_OK);
-    HAL_Delay(1000);
-
-    r = Piston_Set(piston, PISTON_POS_MOVE);  // GRAB → MOVE (defined)
-    // assert(r == PISTON_OK);
-    HAL_Delay(1000);
-
-    r = Piston_Set(piston, PISTON_POS_RELEASE);
-    // assert(r == PISTON_OK);
-    HAL_Delay(1000);
-
-    r = Piston_Set(piston, PISTON_POS_MOVE);  // RELEASE → MOVE (defined)
-    // assert(r == PISTON_OK);
-    HAL_Delay(1000);
-  }
 #endif
 }
 
@@ -74,6 +44,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
   if (htim->Instance == TIM2) {
     system_tick++;
     StepGenerator_Update();
+    Rotator_Update();
+    Piston_Update();
   }
 }
 

@@ -25,9 +25,9 @@
  * @brief Initialises the magnet driver with the GPIO pin to control.
  *        Must be called before Magnet_Grab() or Magnet_GetState().
  *
- * @param pin  Pointer to a GPIO_Pin_t describing the output pin.
+ * @param pin  GPIO_Pin_t of the output pin.
  */
-void Magnet_Init(GPIO_Pin_t* pin);
+void Magnet_Init(GPIO_Pin_t pin);
 
 /**
  * @brief Engages or releases the magnet.

@@ -6,7 +6,6 @@
 #include "sys_config.h"
 #include "uart_receiver.h"
 
-
 #define SYS_PISTON_SENSOR
 
 /**
@@ -15,7 +14,6 @@
  */
 void Sys_Init(void);
 
-Piston_t* Sys_GetPiston(void);
 UartReceiver_t* Sys_GetUartReceiver(void);
 CommandDispatcher_t* Sys_GetCommandDispatcher(void);
 
