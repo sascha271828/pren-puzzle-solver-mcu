@@ -23,14 +23,10 @@
  *
  * @param dispatcher Pointer to the command dispatcher handling incoming PC
  * data.
- * @param piston     Pointer to the piston (Z-axis) driver.
  * @param magnet     Pointer to the electromagnet driver.
- * @param rotator    Pointer to the rotational stepper driver.
  */
 void StateMachine_Init(CommandDispatcher_t* dispatcher,
-                       Piston_t* piston,
-                       Magnet_t* magnet,
-                       Rotator_t* rotator);
+                       Magnet_t* magnet);
 
 /**
  * @brief Main update routine of the state machine.

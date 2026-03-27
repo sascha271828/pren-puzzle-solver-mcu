@@ -32,7 +32,8 @@ static uint8_t current_piece_idx;
 static MoveBlock_t active_xy_move;
 static RotateBlock_t active_rot_move;
 
-void StateMachine_Init(CommandDispatcher_t* dispatcher, Magnet_t* magnet) {
+void StateMachine_Init(CommandDispatcher_t* dispatcher,
+                       Magnet_t* magnet) {
   sm_dispatcher = dispatcher;
   sm_magnet = magnet;
 

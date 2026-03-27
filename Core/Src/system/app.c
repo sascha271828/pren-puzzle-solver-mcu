@@ -42,7 +42,7 @@ void App_Run(void) {
   Magnet_t* magnet = Sys_GetMagnet();
   Rotator_t* rotator = Sys_GetRotator();
 
-  StateMachine_Init(dispatcher, piston, magnet, rotator);
+  StateMachine_Init(dispatcher, magnet);
 
   Piston_Set(piston, PISTON_POS_START);
   Magnet_SetState(magnet, false);
