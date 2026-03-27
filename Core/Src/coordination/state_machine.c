@@ -59,7 +59,9 @@ void StateMachine_Update(void) {
 
     case SM_CALC_TO_PICK: {
       piece = &current_puzzle.pieces[current_piece_idx];
-      active_move = MotionPlanner_PlanMoveToMM(piece->pick_x, piece->pick_y);
+
+      active_move =
+          MotionPlanner_PlanMoveToPickMM(piece->pick_x, piece->pick_y);
       StepGenerator_StartMove(&active_move);
 
       current_state = SM_MOVE_TO_PICK;
@@ -88,7 +90,9 @@ void StateMachine_Update(void) {
     case SM_LIFT_PIECE:
       if (!piston_moving) {
         piece = &current_puzzle.pieces[current_piece_idx];
-        active_move = MotionPlanner_PlanMoveToMM(piece->place_x, piece->place_y);
+
+        active_move =
+            MotionPlanner_PlanMoveToPlaceMM(piece->place_x, piece->place_y);
         StepGenerator_StartMove(&active_move);
 
         current_state = SM_MOVE_TO_PLACE;
