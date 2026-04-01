@@ -11,7 +11,7 @@
  *        Size is fixed at MAX_ACCEL_STEPS (defined in sys_config.h).
  */
 typedef struct {
-  uint32_t interval[MAX_ACCEL_STEPS];
+  uint32_t interval[AXIS_ACCEL_STEPS_IDEAL];
 } interval_table_t;
 
 /**

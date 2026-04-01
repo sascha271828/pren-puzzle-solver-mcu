@@ -94,15 +94,16 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_TIM2_Init();
-  MX_UART7_Init();
-  MX_TIM3_Init();
+
+/* MX_UART7_Init();
+  MX_TIM3_Init(); */
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_Base_Init(&htim2);
-  HAL_TIM_Base_Init(&htim3);
+  /*HAL_TIM_Base_Init(&htim3);*/
 
-  HAL_NVIC_SetPriority(UART7_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(UART7_IRQn);
+  /*HAL_NVIC_SetPriority(UART7_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(UART7_IRQn);*/
 
   /* USER CODE END 2 */
 
@@ -175,16 +176,6 @@ void SystemClock_Config(void)
   }
 }
 
-/* USER CODE BEGIN 4 */
-void Start_Piston_Timer(uint32_t delay_ms) {
-  /* Prescale set to 11999 and clock to 120Mhz -> 10kHz tick rate */
-  uint32_t new_arr = (delay_ms * 10) - 1;
-
-  __HAL_TIM_SET_AUTORELOAD(&htim3, new_arr);
-  __HAL_TIM_SET_COUNTER(&htim3, 0);
-  HAL_TIM_Base_Start_IT(&htim3);
-  piston_moving = true;
-}
 /* USER CODE END 4 */
 
 /**

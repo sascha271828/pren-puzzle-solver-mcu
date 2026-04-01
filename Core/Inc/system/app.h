@@ -3,17 +3,10 @@
 
 #include "sys_config.h"
 
-
-/*#include "state_machine.h"*/
-
-
-
-
 /**
  * @brief Runs the application (doesn't return)
- * 
+ *
  */
 void App_Run(void);
-
 
 #endif /* __APP_H__ */

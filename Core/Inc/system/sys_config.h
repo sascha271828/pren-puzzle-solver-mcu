@@ -1,41 +1,73 @@
 #ifndef __SYS_CONFIG_MY_H__
 #define __SYS_CONFIG_MY_H__
 
-/* Stepper */
+/* --- GENERAL DEFINES --- */
+#define TIMER_FREQ_HZ_ACTUATORS (120000UL) /* TODO take from STM32 ? */
 
-#define CONFIG_FOR_ENABLE_DRIVER                                               \
-  (0) /* wheter the ENABLE pins for the stepper drivers are controlled through \
-         software */
-#define CONFIG_FOR_NSLEEP_DRIVER                                               \
-  (0) /* wheter the nSLEEP pins for the stepper drivers are controlled through \
-         software */
-#define CONFIG_STEPPER_MICRO (0)
-#define CONFIG_STEPPER_NFAULT (0)
+/* - STEPPER - */
+#define STEPPER_MICRO_FULL (1)
+#define STEPPER_MICRO_1_16 (16)
+#define STEPPER_MICRO_1_2 (2)
+#define STEPPER_MICRO_1_4 (4)
 
+/* --- SETTINGS - AXIS --- */
+#define CONFIG_AXIS_STEPPER_MICRO (STEPPER_MICRO_1_4)
+#define CONFIG_AXIS_CIRCUMFRANCE_SHAFT_MM (60)
+#define CONFIG_AXIS_MAX_SPEED_MM_S (50)
+#define CONFIG_AXIS_ACCEL_MM_S2 (100)
 
-/* Machine Constants */
+/* -- CALCULAITONS - AXIS -- */
+#define AXIS_STEPS_PER_MM_NUM \
+  (CONFIG_AXIS_STEPPER_MICRO * 200UL) /* numerator */
+#define AXIS_STEPS_PER_MM_DEN \
+  (CONFIG_AXIS_CIRCUMFRANCE_SHAFT_MM) /* denominator */
+/* steps/mm = NUM/DEN, keep as fraction to avoid truncation */
 
-/* stepper */
-#define MAX_ACCEL_STEPS 256
-#define CONFIG_STEPS_PER_MM_X (80.0f)
-#define CONFIG_STEPS_PER_MM_Y (80.0f)
-#define CONFIG_MAX_SPEED_AXIS (100.0f)
-#define CONFIG_ACCEL_AXIS_MM_S2 (500.0f)
-#define TIMER_FREQ_HZ_STEP (120000000UL) /* TODO take from STM32 */
+#define AXIS_MAX_V_STEPS \
+  (CONFIG_AXIS_MAX_SPEED_MM_S * AXIS_STEPS_PER_MM_NUM / AXIS_STEPS_PER_MM_DEN)
 
-/* rotation */
-#define MAX_ACCEL_STEPS_ROT 256
-#define CONFIG_STEPS_PER_01_DEGREE (80.0f)
-#define CONFIG_MAX_SPEED_ROT (100.0f)
-#define CONFIG_ACCEL_AXIS_ROT (500.0f)
+#define AXIS_ACCEL_STEPS_S \
+  (CONFIG_AXIS_ACCEL_MM_S2 * AXIS_STEPS_PER_MM_NUM / AXIS_STEPS_PER_MM_DEN)
+
+#define AXIS_ACCEL_STEPS_IDEAL \
+  ((AXIS_MAX_V_STEPS * AXIS_MAX_V_STEPS) / (2UL * AXIS_ACCEL_STEPS_S))
+
+#define AXIS_CRUISE_INTERVAL (TIMER_FREQ_HZ_ACTUATORS / AXIS_MAX_V_STEPS)
+
+/* --- SETTINGS - ROTATION --- */
+#define CONFIG_ROT_STEPPER_MICRO (STEPPER_MICRO_1_16)
+#define CONFIG_ROT_CIRCUMFRANCE_MM (150)
+#define CONFIG_ROT_MAX_SPEED_MM_S (5)
+#define CONFIG_ROT_ACCEL_MM_S2 (10)
+
+/* CALCULAITONS - ROTATION */
+#define ROT_STEPS_PER_MM_NUM                                           \
+  (CONFIG_ROT_STEPPER_MICRO * 200UL)                      /* numerator \
+                                                           */
+#define ROT_STEPS_PER_MM_DEN (CONFIG_ROT_CIRCUMFRANCE_MM) /* denominator */
+/* steps/mm = NUM/DEN, keep as fraction to avoid truncation */
+
+#define ROT_MAX_V_STEPS \
+  (CONFIG_ROT_MAX_SPEED_MM_S * ROT_STEPS_PER_MM_NUM / ROT_STEPS_PER_MM_DEN)
+
+#define ROT_ACCEL_STEPS_S \
+  (CONFIG_ROT_ACCEL_MM_S2 * ROT_STEPS_PER_MM_NUM / ROT_STEPS_PER_MM_DEN)
+
+#define ROT_ACCEL_STEPS_IDEAL \
+  ((ROT_MAX_V_STEPS * ROT_MAX_V_STEPS) / (2UL * ROT_ACCEL_STEPS_S))
+
+#define ROT_CRUISE_INTERVAL (TIMER_FREQ_HZ_ACTUATORS / ROT_MAX_V_STEPS)
 
 /* piston */
-#define CONFIG_PISTON_HAS_LIMIT_SWITCH \
-  (0) /* whetere the piston has a limit switch */
+#define CONFIG_PISTON_HAS_LIMIT_SWITCH (0)
 #define CONFIG_PISTON_SEPARAT_PINS (0)
 #define CONFIG_PISTON_TIME_START_MOVE_MS (500u)
 #define CONFIG_PISTON_TIME_GRAB_MOVE_MS (500u)
 #define CONFIG_PISTON_TIME_MOVE_RELEASE_MS (500u)
 #define CONFIG_PISTON_TIME_RETRACT_INIT (1000u)
+
+/* --- IMPLEMENTATION CONFIGURATION --- */
+#define CONFIG_FOR_NSLEEP_DRIVER (0)
+#define CONFIG_STEPPER_NFAULT (0)
 
 #endif /* __SYS_CONFIG_H__ */

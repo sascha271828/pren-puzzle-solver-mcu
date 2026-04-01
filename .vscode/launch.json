@@ -24,11 +24,11 @@
                 "interface/stlink.cfg",
                 "target/stm32h7x.cfg"
             ],
-            "serverpath": "${env:OPENOCD_PATH}/openocd",
-            "gdbPath": "${env:ARM_TOOLCHAIN_PATH}/arm-none-eabi-gdb",
+            "serverpath": "/usr/bin/openocd",
+            "gdbPath": "/usr/bin/arm-none-eabi-gdb",
             "svdFile": "${workspaceFolder}/STM32H753xx.svd",
             "runToEntryPoint": "main",
-            "showDevDebugOutput": "none"
+            "showDevDebugOutput": "raw"
         }
     ]
 }

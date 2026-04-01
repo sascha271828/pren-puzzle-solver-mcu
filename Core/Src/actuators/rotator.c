@@ -9,11 +9,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#define V_MAX_STEPS (CONFIG_MAX_SPEED_ROT * CONFIG_STEPS_PER_01_DEGREE)
-#define ACCEL_STEPS_S (CONFIG_ACCEL_AXIS_ROT * CONFIG_STEPS_PER_01_DEGREE)
-#define ACCEL_STEPS_IDEAL ((V_MAX_STEPS * V_MAX_STEPS) / (2 * ACCEL_STEPS_S))
-#define CRUISE_INTERVAL ((uint32_t)(TIMER_FREQ_HZ_STEP / V_MAX_STEPS))
-
 /* runtime */
 typedef struct {
   const RotateBlock_t* block;
@@ -54,7 +49,7 @@ RotateBlock_t Rotator_GenerateBlock(int32_t steps) {
 
   interval_table_rot_t table;
   uint32_t table_len =
-      accel_steps > ACCEL_STEPS_IDEAL ? ACCEL_STEPS_IDEAL : accel_steps;
+      (accel_steps > ACCEL_STEPS_IDEAL) ? ACCEL_STEPS_IDEAL : accel_steps;
 
   float c = TIMER_FREQ_HZ_STEP * sqrtf(2.0 / ACCEL_STEPS_S);
 

@@ -3,6 +3,7 @@
 #include "app.h"
 
 #include "command_dispatcher.h"
+#include "magnet.h"
 #include "piston.h"
 #include "rotator.h"
 #include "step_generator.h"
@@ -13,7 +14,6 @@
 #define TEST_STEPPER (1)
 #define TEST_PISTON ((0) && !TEST_STEPPER)
 
-/*static StateMachine_t* machine;*/
 volatile uint32_t system_tick = 0;
 volatile bool piston_moving = false;
 
@@ -25,18 +25,36 @@ void App_Run(void) {
   MoveBlock_t test_block_positive = StepGenerator_GenerateBlock(5000, 5000);
   MoveBlock_t test_block_negative = StepGenerator_GenerateBlock(-5000, -5000);
   for (;;) {
-    StepGenerator_StartMove(&test_block_positive);
+    bool throw = StepGenerator_StartMove(&test_block_positive);
     while (StepGenerator_IsBusy()) {
     }
     HAL_Delay(5000);
 
-    StepGenerator_StartMove(&test_block_negative);
+    throw = StepGenerator_StartMove(&test_block_negative);
+    if (throw) {
+    }
     while (StepGenerator_IsBusy()) {
     }
-    HAL_Delay(20000);
+    HAL_Delay(5000);
+    /*
+        Magnet_SetState(true);
+        HAL_Delay(500);
+        Magnet_SetState(false);
+        HAL_Delay(500); */
+    /*
+        if (Piston_Set(PISTON_POS_START) == PISTON_BUSY) {
+        }
+
+        HAL_Delay(500);
+        if (Piston_Set(PISTON_POS_GRAB) == PISTON_BUSY) {
+        }
+
+        HAL_Delay(500);
+        if (Piston_Set(PISTON_POS_START) == PISTON_BUSY) {
+        }
+        HAL_Delay(500);
+        */
   }
-#endif
-#if TEST_PISTON
 #endif
 }
 
@@ -49,8 +67,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
   }
 }
 
+/*
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
   if (huart->Instance == UART7) {
     UartReceiver_RxCallback(Sys_GetUartReceiver());
   }
 }
+*/
