@@ -17,7 +17,6 @@ static uint32_t Stepper_ResolutionConversion(StepperMicro_e res) {
   }
 }
 
-
 void Stepper_Init(Stepper_t* self,
                   StepperPin_t pins,
                   StepperMicro_e micro,
@@ -59,11 +58,10 @@ void Stepper_Enable(Stepper_t* self, bool enable) {
                     enable ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
-
 void Stepper_SetMicrostep(Stepper_t* self, StepperMicro_e res) {
   uint32_t micro = Stepper_ResolutionConversion(res);
-  HAL_GPIO_WritePin(self->pins.m1.port,
-                    self->pins.m1.pin,
+  HAL_GPIO_WritePin(self->pins.m0.port,
+                    self->pins.m0.pin,
                     micro & (1 << 0) ? GPIO_PIN_SET : GPIO_PIN_RESET);
 
   HAL_GPIO_WritePin(self->pins.m1.port,
@@ -72,4 +70,3 @@ void Stepper_SetMicrostep(Stepper_t* self, StepperMicro_e res) {
 
   self->current_micro = res;
 }
-

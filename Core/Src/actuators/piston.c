@@ -2,7 +2,7 @@
 
 #include "piston.h"
 
-#define PISTON_TIMEOUT_MS 2000  // safety fallback if no limit switch
+#define PISTON_TIMEOUT_MS 2000  /* safety fallback if no limit switch */
 
 static Piston_t piston;
 
@@ -20,17 +20,18 @@ static void set_retract_pins(GPIO_PinState state) {
       piston.piston_1_retract.port, piston.piston_1_retract.pin, state);
 #if CONFIG_PISTON_SEPARAT_PINS
   HAL_GPIO_WritePin(
-      pisotn.piston_2_retract.port, piston.piston_2_retract.pin, state);
+      piston.piston_2_retract.port, piston.piston_2_retract.pin, state);
 #endif
 }
 
 static void Piston_Stop(void) {
   set_extend_pins(GPIO_PIN_RESET);
   set_retract_pins(GPIO_PIN_RESET);
+  piston.physical = PISTON_STATE_SET;
 }
 
 static void begin_move(PistonPhysical_e direction, uint32_t timeout_ms) {
-  // Cut power to opposite direction first (never energise both)
+  /* Cut power to opposite direction first (never energise both) */
 
   set_extend_pins(GPIO_PIN_RESET);
   set_retract_pins(GPIO_PIN_RESET);
@@ -82,7 +83,6 @@ void Piston_Update(void) {
     Piston_Stop();
     piston.logical = piston.target_logical;
     piston.target_logical = PISTON_STATE_UNKNOWN;
-    piston.target = PISTON_STATE_SET;
   }
 }
 
@@ -153,8 +153,10 @@ PistonResult_e Piston_Set(PistonLogical_e target_pos) {
   return PISTON_BUSY;
 }
 
-void PisotnAbort(void) {
+void PistonAbort(void) {
   set_extend_pins(GPIO_PIN_RESET);
   set_retract_pins(GPIO_PIN_RESET);
   piston.physical = PISTON_STATE_UNKNOWN;
 }
+
+bool Piston_IsBusy(void) { return (piston.physical == PISTON_STATE_MOVING); }
