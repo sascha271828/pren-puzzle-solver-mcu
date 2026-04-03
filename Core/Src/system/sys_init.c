@@ -157,7 +157,7 @@ void Sys_Init(void) {
   Magnet_Init(magnet_pin);
 
   /* --- UART / COMMUNICATION INIT --- */
-  UartReceiver_Init(&uart_receiver, &huart7);
+  UartReceiver_Init(&uart_receiver, &huart5);
   CommandDispatcher_Init(&command_dispatcher, &uart_receiver);
   UartReceiver_Start(&uart_receiver);
 }

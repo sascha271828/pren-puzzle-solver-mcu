@@ -229,5 +229,5 @@ void TIM3_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
-void UART7_IRQHandler(void) { HAL_UART_IRQHandler(&huart7); }
+void UART5_IRQHandler(void) { HAL_UART_IRQHandler(&huart5); }
 /* USER CODE END 1 */

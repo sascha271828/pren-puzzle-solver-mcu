@@ -48,7 +48,7 @@ int HAL_UART_Transmit(UART_HandleTypeDef *huart, const uint8_t *pData,
   return HAL_OK;
 }
 
-#define UART7 7
+#define UART5 5
 
 #include "puzzle.pb.h"
 #include "uart_receiver.h"
@@ -115,7 +115,7 @@ static int test_roundtrip(void) {
   size_t frame_len = 2 + pb_len;
 
   /* 3. Set up the C-side receiver and dispatcher */
-  UART_HandleTypeDef fake_uart = {.Instance = UART7};
+  UART_HandleTypeDef fake_uart = {.Instance = UART5};
   UartReceiver_t rx;
   CommandDispatcher_t disp;
 
@@ -211,7 +211,7 @@ static int test_partial_feed(void) {
   memcpy(frame + 2, pb_buf, pb_len);
   size_t frame_len = 2 + pb_len;
 
-  UART_HandleTypeDef fake_uart = {.Instance = UART7};
+  UART_HandleTypeDef fake_uart = {.Instance = UART5};
   UartReceiver_t rx;
   UartReceiver_Init(&rx, &fake_uart);
   UartReceiver_Start(&rx);
@@ -240,7 +240,7 @@ static int test_partial_feed(void) {
 static int test_back_to_back_frames(void) {
   printf("test_back_to_back_frames: ");
 
-  UART_HandleTypeDef fake_uart = {.Instance = UART7};
+  UART_HandleTypeDef fake_uart = {.Instance = UART5};
   UartReceiver_t rx;
   CommandDispatcher_t disp;
   UartReceiver_Init(&rx, &fake_uart);
