@@ -138,6 +138,15 @@ void Sys_Init(void) {
   Stepper_Enable(&stepper_y, true);
   Stepper_Enable(&stepper_rot, true);
 
+  /* to get the steppers into a set position (block unwanted movement)*/
+  Stepper_SetStep(&stepper_x);
+  Stepper_SetStep(&stepper_y);
+  Stepper_SetStep(&stepper_rot);
+  HAL_Delay(1);
+  Stepper_ClearStep(&stepper_x);
+  Stepper_ClearStep(&stepper_y);
+  Stepper_ClearStep(&stepper_rot);
+
   /* --- PISTON --- */
   GPIO_Pin_t piston_1_extend = {
     .port = DOUT_5_GPIO_Port,
@@ -153,7 +162,24 @@ void Sys_Init(void) {
     .pin = DOUT_1_Pin,
   };
   Piston_Init(piston_1_extend, piston_1_retract);
+  /*  while (true) {
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
+      HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
 
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
+      HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
+
+  HAL_GPIO_WritePin(piston_1_extend.port, piston_1_extend.pin, GPIO_PIN_SET);
+
+  HAL_GPIO_WritePin(
+      piston_1_retract.port, piston_1_retract.pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(
+      piston_1_extend.port, piston_1_extend.pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(
+      piston_1_retract.port, piston_1_retract.pin, GPIO_PIN_RESET);
+      */
+  //}
   /* --- SECOND LAYER --- */
   StepGenerator_Init(&stepper_x, &stepper_y);
   Rotator_Init(&stepper_rot);

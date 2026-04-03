@@ -54,17 +54,17 @@
  * ========================================================================== */
 
 /* --- Settings (edit these) ------------------------------------------------ */
-#define CONFIG_AXIS_STEPS_PER_REV 200UL /* Full steps per revolution   */
-#define CONFIG_AXIS_MICRO STEPPER_MICRO_1_4/* Microstepping divisor (1/4) */
-                                        /* Options: 1, 2, 4, 16       */
+#define CONFIG_AXIS_STEPS_PER_REV 200UL     /* Full steps per revolution   */
+#define CONFIG_AXIS_MICRO STEPPER_MICRO_1_4 /* Microstepping divisor (1/4) */
+                                            /* Options: 1, 2, 4, 16       */
 
 /** Circumference of the drive pulley / shaft [mm].
  *  GT2 belt + 20-tooth pulley → 20 × 2 mm = 40 mm.
  *  Adjust if using a different pulley or leadscrew pitch. */
 #define CONFIG_AXIS_CIRCUMFERENCE_MM 40UL
 
-#define CONFIG_AXIS_MAX_SPEED_MM_S 50UL /* Cruise speed        [mm/s]  */
-#define CONFIG_AXIS_ACCEL_MM_S2 200UL   /* Acceleration        [mm/s²] */
+#define CONFIG_AXIS_MAX_SPEED_MM_S 200UL /* Cruise speed        [mm/s]  */
+#define CONFIG_AXIS_ACCEL_MM_S2 3000UL   /* Acceleration        [mm/s²] */
 
 /* --- Derived: steps/mm (kept as NUM/DEN fraction to avoid truncation) ----- */
 #define AXIS_STEPS_PER_MM_NUM (CONFIG_AXIS_MICRO * CONFIG_AXIS_STEPS_PER_REV)
@@ -100,7 +100,7 @@
  * ========================================================================== */
 
 /* --- Settings (edit these) ------------------------------------------------ */
-#define CONFIG_ROT_STEPS_PER_REV 280UL      /* Full steps per revolution   */
+#define CONFIG_ROT_STEPS_PER_REV 200UL      /* Full steps per revolution   */
 #define CONFIG_ROT_MICRO STEPPER_MICRO_1_16 /* Microstepping divisor (1/16)*/
                                             /* Options: 1, 2, 4, 16       */
 
@@ -108,8 +108,8 @@
  *  Measure the actual travel distance for one full shaft revolution. */
 #define CONFIG_ROT_CIRCUMFERENCE_MM 100UL
 
-#define CONFIG_ROT_MAX_SPEED_MM_S 5UL /* Cruise speed        [mm/s]  */
-#define CONFIG_ROT_ACCEL_MM_S2 10UL   /* Acceleration        [mm/s²] */
+#define CONFIG_ROT_MAX_SPEED_MM_S 50UL /* Cruise speed        [mm/s]  */
+#define CONFIG_ROT_ACCEL_MM_S2 100UL   /* Acceleration        [mm/s²] */
 
 /* --- Derived: steps/mm ---------------------------------------------------- */
 #define ROT_STEPS_PER_MM_NUM (CONFIG_ROT_MICRO * CONFIG_ROT_STEPS_PER_REV)

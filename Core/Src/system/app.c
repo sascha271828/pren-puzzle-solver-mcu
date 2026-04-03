@@ -10,9 +10,9 @@
 #include "sys_init.h"
 
 /* ── Test parameters ────────────────────────────────────────────────────── */
-#define TEST_STEPS_MAJOR 3000
-#define TEST_STEPS_MINOR 1500
-#define TEST_ROT_STEPS 200
+#define TEST_STEPS_MAJOR 2000
+#define TEST_STEPS_MINOR 1000
+#define TEST_ROT_STEPS 1000
 #define TEST_PAUSE_MS 2000
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
@@ -78,33 +78,46 @@ static void test_rotator(void) {
 
 static void test_piston(void) {
   /* START → MOVE → GRAB → MOVE → RELEASE → MOVE → START */
-  Piston_Set(PISTON_POS_START);
-  wait_piston();
-  HAL_Delay(TEST_PAUSE_MS);
 
-  Piston_Set(PISTON_POS_MOVE);
-  wait_piston();
-  HAL_Delay(TEST_PAUSE_MS);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
 
-  Piston_Set(PISTON_POS_GRAB);
-  wait_piston();
   HAL_Delay(TEST_PAUSE_MS);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
 
-  Piston_Set(PISTON_POS_MOVE);
-  wait_piston();
   HAL_Delay(TEST_PAUSE_MS);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
+  /*
+    Piston_Set(PISTON_POS_START);
+    wait_piston();
+    HAL_Delay(TEST_PAUSE_MS);
 
-  Piston_Set(PISTON_POS_RELEASE);
-  wait_piston();
-  HAL_Delay(TEST_PAUSE_MS);
+    Piston_Set(PISTON_POS_MOVE);
+    wait_piston();
+    HAL_Delay(TEST_PAUSE_MS);
 
-  Piston_Set(PISTON_POS_MOVE);
-  wait_piston();
-  HAL_Delay(TEST_PAUSE_MS);
+    Piston_Set(PISTON_POS_GRAB);
+    wait_piston();
+    HAL_Delay(TEST_PAUSE_MS);
 
-  Piston_Set(PISTON_POS_START);
-  wait_piston();
-  HAL_Delay(TEST_PAUSE_MS);
+    Piston_Set(PISTON_POS_MOVE);
+    wait_piston();
+    HAL_Delay(TEST_PAUSE_MS);
+
+    Piston_Set(PISTON_POS_RELEASE);
+    wait_piston();
+    HAL_Delay(TEST_PAUSE_MS);
+
+    Piston_Set(PISTON_POS_MOVE);
+    wait_piston();
+    HAL_Delay(TEST_PAUSE_MS);
+
+    Piston_Set(PISTON_POS_START);
+    wait_piston();
+    HAL_Delay(TEST_PAUSE_MS);
+    */
 }
 
 static void test_magnet(void) {
@@ -124,7 +137,6 @@ void App_Run(void) {
 
   for (;;) {
     test_step_generator();
-    test_rotator();
     test_rotator();
     test_piston();
     test_magnet();
