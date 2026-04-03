@@ -12,7 +12,7 @@
 /* ── Test parameters ────────────────────────────────────────────────────── */
 #define TEST_STEPS_MAJOR 3000
 #define TEST_STEPS_MINOR 1500
-#define TEST_ROT_STEPS 1000
+#define TEST_ROT_STEPS 200
 #define TEST_PAUSE_MS 2000
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
@@ -124,6 +124,7 @@ void App_Run(void) {
 
   for (;;) {
     test_step_generator();
+    test_rotator();
     test_rotator();
     test_piston();
     test_magnet();

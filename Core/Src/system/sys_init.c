@@ -131,9 +131,12 @@ static CommandDispatcher_t command_dispatcher;
 
 void Sys_Init(void) {
   /* --- STEPPER --- */
-  Stepper_Init(&stepper_x, pins_stepper_x, CONFIG_AXIS_STEPPER_MICRO, true);
-  Stepper_Init(&stepper_y, pins_stepper_y, CONFIG_AXIS_STEPPER_MICRO, true);
-  Stepper_Init(&stepper_rot, pins_stepper_rot, CONFIG_ROT_STEPPER_MICRO, true);
+  Stepper_Init(&stepper_x, pins_stepper_x, CONFIG_AXIS_MICRO, true);
+  Stepper_Init(&stepper_y, pins_stepper_y, CONFIG_AXIS_MICRO, true);
+  Stepper_Init(&stepper_rot, pins_stepper_rot, CONFIG_ROT_MICRO, true);
+  Stepper_Enable(&stepper_x, true);
+  Stepper_Enable(&stepper_y, true);
+  Stepper_Enable(&stepper_rot, true);
 
   /* --- PISTON --- */
   GPIO_Pin_t piston_1_extend = {

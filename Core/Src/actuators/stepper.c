@@ -13,7 +13,7 @@ static uint32_t Stepper_ResolutionConversion(StepperMicro_e res) {
     case STEP_1_16:
       return 0b01;
     default:
-      return 0b01;
+      return 0b11;
   }
 }
 
