@@ -158,11 +158,12 @@ void App_Run(void) {
 #else
   /* --- STATE MACHINE MODUS --- */
   CommandDispatcher_t* dispatcher = Sys_GetCommandDispatcher();
+  Magnet_t* magnet = Sys_GetMagnet();
 
-  StateMachine_Init(dispatcher);
+  StateMachine_Init(dispatcher, magnet);
 
   Piston_Set(PISTON_POS_START);
-  Magnet_SetState(false);
+  Magnet_SetState(magnet, false);
 
   for (;;) {
     CommandDispatcher_Poll(dispatcher);

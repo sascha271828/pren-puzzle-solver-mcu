@@ -1,57 +1,79 @@
 #include "state_machine.h"
-
 #include "motion_planner.h"
-#include "piston.h" 
-#include "rotation.h" 
+#include "piston.h"
+#include "rotator.h"
 #include "step_generator.h"
 #include "sys_config.h"
+#include "main.h"
 
+/**
+ * @brief Internal states for the puzzle coordination logic.
+ */
 typedef enum {
-  SM_IDLE,
-  SM_CALC_TO_PICK,
-  SM_MOVE_TO_PICK,
-  SM_LOWER_TO_PICK,
-  SM_GRAB_PIECE,
-  SM_LIFT_PIECE,
-  SM_CALC_TO_PLACE,
-  SM_MOVE_TO_PLACE,
-  SM_LOWER_TO_PLACE,
-  SM_RELEASE_PIECE,
-  SM_LIFT_EMPTY,
-  SM_NEXT_PIECE
+  SM_INIT_HOMING,      /* Start the homing sequence to find the physical zero point */
+  SM_HOMING_BUSY,      /* Wait for endstops to be triggered and stop the motors */
+  SM_IDLE,             /* System is homed and ready to receive commands from the PC */
+  SM_CALC_TO_PICK,     /* Calculate the path and offsets for the pick location */
+  SM_MOVE_TO_PICK,     /* Wait for XY-axes to reach the pick position */
+  SM_LOWER_TO_PICK,    /* Extend the piston towards the puzzle piece */
+  SM_WAIT_MAGNET_ON,   /* Delay to allow the magnetic field to build up */
+  SM_GRAB_PIECE,       /* Command the piston to lift the grabbed piece */
+  SM_LIFT_PIECE,       /* Wait for the piston to finish lifting the piece */
+  SM_CALC_TO_PLACE,    /* Calculate path and rotation for the target place location */
+  SM_MOVE_TO_PLACE,    /* Move XY-axes and rotator simultaneously to the target */
+  SM_LOWER_TO_PLACE,   /* Extend the piston to place the piece on the board */
+  SM_WAIT_MAGNET_OFF,  /* Delay to ensure the piece is fully released */
+  SM_RELEASE_PIECE,    /* Retract the piston after releasing the magnet */
+  SM_LIFT_EMPTY,       /* Wait for the piston to reach move height without a piece */
+  SM_NEXT_PIECE        /* Advance to the next piece or finish the puzzle command */
 } State_e;
 
 static State_e current_state;
-
 static CommandDispatcher_t* sm_dispatcher;
 static Magnet_t* sm_magnet;
-
 static PuzzleCommand current_puzzle;
 static uint8_t current_piece_idx;
+static uint32_t wait_start_tick;
 
-static MoveBlock_t active_xy_move;
-static RotateBlock_t active_rot_move;
-
-void StateMachine_Init(CommandDispatcher_t* dispatcher,
-                       Magnet_t* magnet) {
+void StateMachine_Init(CommandDispatcher_t* dispatcher, Magnet_t* magnet) {
   sm_dispatcher = dispatcher;
   sm_magnet = magnet;
-
-  current_state = SM_IDLE;
+  
+  current_state = SM_INIT_HOMING;
   current_piece_idx = 0;
-
-  MotionPlanner_Init();
 }
 
+/**
+ * @brief Non-blocking state machine update loop.
+ */
 void StateMachine_Update(void) {
   PieceCommand* piece;
+  MoveBlock_t active_xy_move;
+  RotateBlock_t active_rot_move;
 
   switch (current_state) {
+    case SM_INIT_HOMING:
+      active_xy_move = StepGenerator_GenerateBlock(-30000, -30000); 
+      StepGenerator_StartMove(&active_xy_move);
+      current_state = SM_HOMING_BUSY;
+      break;
+
+    case SM_HOMING_BUSY:
+      /**
+       * TODO: Poll endstop GPIOs here. 
+       * Once triggered, call StepGenerator_Stop() and MotionPlanner_Init()
+       * to synchronize the coordinate system.
+       */
+      if (!StepGenerator_IsBusy()) {
+        MotionPlanner_Init(); 
+        current_state = SM_IDLE;
+      }
+      break;
+
     case SM_IDLE:
       if (CommandDispatcher_HasCommand(sm_dispatcher)) {
         current_puzzle = *CommandDispatcher_GetCommand(sm_dispatcher);
         current_piece_idx = 0;
-
         if (current_puzzle.pieces_count > 0) {
           current_state = SM_CALC_TO_PICK;
           CommandDispatcher_SendAck(sm_dispatcher, Status_STATUS_BUSY, 0);
@@ -61,16 +83,13 @@ void StateMachine_Update(void) {
 
     case SM_CALC_TO_PICK:
       piece = &current_puzzle.pieces[current_piece_idx];
-
-      active_xy_move =
-          MotionPlanner_PlanMoveToPickMM(piece->pick_x, piece->pick_y);
+      active_xy_move = MotionPlanner_PlanMoveToPickMM(piece->pick_x, piece->pick_y);
       StepGenerator_StartMove(&active_xy_move);
-
       current_state = SM_MOVE_TO_PICK;
       break;
 
     case SM_MOVE_TO_PICK:
-      if (!StepGenerator_IsBusy() && !Rotator_IsBusy()) {
+      if (!StepGenerator_IsBusy()) {
         Piston_Set(PISTON_POS_GRAB);
         current_state = SM_LOWER_TO_PICK;
       }
@@ -79,6 +98,13 @@ void StateMachine_Update(void) {
     case SM_LOWER_TO_PICK:
       if (!Piston_IsBusy()) {
         Magnet_SetState(sm_magnet, true);
+        wait_start_tick = HAL_GetTick();
+        current_state = SM_WAIT_MAGNET_ON;
+      }
+      break;
+
+    case SM_WAIT_MAGNET_ON:
+      if (HAL_GetTick() - wait_start_tick >= CONFIG_MAGNET_DELAY_MS) {
         current_state = SM_GRAB_PIECE;
       }
       break;
@@ -96,19 +122,14 @@ void StateMachine_Update(void) {
 
     case SM_CALC_TO_PLACE:
       piece = &current_puzzle.pieces[current_piece_idx];
-
-      active_xy_move =
-          MotionPlanner_PlanMoveToPlaceMM(piece->place_x, piece->place_y);
+      active_xy_move = MotionPlanner_PlanMoveToPlaceMM(piece->place_x, piece->place_y);
       StepGenerator_StartMove(&active_xy_move);
 
-      int32_t rot_steps =
-          (int32_t)(piece->rotation * 10.0f) * CONFIG_STEPS_PER_01_DEGREE;
-
+      int32_t rot_steps = (int32_t)(piece->rotation * 10.0f) * CONFIG_STEPS_PER_01_DEGREE;
       if (rot_steps != 0) {
         active_rot_move = Rotator_GenerateBlock(rot_steps);
         Rotator_StartMove(&active_rot_move);
       }
-
       current_state = SM_MOVE_TO_PLACE;
       break;
 
@@ -122,6 +143,13 @@ void StateMachine_Update(void) {
     case SM_LOWER_TO_PLACE:
       if (!Piston_IsBusy()) {
         Magnet_SetState(sm_magnet, false);
+        wait_start_tick = HAL_GetTick();
+        current_state = SM_WAIT_MAGNET_OFF;
+      }
+      break;
+
+    case SM_WAIT_MAGNET_OFF:
+      if (HAL_GetTick() - wait_start_tick >= CONFIG_MAGNET_DELAY_MS) {
         current_state = SM_RELEASE_PIECE;
       }
       break;
@@ -133,24 +161,22 @@ void StateMachine_Update(void) {
 
     case SM_LIFT_EMPTY:
       if (!Piston_IsBusy()) {
-        piece = &current_puzzle.pieces[current_piece_idx];
-        CommandDispatcher_SendAck(
-            sm_dispatcher, Status_STATUS_OK, piece->piece_id);
-
+        /* Reset rotator to zero position for the next piece */
         Rotator_ReturnStart();
-
         current_state = SM_NEXT_PIECE;
       }
       break;
 
     case SM_NEXT_PIECE:
-      current_piece_idx++;
-
-      if (current_piece_idx < current_puzzle.pieces_count) {
-        current_state = SM_CALC_TO_PICK;
-      } else {
-        CommandDispatcher_SendAck(sm_dispatcher, Status_STATUS_DONE, 0);
-        current_state = SM_IDLE;
+      if (!Rotator_IsBusy()) {
+        current_piece_idx++;
+        if (current_piece_idx < current_puzzle.pieces_count) {
+          current_state = SM_CALC_TO_PICK;
+        } else {
+          /* Entire puzzle command completed */
+          CommandDispatcher_SendAck(sm_dispatcher, Status_STATUS_DONE, 0);
+          current_state = SM_IDLE;
+        }
       }
       break;
   }

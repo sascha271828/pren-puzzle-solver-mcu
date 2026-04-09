@@ -6,6 +6,9 @@
 #include "piston.h"
 #include "rotator.h"
 
+struct Magnet;
+typedef struct Magnet Magnet_t;
+
 /**
  * @file state_machine.h
  * @brief Non-blocking state machine orchestrating the puzzle-solving workflow.
