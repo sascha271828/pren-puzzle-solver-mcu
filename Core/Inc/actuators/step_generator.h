@@ -11,7 +11,7 @@
  *        Size is fixed at MAX_ACCEL_STEPS (defined in sys_config.h).
  */
 typedef struct {
-  uint32_t interval[MAX_ACCEL_STEPS];
+  uint32_t interval[AXIS_ACCEL_STEPS_IDEAL];
 } interval_table_t;
 
 /**
@@ -38,7 +38,6 @@ typedef struct {
   uint32_t accel_until;      /**< Step index where acceleration phase ends  */
   uint32_t decel_at;         /**< Step index where deceleration phase begins*/
   uint32_t cruise_interval;  /**< Constant ISR-tick interval during cruise  */
-  uint32_t initial_interval; /**< ISR-tick interval for the very first step */
   uint32_t path_steps;       /**< Total steps along the dominant axis       */
   interval_table_t interval_table; /**< Precomputed ramp intervals           */
   uint32_t table_len; /**< Number of valid entries in interval_table */

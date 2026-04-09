@@ -6,17 +6,12 @@
 
 #include <stdbool.h>
 
-#define STEPPER_MICRO_FULL (0)
-#define STEPPER_MICRO_1_16 (1)
-#define STEPPER_MICRO_1_2 (2)
-#define STEPPER_MICRO_1_4 (3)
-
 /* can be used for microsteps bitwise M1 M0 */
 typedef enum {
   STEP_FULL = STEPPER_MICRO_FULL,
-  STEP_1_16 = STEPPER_MICRO_1_16,
   STEP_1_2 = STEPPER_MICRO_1_2,
-  STEP_1_4 = STEPPER_MICRO_1_4
+  STEP_1_4 = STEPPER_MICRO_1_4,
+  STEP_1_16 = STEPPER_MICRO_1_16,
 } StepperMicro_e;
 
 typedef enum {
@@ -27,9 +22,7 @@ typedef enum {
 } StepperState_e;
 
 typedef struct {
-#if CONFIG_FOR_ENABLE_DRIVER
   GPIO_Pin_t enable;
-#endif
 #if CONFIG_FOR_NSLEEP_DRIVER
   GPIO_Pin_t nsleep;
 #endif
@@ -50,13 +43,8 @@ typedef struct {
 
   volatile StepperState_e state;
   volatile int32_t current_position;
-#if CONFIG_STEPPER_MICRO
   volatile StepperMicro_e current_micro;
-#endif
-#if CONFIG_FOR_ENABLE_DRIVER
   volatile bool is_enabled;
-#endif
-
   volatile bool direction;
   volatile bool is_homed;
   volatile bool pulse_active;
@@ -66,15 +54,13 @@ typedef struct {
 } Stepper_t;
 
 /*  METHODS */
-void Stepper_Init(Stepper_t *self, StepperPin_t pins);
-void Stepper_SetDirection(Stepper_t *self, bool dir);
-void Stepper_SetStep(Stepper_t *self);
-void Stepper_ClearStep(Stepper_t *self);
-#if CONFIG_FOR_ENABLE_DRIVER
-void Stepper_Enable(Stepper_t *self, bool enable);
-#endif
-#if CONFIG_STEPPER_MICRO
-  void Stepper_SetMicrostep(Stepper_t *self, StepperMicro_e resolution);
-#endif
-
+void Stepper_Init(Stepper_t* self,
+                  StepperPin_t pins,
+                  StepperMicro_e micro,
+                  bool enable);
+void Stepper_SetDirection(Stepper_t* self, bool dir);
+void Stepper_SetStep(Stepper_t* self);
+void Stepper_ClearStep(Stepper_t* self);
+void Stepper_SetMicrostep(Stepper_t* self, StepperMicro_e res);
+void Stepper_Enable(Stepper_t* self, bool enable);
 #endif /* __STEPPER_H__ */
