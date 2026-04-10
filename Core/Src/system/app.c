@@ -2,12 +2,17 @@
 
 #include "app.h"
 
+#include "limit_switch.h"
 #include "magnet.h"
 #include "piston.h"
 #include "rotator.h"
 #include "step_generator.h"
 #include "sys_config.h"
 #include "sys_init.h"
+
+#if AFTER_PRESENTATION
+extern bool homing;
+#endif
 
 /* ── Test parameters ────────────────────────────────────────────────────── */
 #define TEST_STEPS_MAJOR 2000
@@ -131,16 +136,90 @@ static void test_magnet(void) {
   HAL_Delay(TEST_PAUSE_MS);
 }
 
+static void move_a(void) {
+  MoveBlock_t fwd =
+      StepGenerator_GenerateBlock(TEST_STEPS_MAJOR, TEST_STEPS_MINOR);
+  StepGenerator_StartMove(&fwd);
+  wait_step_generator();
+}
+
+static void move_b(void) {
+  MoveBlock_t rev =
+      StepGenerator_GenerateBlock(-TEST_STEPS_MAJOR, -TEST_STEPS_MINOR);
+  StepGenerator_StartMove(&rev);
+  wait_step_generator();
+}
+
+static void grab(bool n) {
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
+
+  HAL_Delay(TEST_PAUSE_MS);
+  Magnet_SetState(n);
+
+  HAL_Delay(TEST_PAUSE_MS);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
+
+  HAL_Delay(TEST_PAUSE_MS);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
+}
+
+#define FANCY (1)
+
+static void test_travel(void) {
+#if FANCY
+  MoveBlock_t mv1 =
+      StepGenerator_GenerateBlock(TEST_STEPS_MAJOR, 2 * TEST_STEPS_MAJOR);
+  MoveBlock_t mv2 = StepGenerator_GenerateBlock(-TEST_STEPS_MAJOR, 0);
+  MoveBlock_t mv3 = StepGenerator_GenerateBlock(0, -(2 * TEST_STEPS_MAJOR));
+  StepGenerator_StartMove(&mv1);
+  wait_step_generator();
+  HAL_Delay(TEST_PAUSE_MS);
+#endif
+
+  test_rotator();
+
+#if FANCY
+  StepGenerator_StartMove(&mv2);
+  wait_step_generator();
+  HAL_Delay(TEST_PAUSE_MS);
+  StepGenerator_StartMove(&mv3);
+  wait_step_generator();
+  HAL_Delay(TEST_PAUSE_MS);
+#endif
+}
+
+static void test_move(void) {
+  grab(true);
+  move_a();
+  HAL_Delay(TEST_PAUSE_MS);
+  grab(false);
+  move_b();
+  HAL_Delay(TEST_PAUSE_MS);
+
+  test_travel();
+
+  move_a();
+  HAL_Delay(TEST_PAUSE_MS);
+  grab(true);
+  move_b();
+  HAL_Delay(TEST_PAUSE_MS);
+  grab(false);
+}
+
 /* ── Entry point ─────────────────────────────────────────────────────────── */
 void App_Run(void) {
   HAL_Delay(500); /* let peripherals settle */
 
   for (;;) {
-    test_step_generator();
+    /*test_step_generator();
     test_rotator();
     test_piston();
-    test_magnet();
+    test_magnet();*/
 
+    test_move();
     HAL_Delay(TEST_PAUSE_MS);
   }
 }
@@ -151,5 +230,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
     StepGenerator_Update();
     Rotator_Update();
     Piston_Update();
+#if AFTER_PRESENTATION
+    uint32_t limit = LimitSwitch_Activated();
+    if (limit > 0) {
+      /* TODO: handle limit switch */
+      if (homing) {
+      } else {
+        StepGenerator_Abort();
+      }
+    }
+
+#endif
   }
 }

@@ -46,10 +46,13 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
     Core/Src/actuators/piston.c
+    Core/Src/actuators/emergency_stop.c
     Core/Src/actuators/magnet.c
     Core/Src/actuators/rotator.c
     Core/Src/actuators/step_generator.c
     Core/Src/actuators/stepper.c
+    Core/Src/actuators/homer.c
+    Core/Src/actuators/limit_switch.c
     Core/Src/communication/package.c
     Core/Src/communication/puzzle.pb.c
     Core/Src/communication/uart_receiver.c

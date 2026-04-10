@@ -88,7 +88,7 @@ void StepGenerator_Update(void) {
   if (current_block.block == NULL) return;
 
   /* clear prior steps */
-  if (motor_x->pulse_active) {
+  if (motor_x->pulse_active) { /* TODO: remove condition because not needed */
     Stepper_ClearStep(motor_x);
   }
   if (motor_y->pulse_active) {
@@ -152,5 +152,12 @@ void StepGenerator_Update(void) {
 }
 
 bool StepGenerator_IsBusy(void) { return (current_block.block != NULL); }
+
+void StepGenerator_Abort(void) {
+  Stepper_ClearStep(motor_x);
+  Stepper_ClearStep(motor_y);
+
+  current_block.block = NULL;
+}
 
 /* TODO extern  HAL_TIM_Base_Stop_IT(&htim2); */

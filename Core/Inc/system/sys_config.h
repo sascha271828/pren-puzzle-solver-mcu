@@ -1,6 +1,9 @@
 #ifndef __SYS_CONFIG_MY_H__
 #define __SYS_CONFIG_MY_H__
 
+#define AFTER_PRESENTATION (0)
+#define HOMER_HOMING_STEPS (5000)
+
 /* ============================================================================
  * sys_config.h — PuzzleSolver_MCU system configuration
  *

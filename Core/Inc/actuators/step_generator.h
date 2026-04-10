@@ -33,12 +33,12 @@ typedef struct {
  *   0  ^accel_until  ^decel_at  ^path_steps
  */
 typedef struct {
-  int32_t steps_x;           /**< Signed step count for X axis              */
-  int32_t steps_y;           /**< Signed step count for Y axis              */
-  uint32_t accel_until;      /**< Step index where acceleration phase ends  */
-  uint32_t decel_at;         /**< Step index where deceleration phase begins*/
-  uint32_t cruise_interval;  /**< Constant ISR-tick interval during cruise  */
-  uint32_t path_steps;       /**< Total steps along the dominant axis       */
+  int32_t steps_x;          /**< Signed step count for X axis              */
+  int32_t steps_y;          /**< Signed step count for Y axis              */
+  uint32_t accel_until;     /**< Step index where acceleration phase ends  */
+  uint32_t decel_at;        /**< Step index where deceleration phase begins*/
+  uint32_t cruise_interval; /**< Constant ISR-tick interval during cruise  */
+  uint32_t path_steps;      /**< Total steps along the dominant axis       */
   interval_table_t interval_table; /**< Precomputed ramp intervals           */
   uint32_t table_len; /**< Number of valid entries in interval_table */
   bool x_dominant;    /**< True if X axis drives the DDA             */
@@ -96,5 +96,7 @@ bool StepGenerator_IsBusy(void);
  * @note  Not to be called from any other context.
  */
 void StepGenerator_Update(void);
+
+void StepGenerator_Abort(void);
 
 #endif /* __STEP_GENERATOR_H__ */

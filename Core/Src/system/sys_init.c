@@ -3,6 +3,7 @@
 #include "sys_init.h"
 
 #include "command_dispatcher.h"
+#include "limit_switch.h"
 #include "magnet.h"
 #include "motion_planner.h"
 #include "rotator.h"
@@ -162,24 +163,16 @@ void Sys_Init(void) {
     .pin = DOUT_1_Pin,
   };
   Piston_Init(piston_1_extend, piston_1_retract);
-  /*  while (true) {
-      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
-      HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
-      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
 
-      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
-      HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
+#if AFTER_PRESENTATION
+  GPIO_Pin_t lim_x_min = { .port = DIN_1_GPIO_Port, .pin = DIN_1_Pin };
+  GPIO_Pin_t lim_x_max = { .port = DIN_2_GPIO_Port, .pin = DIN_2_Pin };
+  GPIO_Pin_t lim_y_min = { .port = DIN_3_GPIO_Port, .pin = DIN_3_Pin };
+  GPIO_Pin_t lim_y_max = { .port = DIN_4_GPIO_Port, .pin = DIN_4_Pin };
 
-  HAL_GPIO_WritePin(piston_1_extend.port, piston_1_extend.pin, GPIO_PIN_SET);
+  LimitSwitch_Init(lim_x_min, lim_x_max, lim_y_min, lim_y_max);
+#endif
 
-  HAL_GPIO_WritePin(
-      piston_1_retract.port, piston_1_retract.pin, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(
-      piston_1_extend.port, piston_1_extend.pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(
-      piston_1_retract.port, piston_1_retract.pin, GPIO_PIN_RESET);
-      */
-  //}
   /* --- SECOND LAYER --- */
   StepGenerator_Init(&stepper_x, &stepper_y);
   Rotator_Init(&stepper_rot);
