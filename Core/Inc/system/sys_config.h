@@ -1,6 +1,9 @@
 #ifndef __SYS_CONFIG_MY_H__
 #define __SYS_CONFIG_MY_H__
 
+
+
+
 /* ============================================================================
  * sys_config.h — PuzzleSolver_MCU system configuration
  *
@@ -12,6 +15,9 @@
  * Axis (X/Y) : NEMA 17, 200 steps/rev, GT2 belt + 20-tooth pulley (40 mm circ)
  * Rotation   : NEMA 11, 200 steps/rev, direct drive or belt
  * ========================================================================== */
+
+
+#define BIT(n) (1u << (n))
 
 /* ============================================================================
  * TIMER

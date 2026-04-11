@@ -7,11 +7,11 @@
 
 typedef enum {
   HS_UNINITIADED = 0,
-  HS_COARSE = (1 << 0),
-  HS_BACKOFF = (1 << 1),
-  HS_FINE = (1 << 2),
-  HS_DONE = (1 << 3),
-  HS_IDLE = (1 << 4)
+  HS_COARSE = BIT(0),
+  HS_BACKOFF = BIT(1),
+  HS_FINE = BIT(2),
+  HS_DONE = BIT(3),
+  HS_IDLE = BIT(4)
 } Homer_States_t;
 
 /* TODO: homing watchdog ??

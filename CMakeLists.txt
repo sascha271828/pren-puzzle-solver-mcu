@@ -48,7 +48,6 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/actuators/piston.c
     Core/Src/actuators/emergency_stop.c
     Core/Src/actuators/buttons.c
-    Core/Src/actuators/interrupt.c
     Core/Src/actuators/magnet.c
     Core/Src/actuators/rotator.c
     Core/Src/actuators/step_generator.c
@@ -65,6 +64,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/coordination/motion_planner.c
     Core/Src/system/app.c
     Core/Src/system/sys_init.c
+    Core/Src/system/interrupt.c
 )
 
 # Add include paths

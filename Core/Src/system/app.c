@@ -38,6 +38,8 @@ void App_Run(void) {
 
 /* ── ISR ───────────────────────────────────────────────────────────────────
  */
+
+/* TODO: vlt. längsämeres Polling für gewisse Teile? */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
   if (htim->Instance == TIM2) {
     EmergencyStop_Process(); /* check if emergency pressed -- if pressed,

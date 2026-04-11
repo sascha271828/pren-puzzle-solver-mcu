@@ -3,6 +3,7 @@
 #include "sys_init.h"
 
 #include "command_dispatcher.h"
+#include "homer.h"
 #include "limit_switch.h"
 #include "magnet.h"
 #include "motion_planner.h"
@@ -12,6 +13,7 @@
 #include "uart_receiver.h"
 #include "usart.h"
 #include "utils.h"
+#include "interrupt.h"
 
 #include <stddef.h>
 
@@ -128,6 +130,9 @@ static CommandDispatcher_t command_dispatcher;
 /* clang-format on */
 
 void Sys_Init(void) {
+
+  Interrupt_Init();
+
   /* --- STEPPER --- */
   Stepper_Init(&stepper_x, pins_stepper_x, CONFIG_AXIS_MICRO, true);
   Stepper_Init(&stepper_y, pins_stepper_y, CONFIG_AXIS_MICRO, true);
@@ -168,10 +173,12 @@ void Sys_Init(void) {
 
   LimitSwitch_Init(lim_x_min, lim_x_max, lim_y_min, lim_y_max);
 
+  Homer_Init(&stepper_x, &stepper_y);
   /* --- SECOND LAYER --- */
   StepGenerator_Init(&stepper_x, &stepper_y);
   Rotator_Init(&stepper_rot);
   Magnet_Init(magnet_pin);
+
 
   /* --- UART / COMMUNICATION INIT --- */
   UartReceiver_Init(&uart_receiver, &huart5);
