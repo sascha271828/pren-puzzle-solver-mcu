@@ -2,7 +2,7 @@
 
 #include "piston.h"
 
-#define PISTON_TIMEOUT_MS 2000  /* safety fallback if no limit switch */
+#define PISTON_TIMEOUT_MS 2000 /* safety fallback if no limit switch */
 
 static Piston_t piston;
 
@@ -153,7 +153,7 @@ PistonResult_e Piston_Set(PistonLogical_e target_pos) {
   return PISTON_BUSY;
 }
 
-void PistonAbort(void) {
+void Piston_Abort(void) {
   set_extend_pins(GPIO_PIN_RESET);
   set_retract_pins(GPIO_PIN_RESET);
   piston.physical = PISTON_STATE_UNKNOWN;

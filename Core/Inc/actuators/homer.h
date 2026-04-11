@@ -29,13 +29,18 @@
  *                   /     /      |
  */
 
+#include "stepper.h"
 #include "sys_config.h"
 #include "utils.h"
 
 #include <stdbool.h>
 
+void Homer_Init(Stepper_t* mx, Stepper_t* my);
+
+void Homer_Update(void);
+
 void Homer_HomingStart(void);
 
-bool Homer_HomingDone(void);
+bool Homer_IsDone(void);
 
 #endif /* __HOMER_H__ */

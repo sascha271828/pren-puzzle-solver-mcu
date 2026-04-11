@@ -47,6 +47,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
     Core/Src/actuators/piston.c
     Core/Src/actuators/emergency_stop.c
+    Core/Src/actuators/buttons.c
+    Core/Src/actuators/interrupt.c
     Core/Src/actuators/magnet.c
     Core/Src/actuators/rotator.c
     Core/Src/actuators/step_generator.c

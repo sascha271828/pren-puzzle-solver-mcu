@@ -33,8 +33,6 @@ typedef struct {
   GPIO_Pin_t dir;
   GPIO_Pin_t m0;
   GPIO_Pin_t m1;
-  GPIO_Pin_t limit_switch_min;
-  GPIO_Pin_t limit_switch_max;
 } StepperPin_t;
 
 /*  STEPPER STRUCT  */

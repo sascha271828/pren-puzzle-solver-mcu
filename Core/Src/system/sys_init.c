@@ -16,7 +16,6 @@
 #include <stddef.h>
 
 /* clang-format off */
-/* planer constants */
 
 static Stepper_t stepper_x;
 static Stepper_t stepper_y;
@@ -57,14 +56,6 @@ static StepperPin_t pins_stepper_x = {
     .port = STEPPER_X_M1_GPIO_Port, 
     .pin = STEPPER_X_M1_Pin 
     },
-.limit_switch_min = { 
-    .port = DIN_1_GPIO_Port, 
-    .pin = DIN_1_Pin 
-    },
-  .limit_switch_max = { 
-    .port = DIN_2_GPIO_Port, 
-    .pin = DIN_2_Pin 
-    },
 };
 
 /* motor y-axis */
@@ -92,15 +83,6 @@ static StepperPin_t pins_stepper_y = {
     .port = STEPPER_Y_M1_GPIO_Port, 
     .pin = STEPPER_Y_M1_Pin 
   },
-  .limit_switch_min = { 
-    .port = DIN_3_GPIO_Port, 
-    .pin = DIN_3_Pin 
-    },
-  .limit_switch_max = { 
-    .port = DIN_4_GPIO_Port, 
-    .pin = DIN_4_Pin 
-    },
-
 };
 
 /* motor rotation */
@@ -110,19 +92,34 @@ static const StepperPin_t pins_stepper_rot = {
     .pin = STEPPER_ROT_ENABLE_Pin 
     },
 #if CONFIG_FOR_NSLEEP_DRIVER
-  .nsleep = { .port = STEPPER_ROT_NSLEEP_GPIO_Port,
-              .pin = STEPPER_ROT_NSLEEP_Pin },
+  .nsleep = { 
+    .port = STEPPER_ROT_NSLEEP_GPIO_Port,
+              
+    .pin = STEPPER_ROT_NSLEEP_Pin 
+  },
 #endif
 #if CONFIG_FOR_NFAULT_DRIVER
-  .fault = { .port = STEPPER_ROT_NFAULT_GPIO_Port,
-             .pin = STEPPER_ROT_NFAULT_Pin },
+  .fault = { 
+    .port = STEPPER_ROT_NFAULT_GPIO_Port,
+    .pin = STEPPER_ROT_NFAULT_Pin 
+  },
 #endif
-  .step = { .port = STEPPER_ROT_STEP_GPIO_Port, .pin = STEPPER_ROT_STEP_Pin },
-  .dir = { .port = STEPPER_ROT_DIR_GPIO_Port, .pin = STEPPER_ROT_DIR_Pin },
-  .m0 = { .port = STEPPER_ROT_M0_GPIO_Port, .pin = STEPPER_ROT_M0_Pin },
-  .m1 = { .port = STEPPER_ROT_M1_GPIO_Port, .pin = STEPPER_ROT_M1_Pin },
-/*  .limit_switch_min = { .port = TEST_GPIO_GPIO_Port, .pin = TEST_GPIO_Pin },
-  .limit_switch_max = { .port = TEST_GPIO_GPIO_Port, .pin = TEST_GPIO_Pin }*/
+  .step = { 
+    .port = STEPPER_ROT_STEP_GPIO_Port, 
+    .pin = STEPPER_ROT_STEP_Pin 
+    },
+  .dir = { 
+    .port = STEPPER_ROT_DIR_GPIO_Port, 
+    .pin = STEPPER_ROT_DIR_Pin 
+    },
+  .m0 = { 
+    .port = STEPPER_ROT_M0_GPIO_Port, 
+    .pin = STEPPER_ROT_M0_Pin 
+    },
+  .m1 = { 
+    .port = STEPPER_ROT_M1_GPIO_Port, 
+    .pin = STEPPER_ROT_M1_Pin 
+    },
 };
 
 static UartReceiver_t uart_receiver;
@@ -164,14 +161,12 @@ void Sys_Init(void) {
   };
   Piston_Init(piston_1_extend, piston_1_retract);
 
-#if AFTER_PRESENTATION
   GPIO_Pin_t lim_x_min = { .port = DIN_1_GPIO_Port, .pin = DIN_1_Pin };
   GPIO_Pin_t lim_x_max = { .port = DIN_2_GPIO_Port, .pin = DIN_2_Pin };
   GPIO_Pin_t lim_y_min = { .port = DIN_3_GPIO_Port, .pin = DIN_3_Pin };
   GPIO_Pin_t lim_y_max = { .port = DIN_4_GPIO_Port, .pin = DIN_4_Pin };
 
   LimitSwitch_Init(lim_x_min, lim_x_max, lim_y_min, lim_y_max);
-#endif
 
   /* --- SECOND LAYER --- */
   StepGenerator_Init(&stepper_x, &stepper_y);

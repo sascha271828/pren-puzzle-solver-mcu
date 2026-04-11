@@ -3,6 +3,7 @@
 
 #include "sys_config.h"
 #include "utils.h"
+
 #include <stdbool.h>
 
 /**
@@ -85,23 +86,23 @@ typedef enum {
  * ISR context.
  */
 typedef struct {
-  volatile PistonPhysical_e physical;      /**< Current hardware state         */
-  volatile PistonLogical_e  logical;       /**< Last successfully reached pos   */
-  volatile PistonPhysical_e target;        /**< Physical direction of move      */
-  volatile PistonLogical_e  target_logical;/**< Logical goal of current move    */
-  uint32_t move_deadline_tick;             /**< HAL_GetTick() timeout threshold */
+  volatile PistonPhysical_e physical; /**< Current hardware state         */
+  volatile PistonLogical_e logical;   /**< Last successfully reached pos   */
+  volatile PistonPhysical_e target;   /**< Physical direction of move      */
+  volatile PistonLogical_e target_logical; /**< Logical goal of current move */
+  uint32_t move_deadline_tick; /**< HAL_GetTick() timeout threshold */
 
-  GPIO_Pin_t piston_1_extend;              /**< Extend coil output pin          */
-  GPIO_Pin_t piston_1_retract;             /**< Retract coil output pin         */
+  GPIO_Pin_t piston_1_extend;  /**< Extend coil output pin          */
+  GPIO_Pin_t piston_1_retract; /**< Retract coil output pin         */
 
 #if CONFIG_PISTON_SEPARAT_PINS
-  GPIO_Pin_t piston_2_extend;              /**< Second extend coil (optional)   */
-  GPIO_Pin_t piston_2_retract;             /**< Second retract coil (optional)  */
+  GPIO_Pin_t piston_2_extend;  /**< Second extend coil (optional)   */
+  GPIO_Pin_t piston_2_retract; /**< Second retract coil (optional)  */
 #endif
 
 #if CONFIG_PISTON_HAS_LIMIT_SWITCH
-  GPIO_Pin_t limit_switch_extended;        /**< End-stop at full extension      */
-  GPIO_Pin_t limit_switch_retracted;       /**< End-stop at full retraction     */
+  GPIO_Pin_t limit_switch_extended;  /**< End-stop at full extension      */
+  GPIO_Pin_t limit_switch_retracted; /**< End-stop at full retraction     */
 #endif
 } Piston_t;
 
@@ -124,7 +125,6 @@ typedef enum {
 
 void Piston_Init(GPIO_Pin_t pin_extend, GPIO_Pin_t pin_retract);
 
-
 /**
  * @brief Requests a move to a new logical position.
  *        Validates the transition, starts the move, and returns immediately.
@@ -135,14 +135,14 @@ void Piston_Init(GPIO_Pin_t pin_extend, GPIO_Pin_t pin_retract);
  * @return PISTON_ERR_BUSY             if a move is already in progress.
  * @return PISTON_ERR_INVALID_TRANSITION if the requested transition is illegal.
  */
-PistonResult_e Piston_Set( PistonLogical_e target_pos);
+PistonResult_e Piston_Set(PistonLogical_e target_pos);
 
 /**
  * @brief Immediately de-energises all coils and marks state as UNKNOWN.
  *        Safe to call at any time, including mid-move.
  *
  */
-void PistonAbort(void);
+void Piston_Abort(void);
 
 /**
  * @brief Returns whether a move is currently in progress.

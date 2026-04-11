@@ -121,4 +121,6 @@ bool Rotator_IsBusy(void);
  */
 void Rotator_Update(void);
 
+void Rotator_Abort(void);
+
 #endif /* __ROTATION_H__ */

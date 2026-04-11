@@ -1,9 +1,6 @@
 #ifndef __SYS_CONFIG_MY_H__
 #define __SYS_CONFIG_MY_H__
 
-#define AFTER_PRESENTATION (0)
-#define HOMER_HOMING_STEPS (5000)
-
 /* ============================================================================
  * sys_config.h — PuzzleSolver_MCU system configuration
  *
@@ -158,5 +155,33 @@
 #error \
     "ROT_ACCEL_STEPS_IDEAL < 4 — increase ROT_MAX_SPEED or decrease ROT_ACCEL"
 #endif
+
+/* ============================================================================
+ * HOMING
+ * ========================================================================== */
+
+/* Speeds as fraction of cruise speed */
+#define CONFIG_HOMING_COARSE_SPEED_MM_S 20UL  /* fast search          */
+#define CONFIG_HOMING_FINE_SPEED_MM_S 3UL     /* slow precise touch   */
+#define CONFIG_HOMING_BACKOFF_SPEED_MM_S 10UL /* retreat              */
+#define CONFIG_HOMING_BACKOFF_DIST_MM 5UL     /* retreat distance     */
+
+/* Derived: ticks between steps (= ISR interval) */
+#define HOMING_COARSE_INTERVAL                       \
+  (TIMER_FREQ_HZ_ACTUATORS * AXIS_STEPS_PER_MM_DEN / \
+   (CONFIG_HOMING_COARSE_SPEED_MM_S * AXIS_STEPS_PER_MM_NUM))
+
+#define HOMING_FINE_INTERVAL                         \
+  (TIMER_FREQ_HZ_ACTUATORS * AXIS_STEPS_PER_MM_DEN / \
+   (CONFIG_HOMING_FINE_SPEED_MM_S * AXIS_STEPS_PER_MM_NUM))
+
+#define HOMING_BACKOFF_INTERVAL                      \
+  (TIMER_FREQ_HZ_ACTUATORS * AXIS_STEPS_PER_MM_DEN / \
+   (CONFIG_HOMING_BACKOFF_SPEED_MM_S * AXIS_STEPS_PER_MM_NUM))
+
+/* Derived: total ticks for backoff distance */
+#define HOMING_BACKOFF_TICKS                               \
+  (CONFIG_HOMING_BACKOFF_DIST_MM * AXIS_STEPS_PER_MM_NUM / \
+   AXIS_STEPS_PER_MM_DEN * HOMING_BACKOFF_INTERVAL)
 
 #endif /* __SYS_CONFIG_MY_H__ */
