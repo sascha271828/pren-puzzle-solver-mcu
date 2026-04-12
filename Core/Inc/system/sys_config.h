@@ -1,9 +1,6 @@
 #ifndef __SYS_CONFIG_MY_H__
 #define __SYS_CONFIG_MY_H__
 
-
-
-
 /* ============================================================================
  * sys_config.h — PuzzleSolver_MCU system configuration
  *
@@ -16,8 +13,17 @@
  * Rotation   : NEMA 11, 200 steps/rev, direct drive or belt
  * ========================================================================== */
 
-
 #define BIT(n) (1u << (n))
+
+/* ── Run-mode selection ──────────────────────────────────────────────────
+ * Set exactly one of these to select what App_Run() executes.
+ * RUN_MODE_TEST_CLI : interactive UART command interface (development)
+ * RUN_MODE_APP      : production loop driven by CommandDispatcher
+ * ─────────────────────────────────────────────────────────────────────── */
+#define RUN_MODE_TEST_CLI 0
+#define RUN_MODE_APP 1
+
+#define RUN_MODE RUN_MODE_TEST_CLI
 
 /* ============================================================================
  * TIMER

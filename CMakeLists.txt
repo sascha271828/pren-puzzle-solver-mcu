@@ -65,6 +65,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/system/app.c
     Core/Src/system/sys_init.c
     Core/Src/system/interrupt.c
+    Core/Src/tests/test_cli.c
 )
 
 # Add include paths
@@ -74,6 +75,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Inc/communication
     Core/Inc/coordination
     Core/Inc/system
+    Core/Inc/tests
     Core/third_party/nanopb
 )
 

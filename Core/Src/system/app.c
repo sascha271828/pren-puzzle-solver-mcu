@@ -1,9 +1,9 @@
 #include "main.h"
+
 #include "app.h"
-#include "command_dispatcher.h"
-#include "uart_receiver.h"
-#include "state_machine.h"
+
 #include "buttons.h"
+#include "command_dispatcher.h"
 #include "emergency_stop.h"
 #include "homer.h"
 #include "interrupt.h"
@@ -11,87 +11,29 @@
 #include "magnet.h"
 #include "piston.h"
 #include "rotator.h"
+#include "state_machine.h"
 #include "step_generator.h"
 #include "sys_config.h"
 #include "sys_init.h"
+#include "uart_receiver.h"
+#include "usart.h"
 
-#define RUN_HARDWARE_TESTS 1
+#if RUN_MODE == RUN_MODE_TEST_CLI
+#include "test_cli.h"
+#endif
 
 volatile uint32_t system_tick = 0;
-
-#if RUN_HARDWARE_TESTS
-
-static void test_piston(void) {
-  /* START → MOVE → GRAB → MOVE → RELEASE → MOVE → START */
-
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
-
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
-  /*
-    Piston_Set(PISTON_POS_START);
-    wait_piston();
-    HAL_Delay(TEST_PAUSE_MS);
-
-    Piston_Set(PISTON_POS_MOVE);
-    wait_piston();
-    HAL_Delay(TEST_PAUSE_MS);
-
-    Piston_Set(PISTON_POS_GRAB);
-    wait_piston();
-    HAL_Delay(TEST_PAUSE_MS);
-
-    Piston_Set(PISTON_POS_MOVE);
-    wait_piston();
-    HAL_Delay(TEST_PAUSE_MS);
-
-    Piston_Set(PISTON_POS_RELEASE);
-    wait_piston();
-    HAL_Delay(TEST_PAUSE_MS);
-
-    Piston_Set(PISTON_POS_MOVE);
-    wait_piston();
-    HAL_Delay(TEST_PAUSE_MS);
-
-    Piston_Set(PISTON_POS_START);
-    wait_piston();
-    HAL_Delay(TEST_PAUSE_MS);
-    */
-}
-
-static void test_magnet(void) {
-  Magnet_SetState(true);
-  HAL_Delay(1000);
-  Magnet_SetState(false);
-  HAL_Delay(1000);
-  Magnet_SetState(true);
-  HAL_Delay(1000);
-  Magnet_SetState(false);
-  HAL_Delay(TEST_PAUSE_MS);
-}
-
-#endif /* RUN_HARDWARE_TESTS */
 
 /* ── Entry point ───────────────────────────────────────────────────────────
  */
 void App_Run(void) {
   HAL_Delay(500); /* let peripherals settle */
 
-#if RUN_HARDWARE_TESTS
-  /* --- TEST MODUS --- */
-  for (;;) {
-    test_step_generator();
-    test_rotator();
-    test_piston();
-    test_magnet();
+#if RUN_MODE == RUN_MODE_TEST_CLI
+  TestCLI_Init(&huart3);
+  TestCLI_Run(); /* never returns */
 
-    HAL_Delay(TEST_PAUSE_MS);
-  }
-#else
+#elif RUN_MODE == RUN_MODE_APP
   /* --- STATE MACHINE MODUS --- */
   CommandDispatcher_t* dispatcher = Sys_GetCommandDispatcher();
   Magnet_t* magnet = Sys_GetMagnet();
@@ -105,8 +47,10 @@ void App_Run(void) {
     CommandDispatcher_Poll(dispatcher);
     StateMachine_Update();
   }
-#endif
 
+#else
+#error "RUN_MODE not defined or unknown — set it in sys_config.h"
+#endif
 }
 
 /* ── ISR ───────────────────────────────────────────────────────────────────
@@ -115,6 +59,7 @@ void App_Run(void) {
 /* TODO: vlt. längsämeres Polling für gewisse Teile? */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
   if (htim->Instance == TIM2) {
+    system_tick++;
     EmergencyStop_Process(); /* check if emergency pressed -- if pressed,
                               g_int_state gets set to IS_ESTOP inside of the
                               function */
@@ -135,7 +80,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
         Magnet_SetState(false);
         StepGenerator_Abort();
         Rotator_Abort();
-        Piston_Abort();
+        Piston_Abort(); /* supposed to fall through */
       case IS_READY:
       case IS_INIT:
       default:

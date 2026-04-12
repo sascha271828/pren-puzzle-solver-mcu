@@ -23,6 +23,7 @@
 #include "tim.h"
 #include "usart.h"
 
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "app.h"
@@ -50,7 +51,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-extern volatile bool piston_moving;
 
 /* USER CODE END PV */
 
@@ -95,6 +95,7 @@ int main(void) {
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_UART5_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
   Sys_Init();
