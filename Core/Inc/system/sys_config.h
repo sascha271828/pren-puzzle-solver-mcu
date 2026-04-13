@@ -178,6 +178,7 @@
 #define CONFIG_HOMING_BACKOFF_SPEED_MM_S 10UL /* retreat              */
 #define CONFIG_HOMING_BACKOFF_DIST_MM 5UL     /* retreat distance     */
 
+
 /* Derived: ticks between steps (= ISR interval) */
 #define HOMING_COARSE_INTERVAL                       \
   (TIMER_FREQ_HZ_ACTUATORS * AXIS_STEPS_PER_MM_DEN / \

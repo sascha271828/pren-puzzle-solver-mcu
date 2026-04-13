@@ -46,7 +46,11 @@
  *  3. **Fine** (HS_FINE): Both axes re-approach the switches slowly
  *     (HOMING_FINE_INTERVAL) for a precise zero reference.  When both
  *     switches are active simultaneously the sequence is complete.
- *
+ * 
+ *  4. **Fine-Bakcoff** (HS_FINE_BACKOFF): Both axes reverse away from
+ *     the swtiches slowly (HOMING_FINE_INTERVAL) for a precise starting
+ *     point away from the limit switches. 
+ * 
  * On completion the system state transitions to IS_READY via
  * Interrupt_SetState().
  *

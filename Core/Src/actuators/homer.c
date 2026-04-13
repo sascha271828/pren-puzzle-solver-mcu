@@ -10,8 +10,9 @@ typedef enum {
   HS_COARSE = BIT(0),
   HS_BACKOFF = BIT(1),
   HS_FINE = BIT(2),
-  HS_DONE = BIT(3),
-  HS_IDLE = BIT(4)
+  HS_FINE_BACKOFF = BIT(3),
+  HS_DONE = BIT(4),
+  HS_IDLE = BIT(5)
 } Homer_States_t;
 
 /* TODO: homing watchdog ??
@@ -141,11 +142,27 @@ void Homer_Update(void) {
           Homer_MoveXFine();
           return;
         case (LIM_X_MIN | LIM_Y_MIN):
-          homer_Phase = HS_DONE;
+          homer_Phase = HS_FINE_BACKOFF;
+          Stepper_SetDirection(motor_x, true);
+          Stepper_SetDirection(motor_y, true);
+          backoff_ticks_remaining = HOMING_BACKOFF_TICKS;
+          Homer_MoveXFine();
+          Homer_MoveYFine();
         default:
           return;
       }
       break;
+    case HS_FINE_BACKOFF:
+      Homer_ClearSteps();
+      if (backoff_ticks_remaining == 0) {
+        homer_Phase = HS_DONE;
+       return;
+      } else {
+        backoff_ticks_remaining--;
+        Homer_MoveXFine();
+        Homer_MoveYFine();
+      }
+      return;
     case HS_DONE:
       Homer_ClearSteps();
       homer_Phase = HS_FINE;
