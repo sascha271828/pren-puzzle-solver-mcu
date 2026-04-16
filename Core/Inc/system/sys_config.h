@@ -47,13 +47,42 @@
 /* ============================================================================
  * PISTON
  * ========================================================================== */
-#define CONFIG_PISTON_HAS_LIMIT_SWITCH 0
-#define CONFIG_PISTON_SEPARAT_PINS 0
 
-#define CONFIG_PISTON_TIME_RETRACT_INIT 1000u   /* ms — retract from unknown */
-#define CONFIG_PISTON_TIME_START_MOVE_MS 500u   /* ms — START → MOVE         */
-#define CONFIG_PISTON_TIME_GRAB_MOVE_MS 500u    /* ms — MOVE ↔ GRAB          */
-#define CONFIG_PISTON_TIME_MOVE_RELEASE_MS 500u /* ms — MOVE ↔ RELEASE */
+#define CONFIG_PISTON_TIME_RETRACT_INIT_MS 1000u /* ms — retract from unknown \
+                                                  */
+#define CONFIG_PISTON_TIME_START_MOVE_MS 500u    /* ms — START → MOVE         */
+#define CONFIG_PISTON_TIME_MOVE_GRAB_MS 500u     /* ms — MOVE ↔ GRAB          */
+#define CONFIG_PISTON_TIME_MOVE_RELEASE_MS 500u  /* ms — MOVE ↔ RELEASE */
+
+/* Derived tick counts — do not edit.
+ * Result fits in int32_t: max = 120000 * 2000 / 1000 = 240000 << INT32_MAX  */
+#define PISTON_MS_TO_TICKS(ms) \
+  ((int32_t)((TIMER_FREQ_HZ_ACTUATORS) * (ms) / 1000UL))
+
+#define CONFIG_PISTON_TICKS_RETRACT_INIT \
+  PISTON_MS_TO_TICKS(CONFIG_PISTON_TIME_RETRACT_INIT_MS)
+
+#define CONFIG_PISTON_TICKS_START_MOVE \
+  PISTON_MS_TO_TICKS(CONFIG_PISTON_TIME_START_MOVE_MS)
+
+#define CONFIG_PISTON_TICKS_MOVE_GRAB \
+  PISTON_MS_TO_TICKS(CONFIG_PISTON_TIME_MOVE_GRAB_MS)
+
+#define CONFIG_PISTON_TICKS_MOVE_RELEASE \
+  PISTON_MS_TO_TICKS(CONFIG_PISTON_TIME_MOVE_RELEASE_MS)
+
+/* Multi-hop shortcuts (START→GRAB skips through MOVE implicitly) */
+#define CONFIG_PISTON_TICKS_START_GRAB                    \
+  PISTON_MS_TO_TICKS((CONFIG_PISTON_TIME_START_MOVE_MS) + \
+                     (CONFIG_PISTON_TIME_MOVE_GRAB_MS))
+
+#define CONFIG_PISTON_TICKS_START_RELEASE                 \
+  PISTON_MS_TO_TICKS((CONFIG_PISTON_TIME_START_MOVE_MS) + \
+                     (CONFIG_PISTON_TIME_MOVE_RELEASE_MS))
+
+#define CONFIG_PISTON_TICKS_GRAB_RELEASE                 \
+  PISTON_MS_TO_TICKS((CONFIG_PISTON_TIME_MOVE_GRAB_MS) + \
+                     (CONFIG_PISTON_TIME_MOVE_RELEASE_MS))
 
 /* ============================================================================
  * DRIVER FEATURE FLAGS
@@ -177,7 +206,6 @@
 #define CONFIG_HOMING_FINE_SPEED_MM_S 3UL     /* slow precise touch   */
 #define CONFIG_HOMING_BACKOFF_SPEED_MM_S 10UL /* retreat              */
 #define CONFIG_HOMING_BACKOFF_DIST_MM 5UL     /* retreat distance     */
-
 
 /* Derived: ticks between steps (= ISR interval) */
 #define HOMING_COARSE_INTERVAL                       \

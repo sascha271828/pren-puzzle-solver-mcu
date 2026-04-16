@@ -8,157 +8,120 @@
 
 /**
  * @file piston.h
- * @brief Driver for a dual-coil pneumatic piston with optional limit switches.
+ * @brief Non-blocking piston driver for a DRV8871 H-bridge actuator.
  *
- * Models the piston at two levels:
- *  - **Physical**: what the hardware is actually doing (extending, retracting,
- *    moving, set, unknown).
- *  - **Logical**: the application-level position the piston represents
- *    (START, MOVE, GRAB, RELEASE).
+ * Tracks the piston at a single logical level (application positions).
+ * Motion is time-based: Piston_Set() starts a move and returns immediately.
+ * The caller must drive the state machine by calling Piston_Update()
+ * periodically from a timer ISR.
  *
- * Only valid logical transitions are permitted (enforced by resolve_move).
- * Motion is non-blocking: Piston_Set() starts the move and returns
- * PISTON_BUSY immediately. The caller must call Piston_Update() periodically
- * (from a timer ISR or main-loop tick) to drive the state machine forward.
+ * On Init, the piston assumes worst-case (fully extended / RELEASE position)
+ * and immediately begins retracting to START. The system is considered ready
+ * once Piston_IsBusy() returns false.
+ *
+ * Valid transitions (all directions):
+ *   START ↔ MOVE ↔ GRAB
+ *                ↔ RELEASE
+ *   Direct shortcuts (START ↔ GRAB, START ↔ RELEASE, GRAB ↔ RELEASE)
+ *   are supported via precomputed tick counts in the transition table.
  *
  * Typical usage:
  * @code
- *   Piston_Init(piston_1_extend, piston_1_retract);
+ *   Piston_Init(pin_extend, pin_retract);
+ *   while (Piston_IsBusy()) {}          // wait for init retract
  *
- *   // kick off a move
- *   if (Piston_Set(PISTON_POS_GRAB) == PISTON_BUSY) {
- *     while (Piston_IsBusy()) {
- *       Piston_Update();   // or let ISR handle this
- *     }
- *   }
+ *   Piston_Set(PISTON_POS_GRAB);
+ *   while (Piston_IsBusy()) {}
  * @endcode
  *
- * Compile-time options (define in sys_config.h):
- *  - CONFIG_PISTON_SEPARAT_PINS   – second coil driven by separate GPIO pins
- *  - CONFIG_PISTON_HAS_LIMIT_SWITCH – physical end-stop switches present
+ * Compile-time configuration (sys_config.h):
+ *   TIMER_FREQ_HZ_ACTUATORS          — ISR tick rate [Hz]
+ *   CONFIG_PISTON_TIME_*_MS          — per-segment travel times [ms]
  */
-
-/**
- * @brief Low-level hardware state of the piston.
- *
- * UNKNOWN      : initial state after power-on, before first move.
- * EXTENDING    : extend coil energised, piston travelling outward.
- * RETRACTING   : retract coil energised, piston travelling inward.
- * MOVING       : generic in-motion marker (direction known via `target`).
- * SET          : motion complete, coils de-energised, position reached.
- */
-typedef enum {
-  PISTON_STATE_UNKNOWN = 0,
-  PISTON_STATE_EXTENDING,
-  PISTON_STATE_RETRACTING,
-  PISTON_STATE_MOVING,
-  PISTON_STATE_SET,
-} PistonPhysical_e;
 
 /**
  * @brief Application-level positions the piston can occupy.
  *
- * UNKNOWN : not yet homed or position undefined.
- * START   : fully retracted home position.
- * MOVE    : intermediate travel height (safe for XY motion).
- * GRAB    : extended down to pick up a piece.
- * RELEASE : extended down to place a piece.
+ * Enum order determines the direction heuristic in Piston_Set():
+ * target > current → extend, target < current → retract.
+ * Do not reorder without updating the transition table layout.
  *
- * Valid transitions:
- *   START   → MOVE
- *   MOVE    → GRAB  | RELEASE | START
- *   GRAB    → MOVE
- *   RELEASE → MOVE
+ *   START   : fully retracted home position.
+ *   MOVE    : intermediate travel height, safe for XY motion.
+ *   GRAB    : extended to pick-up depth.
+ *   RELEASE : extended to place depth.
  */
 typedef enum {
-  PISTON_POS_UNKNOWN = 0,
-  PISTON_POS_START,
-  PISTON_POS_GRAB,
+  PISTON_POS_START = 0,
   PISTON_POS_MOVE,
+  PISTON_POS_GRAB,
   PISTON_POS_RELEASE,
+  PISTON_POS_COUNT /**< Sentinel — number of states, used for table sizing */
 } PistonLogical_e;
 
 /**
- * @brief Complete state for one piston instance.
+ * @brief Internal state of a piston instance.
  *
- * Initialise the GPIO pin fields before calling Piston_Init().
- * All volatile fields are written from Piston_Update() which may run in an
- * ISR context.
+ * Not intended for direct access by callers. Exposed in the header only
+ * because the singleton lives in .c — treat all fields as private.
+ *
+ * @note Fields written from the TIM2 ISR (Piston_Update) are marked volatile.
  */
 typedef struct {
-  volatile PistonPhysical_e physical; /**< Current hardware state         */
-  volatile PistonLogical_e logical;   /**< Last successfully reached pos   */
-  volatile PistonPhysical_e target;   /**< Physical direction of move      */
-  volatile PistonLogical_e target_logical; /**< Logical goal of current move */
-  uint32_t move_deadline_tick; /**< HAL_GetTick() timeout threshold */
-
-  GPIO_Pin_t piston_1_extend;  /**< Extend coil output pin          */
-  GPIO_Pin_t piston_1_retract; /**< Retract coil output pin         */
-
-#if CONFIG_PISTON_SEPARAT_PINS
-  GPIO_Pin_t piston_2_extend;  /**< Second extend coil (optional)   */
-  GPIO_Pin_t piston_2_retract; /**< Second retract coil (optional)  */
-#endif
-
-#if CONFIG_PISTON_HAS_LIMIT_SWITCH
-  GPIO_Pin_t limit_switch_extended;  /**< End-stop at full extension      */
-  GPIO_Pin_t limit_switch_retracted; /**< End-stop at full retraction     */
-#endif
+  volatile bool is_moving;          /**< True while a move is in progress   */
+  volatile PistonLogical_e current; /**< Last confirmed logical position     */
+  volatile PistonLogical_e target;  /**< Logical goal of the current move    */
+  volatile int32_t ticks_until;     /**< Countdown to move completion        */
+  GPIO_Pin_t piston_extend;         /**< H-bridge extend output pin      */
+  GPIO_Pin_t piston_retract;        /**< H-bridge retract output pin     */
 } Piston_t;
 
 /**
- * @brief Return codes used across the piston API.
+ * @brief Initialises the piston driver and begins homing retract.
  *
- * PISTON_OK                  : operation completed successfully.
- * PISTON_BUSY                : move started, still in progress.
- * PISTON_ERR_BUSY            : rejected — a move is already running.
- * PISTON_ERR_TIMEOUT         : move did not complete within the deadline.
- * PISTON_ERR_INVALID_TRANSITION : requested logical transition is not allowed.
+ * Assumes the piston may be fully extended (worst case). Immediately
+ * energises the retract direction and runs for CONFIG_PISTON_TICKS_RETRACT_INIT
+ * ticks before declaring position START.
+ *
+ * @param pin_extend   GPIO pin connected to H-bridge IN1 (extend direction).
+ * @param pin_retract  GPIO pin connected to H-bridge IN2 (retract direction).
  */
-typedef enum {
-  PISTON_OK,
-  PISTON_BUSY,
-  PISTON_ERR_BUSY,
-  PISTON_ERR_TIMEOUT,
-  PISTON_ERR_INVALID_TRANSITION,
-} PistonResult_e;
-
 void Piston_Init(GPIO_Pin_t pin_extend, GPIO_Pin_t pin_retract);
 
 /**
  * @brief Requests a move to a new logical position.
- *        Validates the transition, starts the move, and returns immediately.
+ *
+ * Silently ignored if a move is already in progress or if already at target.
+ * Direction (extend/retract) is derived from enum ordering — see
+ * PistonLogical_e. Travel time is taken from the precomputed transition table.
  *
  * @param target_pos  Desired logical position.
- * @return PISTON_OK                   if already at target.
- * @return PISTON_BUSY                 if move was successfully started.
- * @return PISTON_ERR_BUSY             if a move is already in progress.
- * @return PISTON_ERR_INVALID_TRANSITION if the requested transition is illegal.
  */
-PistonResult_e Piston_Set(PistonLogical_e target_pos);
+void Piston_Set(PistonLogical_e target_pos);
 
 /**
- * @brief Immediately de-energises all coils and marks state as UNKNOWN.
- *        Safe to call at any time, including mid-move.
+ * @brief Immediately cuts power to both H-bridge outputs.
  *
+ * Sets current and target to PISTON_POS_RELEASE (conservative unknown).
+ * Call Piston_Init() or manually drive to a known position before
+ * relying on Piston_Set() again.
  */
 void Piston_Abort(void);
 
 /**
  * @brief Returns whether a move is currently in progress.
  *
- * @return true   Piston is moving; do not call Piston_Set().
- * @return false  Piston is idle.
+ * @return true   Move in progress; Piston_Set() calls will be ignored.
+ * @return false  Piston is idle and ready for next command.
  */
 bool Piston_IsBusy(void);
 
 /**
- * @brief Advances the piston state machine. Must be called periodically
- *        from a timer ISR or main-loop tick while a move is in progress.
+ * @brief Advances the piston state machine. Call from timer ISR.
  *
- * Checks limit switches (if enabled) and the move timeout.
- * On completion, updates logical and physical state and de-energises coils.
- *
+ * Decrements the internal tick counter. When it reaches zero, de-energises
+ * the H-bridge and updates current position to target.
+ * No-op if no move is in progress.
  */
 void Piston_Update(void);
 
