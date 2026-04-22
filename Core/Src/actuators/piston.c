@@ -4,6 +4,8 @@
 
 static Piston_t piston;
 static uint32_t pwm_count;
+static volatile bool pwm_extending;
+static volatile bool pwm_change;
 
 static const uint32_t pos_offsets_ms[PISTON_POS_COUNT] = {
   PISTON_MS_TO_TICKS(PISTON_OFFSET_START_MS),
@@ -15,6 +17,7 @@ static const uint32_t pos_offsets_ms[PISTON_POS_COUNT] = {
 /* ---- PRIVATE FUNCTIONS ---- */
 /* GPIO / small logic Wrappers (H-Bridge) */
 static void Piston_SetExtend(void) {
+  pwm_extending = true;
   piston.is_moving = true;
   HAL_GPIO_WritePin(
       piston.piston_extend.port, piston.piston_extend.pin, GPIO_PIN_RESET);
@@ -22,6 +25,7 @@ static void Piston_SetExtend(void) {
       piston.piston_retract.port, piston.piston_retract.pin, GPIO_PIN_SET);
 }
 static void Piston_SetRetract(void) {
+  pwm_extending = false;
   piston.is_moving = true;
   HAL_GPIO_WritePin(
       piston.piston_extend.port, piston.piston_extend.pin, GPIO_PIN_SET);
@@ -54,11 +58,34 @@ void Piston_Update(void) {
     return;
   }
   pwm_count--;
+  /* off */
   if (pwm_count <= CONFIG_PISTON_PWM_ENUMERATER) {
+    if (pwm_change) {
+      if (pwm_extending) {
+        HAL_GPIO_WritePin(
+            piston.piston_extend.port, piston.piston_extend.pin, GPIO_PIN_SET);
+      } else {
+        HAL_GPIO_WritePin(piston.piston_retract.port,
+                          piston.piston_retract.pin,
+                          GPIO_PIN_SET);
+      }
+    }
+    /* on */
     if (pwm_count == 0) {
       pwm_count = CONFIG_PISTON_PWM_ENUMERATER;
+      if (pwm_extending) {
+        HAL_GPIO_WritePin(piston.piston_extend.port,
+                          piston.piston_extend.pin,
+                          GPIO_PIN_RESET);
+
+      } else {
+        HAL_GPIO_WritePin(piston.piston_retract.port,
+                          piston.piston_retract.pin,
+                          GPIO_PIN_RESET);
+      }
     }
   } else {
+    pwm_change = true;
     piston.ticks_until--;
     if (piston.ticks_until <= 0) {
       Piston_Stop();
