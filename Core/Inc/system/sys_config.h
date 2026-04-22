@@ -48,11 +48,18 @@
  * PISTON
  * ========================================================================== */
 
-#define CONFIG_PISTON_TIME_RETRACT_INIT_MS 1000u /* ms — retract from unknown \
-                                                  */
-#define CONFIG_PISTON_TIME_START_MOVE_MS 500u    /* ms — START → MOVE         */
-#define CONFIG_PISTON_TIME_MOVE_GRAB_MS 500u     /* ms — MOVE ↔ GRAB          */
-#define CONFIG_PISTON_TIME_MOVE_RELEASE_MS 500u  /* ms — MOVE ↔ RELEASE */
+#define CONFIG_PISTON_TIME_RETRACT_INIT_MS \
+  800u /* ms — retract from unknown      \
+        */
+
+#define CONFIG_PISTON_PWM_ENUMERATER 3u
+#define CONFIG_PISTON_PWM_DIVISOR 12u
+
+/* absolute time from start position [ms]*/
+#define PISTON_OFFSET_START_MS 0u
+#define PISTON_OFFSET_MOVE_MS 100u
+#define PISTON_OFFSET_GRAB_MS 400u
+#define PISTON_OFFSET_RELEASE_MS 500u
 
 /* Derived tick counts — do not edit.
  * Result fits in int32_t: max = 120000 * 2000 / 1000 = 240000 << INT32_MAX  */
@@ -95,16 +102,16 @@
  * ========================================================================== */
 
 /* --- Settings (edit these) ------------------------------------------------ */
-#define CONFIG_AXIS_STEPS_PER_REV 200UL     /* Full steps per revolution   */
-#define CONFIG_AXIS_MICRO STEPPER_MICRO_1_4 /* Microstepping divisor (1/4) */
-                                            /* Options: 1, 2, 4, 16       */
+#define CONFIG_AXIS_STEPS_PER_REV 200UL /* Full steps per revolution   */
+#define CONFIG_AXIS_MICRO STEPPER_MICRO_1_16
+/* Options: 1, 2, 4, 16       */
 
 /** Circumference of the drive pulley / shaft [mm].
  *  GT2 belt + 20-tooth pulley → 20 × 2 mm = 40 mm.
  *  Adjust if using a different pulley or leadscrew pitch. */
 #define CONFIG_AXIS_CIRCUMFERENCE_MM 40UL
 
-#define CONFIG_AXIS_MAX_SPEED_MM_S 200UL /* Cruise speed        [mm/s]  */
+#define CONFIG_AXIS_MAX_SPEED_MM_S 250UL /* Cruise speed        [mm/s]  */
 #define CONFIG_AXIS_ACCEL_MM_S2 3000UL   /* Acceleration        [mm/s²] */
 
 /* --- Derived: steps/mm (kept as NUM/DEN fraction to avoid truncation) ----- */
@@ -202,9 +209,9 @@
  * ========================================================================== */
 
 /* Speeds as fraction of cruise speed */
-#define CONFIG_HOMING_COARSE_SPEED_MM_S 20UL  /* fast search          */
-#define CONFIG_HOMING_FINE_SPEED_MM_S 3UL     /* slow precise touch   */
-#define CONFIG_HOMING_BACKOFF_SPEED_MM_S 10UL /* retreat              */
+#define CONFIG_HOMING_COARSE_SPEED_MM_S 40UL  /* fast search          */
+#define CONFIG_HOMING_FINE_SPEED_MM_S 10UL    /* slow precise touch   */
+#define CONFIG_HOMING_BACKOFF_SPEED_MM_S 20UL /* retreat              */
 #define CONFIG_HOMING_BACKOFF_DIST_MM 5UL     /* retreat distance     */
 
 /* Derived: ticks between steps (= ISR interval) */
