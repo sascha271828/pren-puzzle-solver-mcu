@@ -5,6 +5,7 @@
 #include "magnet.h"
 #include "piston.h"
 #include "rotator.h"
+#include <stdbool.h>
 
 struct Magnet;
 typedef struct Magnet Magnet_t;
@@ -39,5 +40,8 @@ void StateMachine_Init(CommandDispatcher_t* dispatcher,
  * strictly non-blocking.
  */
 void StateMachine_Update(void);
+
+bool StateMachine_IsIdle(void);
+void StateMachine_StartManual(PuzzleCommand* cmd);
 
 #endif /* __STATE_MACHINE_H__ */
