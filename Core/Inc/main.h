@@ -53,8 +53,6 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-void Start_Piston_Timer(uint32_t delay_ms);
-extern volatile uint32_t system_tick;
 
 /* USER CODE END EFP */
 

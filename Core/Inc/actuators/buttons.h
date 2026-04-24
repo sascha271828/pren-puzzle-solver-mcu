@@ -3,14 +3,16 @@
 
 /**
  * @file buttons.h
- * @brief Start-button polling and press-detection for the puzzle solver.
+ * @brief Button polling and press-detection for the puzzle solver.
  *
- * Tracks a single latching start-button press.  The detection flag is set
- * inside the timer ISR via Buttons_Poll_ISR() and remains set until the
- * caller explicitly rearms it with Buttons_Start_RearmPressDetection().
- * This avoids the need to poll the GPIO continuously in the main loop.
+ * Tracks latching press events for the Start (DIN_10) and Reset (DIN_12)
+ * buttons.  Both flags are set inside the shared timer ISR via
+ * Buttons_Poll_ISR() and remain set until the caller explicitly rearms them.
+ * This avoids continuous GPIO polling in the main loop.
  *
- * Hardware: DIN_10 (active-high, GPIO_PIN_SET = pressed).
+ * Hardware:
+ *   - Start button: DIN_10, active-high (GPIO_PIN_SET = pressed)
+ *   - Reset button: DIN_12, active-high (GPIO_PIN_SET = pressed)
  */
 
 #include "sys_config.h"
@@ -27,16 +29,34 @@
 bool Buttons_Start_Pressed(void);
 
 /**
- * @brief Clears the latched press flag so the next press can be detected.
+ * @brief Clears the latched start-button press flag.
  *
- * Call this after consuming a button press event to re-enable detection.
+ * Call this after consuming a press event to re-enable detection.
  * Without this call, Buttons_Start_Pressed() will keep returning true
  * regardless of subsequent button activity.
  */
 void Buttons_Start_RearmPressDetection(void);
 
 /**
- * @brief Polls the start-button GPIO and latches a press.
+ * @brief Returns whether the reset button has been pressed since the last
+ *        call to Buttons_Reset_RearmPressDetection().
+ *
+ * @return true   Button was pressed at least once since last rearm.
+ * @return false  No press detected.
+ */
+bool Buttons_Reset_Pressed(void);
+
+/**
+ * @brief Clears the latched reset-button press flag.
+ *
+ * Call this after consuming a press event to re-enable detection.
+ * Without this call, Buttons_Reset_Pressed() will keep returning true
+ * regardless of subsequent button activity.
+ */
+void Buttons_Reset_RearmPressDetection(void);
+
+/**
+ * @brief Polls both button GPIOs and latches any active press.
  *        Must be called from the shared timer ISR on every tick.
  *
  * @note  Not to be called from any other context.

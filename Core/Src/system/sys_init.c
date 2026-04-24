@@ -5,6 +5,7 @@
 #include "command_dispatcher.h"
 #include "homer.h"
 #include "interrupt.h"
+#include "leds.h"
 #include "limit_switch.h"
 #include "magnet.h"
 #include "motion_planner.h"
@@ -176,6 +177,10 @@ void Sys_Init(void) {
   GPIO_Pin_t lim_y_max = { .port = DIN_4_GPIO_Port, .pin = DIN_4_Pin };
 
   LimitSwitch_Init(lim_x_min, lim_x_max, lim_y_min, lim_y_max);
+
+  /* --- LED --- */
+  GPIO_Pin_t led = { .port = DOUT_2_GPIO_Port, .pin = DOUT_2_Pin };
+  Leds_Init(led);
 
   /* --- HOMER --- */
   Homer_Init(&stepper_x, &stepper_y);

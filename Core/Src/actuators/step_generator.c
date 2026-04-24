@@ -156,6 +156,8 @@ bool StepGenerator_IsBusy(void) { return (current_block.block != NULL); }
 void StepGenerator_Abort(void) {
   Stepper_ClearStep(motor_x);
   Stepper_ClearStep(motor_y);
+  Stepper_Enable(motor_x, false);
+  Stepper_Enable(motor_y, false);
 
   current_block.block = NULL;
 }

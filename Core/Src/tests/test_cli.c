@@ -4,6 +4,7 @@
 
 #include "homer.h"
 #include "interrupt.h"
+#include "leds.h"
 #include "magnet.h"
 #include "piston.h"
 #include "rotator.h"
@@ -124,6 +125,7 @@ static void cmd_help(void) {
   cli_putstr("  r <steps>      Move rotator (steps, signed)\r\n");
   cli_putstr("  p <0..3>       Piston retract/extend\r\n");
   cli_putstr("  g <0|1>        Magnet off/on\r\n");
+  cli_putstr("  l <0|1>        Led off/on\r\n");
   cli_putstr(
       "  t              Testmachine sequence (with Hardware Button)\r\n");
 }
@@ -151,6 +153,24 @@ static void cmd_status(void) {
     default:
       sys_state = "UNKNOWN";
       break;
+    case IS_INIT:
+      sys_state = "INIT";
+      break;
+    case IS_HOMING:
+      sys_state = "HOMING";
+      break;
+    case IS_READY:
+      sys_state = "READY";
+      break;
+    case IS_RUNNING:
+      sys_state = "RUNNING";
+      break;
+    case IS_ESTOP:
+      sys_state = "ESTOP";
+      break;
+    default:
+      sys_state = "UNKNOWN";
+      break;
   }
 
   snprintf(buf, sizeof(buf), "SYS:  %s\r\n", sys_state);
@@ -159,13 +179,19 @@ static void cmd_status(void) {
   snprintf(buf,
            sizeof(buf),
            "XY:   %s\r\n",
+  snprintf(buf,
+           sizeof(buf),
+           "XY:   %s\r\n",
            StepGenerator_IsBusy() ? "busy" : "idle");
   cli_putstr(buf);
 
   snprintf(
       buf, sizeof(buf), "ROT:  %s\r\n", Rotator_IsBusy() ? "busy" : "idle");
+  snprintf(
+      buf, sizeof(buf), "ROT:  %s\r\n", Rotator_IsBusy() ? "busy" : "idle");
   cli_putstr(buf);
 
+  snprintf(buf, sizeof(buf), "PST:  %s\r\n", Piston_IsBusy() ? "busy" : "idle");
   snprintf(buf, sizeof(buf), "PST:  %s\r\n", Piston_IsBusy() ? "busy" : "idle");
   cli_putstr(buf);
 }
@@ -249,6 +275,10 @@ static void cmd_piston(const char* args) {
     cli_busy();
     return;
   }
+  if (Piston_IsBusy()) {
+    cli_busy();
+    return;
+  }
 
   Piston_Set((PistonLogical_e)val);
   cli_wait_piston();
@@ -263,6 +293,17 @@ static void cmd_magnet(const char* args) {
   }
 
   Magnet_SetState((bool)val);
+  cli_ok();
+}
+
+static void cmd_led(const char* args) {
+  int val;
+  if (sscanf(args, "%d", &val) != 1 || (val != 0 && val != 1)) {
+    cli_err("usage: l <0|1>");
+    return;
+  }
+
+  Leds_Set((bool)val);
   cli_ok();
 }
 
@@ -341,6 +382,30 @@ static void cli_dispatch(char* line) {
   while (*args == ' ') args++;
 
   switch (cmd) {
+    case '?':
+      cmd_help();
+      break;
+    case 's':
+      cmd_status();
+      break;
+    case 'h':
+      cmd_home();
+      break;
+    case 'm':
+      cmd_move(args);
+      break;
+    case 'r':
+      cmd_rotate(args);
+      break;
+    case 'p':
+      cmd_piston(args);
+      break;
+    case 'g':
+      cmd_magnet(args);
+      break;
+    case 'l':
+      cmd_led(args);
+      break;
     case '?':
       cmd_help();
       break;

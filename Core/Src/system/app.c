@@ -21,8 +21,7 @@
 #if RUN_MODE == RUN_MODE_TEST_CLI
 #include "test_cli.h"
 #endif
-
-volatile uint32_t system_tick = 0;
+#define TEST_ISR_TIME 0
 
 /* ── Entry point ───────────────────────────────────────────────────────────
  */
@@ -55,24 +54,25 @@ void App_Run(void) {
 /* ── ISR ───────────────────────────────────────────────────────────────────
  */
 
-/* TODO: vlt. längsämeres Polling für gewisse Teile? */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
   if (htim->Instance == TIM2) {
-    system_tick++;
-    EmergencyStop_Process(); /* check if emergency pressed -- if pressed,
-                              g_int_state gets set to IS_ESTOP inside of the
-                              function */
+#if TEST_ISR_TIME
+    HAL_GPIO_WritePin(DOUT_8_GPIO_Port, DOUT_8_Pin, GPIO_PIN_SET);
+#endif
+    EmergencyStop_Process();
     Buttons_Poll_ISR();
+
     switch (Interrupt_GetState()) {
       case IS_HOMING:
         Homer_Update();
         break;
-      case IS_RUNNING:
       case IS_READY:
+      case IS_RUNNING:
         if (LimitSwitch_Activated()) {
           StepGenerator_Abort();
+        } else {
+          StepGenerator_Update();
         }
-        StepGenerator_Update();
         Rotator_Update();
         Piston_Update();
         break;
@@ -81,12 +81,21 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
         StepGenerator_Abort();
         Rotator_Abort();
         Piston_Abort();
+        if (EmergencyStop_IsActivated() == false) {
+          Buttons_Reset_RearmPressDetection();
+          if (Buttons_Reset_Pressed() == true) {
+            Homer_HomingStart();
+          }
+        }
         break;
       case IS_INIT:
         Piston_Update();
       default:
         break;
     }
+#if TEST_ISR_TIME
+    HAL_GPIO_WritePin(DOUT_8_GPIO_Port, DOUT_8_Pin, GPIO_PIN_RESET);
+#endif
   }
 }
 

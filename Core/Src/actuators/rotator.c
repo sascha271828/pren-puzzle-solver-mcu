@@ -135,4 +135,8 @@ void Rotator_Update(void) {
 
 bool Rotator_IsBusy(void) { return (current_block.block != NULL); }
 
-void Rotator_Abort(void) { current_block.block = NULL; }
+void Rotator_Abort(void) {
+  current_block.block = NULL;
+  Stepper_ClearStep(rotator.motor_rot);
+  Stepper_Enable(rotator.motor_rot, false);
+}
