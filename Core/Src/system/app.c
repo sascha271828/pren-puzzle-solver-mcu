@@ -69,6 +69,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
         Homer_Update();
         break;
       case IS_RUNNING:
+      case IS_READY:
         if (LimitSwitch_Activated()) {
           StepGenerator_Abort();
         }
@@ -80,9 +81,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
         Magnet_SetState(false);
         StepGenerator_Abort();
         Rotator_Abort();
-        Piston_Abort(); /* supposed to fall through */
-      case IS_READY:
+        Piston_Abort();
+        break;
       case IS_INIT:
+        Piston_Update();
       default:
         break;
     }

@@ -191,3 +191,82 @@ For software questions, the most useful external references are:
 - [STM32CubeMX User Guide](https://www.st.com/resource/en/user_manual/um1718-stm32cubemx-for-stm32-configuration-and-initialization-c-code-generation-stmicroelectronics.pdf) — if you need to understand the `.ioc` file
 
 ---
+---
+
+## Pin Assignment (STM32H753ZI)
+
+Only assigned pins are listed. Power, reset, oscillator, and unassigned I/O pins are omitted.
+
+### Stepper X (DRV8886)
+
+| Pin  | Label              | Direction |
+|------|--------------------|-----------|
+| PA0  | STEPPER_X_NSLEEP   | Output    |
+| PB0  | STEPPER_X_STEP     | Output    |
+| PB10 | STEPPER_X_DIR      | Output    |
+| PB11 | STEPPER_X_M1       | Output    |
+| PE0  | STEPPER_X_M0       | Output    |
+| PE15 | STEPPER_X_ENABLE   | Output    |
+| PE6  | STEPPER_X_NFAULT   | Input     |
+
+### Stepper Y (DRV8886)
+
+| Pin  | Label              | Direction |
+|------|--------------------|-----------|
+| PD12 | STEPPER_Y_STEP     | Output    |
+| PE10 | STEPPER_Y_DIR      | Output    |
+| PE12 | STEPPER_Y_M1       | Output    |
+| PD11 | STEPPER_Y_M0       | Output    |
+| PE7  | STEPPER_Y_ENABLE   | Output    |
+| PD13 | STEPPER_Y_NSLEEP   | Output    |
+| PE8  | STEPPER_Y_NFAULT   | Input     |
+
+### Stepper Rotator (DRV8886)
+
+| Pin  | Label               | Direction |
+|------|---------------------|-----------|
+| PF6  | STEPPER_ROT_STEP    | Output    |
+| PB6  | STEPPER_ROT_DIR     | Output    |
+| PB7  | STEPPER_ROT_M1      | Output    |
+| PG6  | STEPPER_ROT_M0      | Output    |
+| PG14 | STEPPER_ROT_ENABLE  | Output    |
+| PF5  | STEPPER_ROT_NSLEEP  | Output    |
+| PG13 | STEPPER_ROT_NFAULT  | Input     |
+
+### UART / Communication
+
+| Pin  | Signal      | Label      | Peripheral        |
+|------|-------------|------------|-------------------|
+| PD8  | USART3_TX   | STLINK_RX  | ST-Link VCP (CLI) |
+| PD9  | USART3_RX   | STLINK_TX  | ST-Link VCP (CLI) |
+| PB12 | UART5_RX    | UART_RX    | Raspberry Pi      |
+| PB13 | UART5_TX    | UART_TX    | Raspberry Pi      |
+
+### Digital Outputs (DOUT)
+
+| Pin  |  Signal      | Label  |
+|------|--------------|--------|
+| PB4  |  MAGNET      | DOUT_1 |
+| PF3  |  LED         | DOUT_2 |
+| PA4  |              | DOUT_3 |
+| PD14 |              | DOUT_4 |
+| PB3  |  PISTON_IN1  | DOUT_5 |
+| PD15 |  PISOTN_IN2  | DOUT_6 |
+| PC7  |              | DOUT_7 |
+| PB5  |              | DOUT_8 |
+
+### Digital Inputs (DIN)
+
+| Pin  | Signal         | Label   |
+|------|----------------|---------|
+| PE5  | LIM_X_MIN      | DIN_1   |
+| PF10 | LIM_X_MAX      | DIN_2   |
+| PE3  | LIM_Y_MIN      | DIN_3   |
+| PB2  | LIM_Y_MAX      | DIN_4   |
+| PF8  |                | DIN_5   |
+| PE9  |                | DIN_6   |
+| PF7  |                | DIN_7   |
+| PF2  |                | DIN_8   |
+| PF9  | EMERGENCY_STOP | DIN_9   |
+| PF1  | BUTTON_START   | DIN_10  |
+| PF0  |                | DIN_12  |

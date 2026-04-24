@@ -159,8 +159,8 @@ void Sys_Init(void) {
     .pin = DOUT_5_Pin,
   };
   GPIO_Pin_t piston_1_retract = {
-    .port = DOUT_6_GPIO_Port,
-    .pin = DOUT_6_Pin,
+    .port = DOUT_8_GPIO_Port,
+    .pin = DOUT_8_Pin,
   };
 
   GPIO_Pin_t magnet_pin = {
@@ -186,10 +186,11 @@ void Sys_Init(void) {
   Magnet_Init(magnet_pin);
 
   /* --- UART / COMMUNICATION INIT --- */
+  HAL_TIM_Base_Start_IT(&htim2);
+  /*
   UartReceiver_Init(&uart_receiver, &huart5);
   CommandDispatcher_Init(&command_dispatcher, &uart_receiver);
-  UartReceiver_Start(&uart_receiver);
-  HAL_TIM_Base_Init(&htim2);
+  UartReceiver_Start(&uart_receiver);*/
 }
 
 UartReceiver_t* Sys_GetUartReceiver(void) { return &uart_receiver; }

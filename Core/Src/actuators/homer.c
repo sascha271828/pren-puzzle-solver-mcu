@@ -84,7 +84,7 @@ static void Homer_MoveBackoff(void) {
     y_ticks--;
   }
   if (x_ticks == 0) {
-    Stepper_SetStep(motor_y);
+    Stepper_SetStep(motor_x);
     x_ticks = HOMING_BACKOFF_INTERVAL;
   } else {
     x_ticks--;
@@ -111,6 +111,8 @@ void Homer_Update(void) {
           Stepper_SetDirection(motor_x, true);
           Stepper_SetDirection(motor_y, true);
           backoff_ticks_remaining = HOMING_BACKOFF_TICKS;
+          x_ticks = 0;
+          y_ticks = 0;
           Homer_MoveBackoff();
         default:
           return;
@@ -156,7 +158,7 @@ void Homer_Update(void) {
       Homer_ClearSteps();
       if (backoff_ticks_remaining == 0) {
         homer_Phase = HS_DONE;
-       return;
+        return;
       } else {
         backoff_ticks_remaining--;
         Homer_MoveXFine();

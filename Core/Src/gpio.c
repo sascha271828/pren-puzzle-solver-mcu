@@ -97,9 +97,9 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /*Configure GPIO pins : DIN_12_Pin DIN_10_Pin DIN_8_Pin DIN_7_Pin
-                           DIN_5_Pin DIN_9_Pin DIN_2_Pin */
+                           DIN_5_Pin DIN_9_Pin DIN_4_Pin */
   GPIO_InitStruct.Pin = DIN_12_Pin|DIN_10_Pin|DIN_8_Pin|DIN_7_Pin
-                          |DIN_5_Pin|DIN_9_Pin|DIN_2_Pin;
+                          |DIN_5_Pin|DIN_9_Pin|DIN_4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
@@ -134,11 +134,11 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : DIN_4_Pin */
-  GPIO_InitStruct.Pin = DIN_4_Pin;
+  /*Configure GPIO pin : DIN_2_Pin */
+  GPIO_InitStruct.Pin = DIN_2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(DIN_4_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(DIN_2_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : STEPPER_Y_ENABLE_Pin STEPPER_X_ENABLE_Pin */
   GPIO_InitStruct.Pin = STEPPER_Y_ENABLE_Pin|STEPPER_X_ENABLE_Pin;

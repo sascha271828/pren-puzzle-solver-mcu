@@ -221,16 +221,13 @@ static void cmd_rotate(const char* args) {
 
 static void cmd_piston(const char* args) {
   int val;
-  if (sscanf(args, "%d", &val) != 1 || (val != 0 && val != 1)) {
-    cli_err("usage: p <0|1>");
+  if (sscanf(args, "%d", &val) != 1 || (val < 0 && val >= PISTON_POS_COUNT)) {
+    cli_err("usage: p <0..3>");
     return;
   }
-  if (Piston_IsBusy()) {
-    cli_busy();
-    return;
-  }
+  if (Piston_IsBusy()) { cli_busy(); return; }
 
-  //Piston_SetState((bool)val);
+  Piston_Set((PistonLogical_e)val);
   cli_wait_piston();
   cli_ok();
 }
@@ -287,7 +284,7 @@ void TestCLI_Init(UART_HandleTypeDef* huart) { cli_huart = huart; }
 void TestCLI_Run(void) {
   char line[CLI_LINE_BUF_SIZE];
 
-  cli_putstr("\r\n");
+  cli_putstr("\r\nBOOT\r\n");
   cli_putstr("=== PuzzleSolver Test CLI ===\r\n");
   cli_putstr("Type ? for help\r\n");
   cli_putstr("\r\n");
