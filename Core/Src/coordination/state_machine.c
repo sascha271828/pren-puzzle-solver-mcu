@@ -189,21 +189,28 @@ void StateMachine_Update(void) {
 
     case SM_LIFT_EMPTY:
       if (!Piston_IsBusy()) {
-        /* Reset rotator to zero position for the next piece */
         Rotator_ReturnStart();
+
+        if (current_piece_idx + 1 >= current_puzzle.pieces_count) {
+          active_xy_move =
+              MotionPlanner_PlanMoveToPickMM(0, 0);
+          StepGenerator_StartMove(&active_xy_move);
+        }
+
         current_state = SM_NEXT_PIECE;
       }
       break;
 
     case SM_NEXT_PIECE:
-      if (!Rotator_IsBusy()) {
+      if (!Rotator_IsBusy() && !StepGenerator_IsBusy()) {
         current_piece_idx++;
+
         if (current_piece_idx < current_puzzle.pieces_count) {
           current_state = SM_CALC_TO_PICK;
         } else {
-          /* Entire puzzle command completed */
           CommandDispatcher_SendAck(sm_dispatcher, Status_STATUS_DONE, 0);
-          current_state = SM_IDLE;
+
+          current_state = SM_WAIT_FOR_START;
         }
       }
       break;
