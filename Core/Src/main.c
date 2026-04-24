@@ -80,7 +80,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-PISTON_MS_TO_TICKS
+
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -92,7 +92,7 @@ PISTON_MS_TO_TICKS
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_TIM2_Init();
-  MX_TIM3_Init();PISTON_MS_TO_TICKS
+  MX_TIM3_Init();
   MX_UART5_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */

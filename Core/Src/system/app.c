@@ -36,12 +36,11 @@ void App_Run(void) {
 #elif RUN_MODE == RUN_MODE_APP
   /* --- STATE MACHINE MODUS --- */
   CommandDispatcher_t* dispatcher = Sys_GetCommandDispatcher();
-  Magnet_t* magnet = Sys_GetMagnet();
 
-  StateMachine_Init(dispatcher, magnet);
+  StateMachine_Init(dispatcher);
 
   Piston_Set(PISTON_POS_START);
-  Magnet_SetState(magnet, false);
+  Magnet_SetState(false);
 
   for (;;) {
     CommandDispatcher_Poll(dispatcher);

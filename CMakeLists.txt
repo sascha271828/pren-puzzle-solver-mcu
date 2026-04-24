@@ -62,6 +62,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/third_party/nanopb/pb_decode.c
     Core/third_party/nanopb/pb_encode.c
     Core/Src/coordination/motion_planner.c
+    Core/Src/coordination/state_machine.c
     Core/Src/system/app.c
     Core/Src/system/sys_init.c
     Core/Src/system/interrupt.c

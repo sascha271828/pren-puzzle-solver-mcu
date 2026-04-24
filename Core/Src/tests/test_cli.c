@@ -270,8 +270,7 @@ static void cmd_testmachine_sequence(void) {
   cli_putstr("Starting State Machine...\r\n");
 
   CommandDispatcher_t* dispatcher = Sys_GetCommandDispatcher();
-  Magnet_t* magnet = Sys_GetMagnet();
-  StateMachine_Init(dispatcher, magnet);
+  StateMachine_Init(dispatcher);
 
   cli_putstr(
       "Waiting for homing to finish, then waiting for hardware START "

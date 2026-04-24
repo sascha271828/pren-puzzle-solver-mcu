@@ -92,6 +92,11 @@
                      (CONFIG_PISTON_TIME_MOVE_RELEASE_MS))
 
 /* ============================================================================
+ * MAGNET
+ * ========================================================================== */
+#define CONFIG_MAGNET_DELAY_MS 500UL /* Zeit in ms zum Auf-/Abbau des Magnetfelds */
+
+/* ============================================================================
  * DRIVER FEATURE FLAGS
  * ========================================================================== */
 #define CONFIG_FOR_NSLEEP_DRIVER 0 /* Set 1 if driver has nSLEEP pin */

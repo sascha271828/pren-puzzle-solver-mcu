@@ -40,15 +40,12 @@ typedef enum {
 
 static State_e current_state;
 static CommandDispatcher_t* sm_dispatcher;
-static Magnet_t* sm_magnet;
 static PuzzleCommand current_puzzle;
 static uint8_t current_piece_idx;
 static uint32_t wait_start_tick;
 
-void StateMachine_Init(CommandDispatcher_t* dispatcher, Magnet_t* magnet) {
+void StateMachine_Init(CommandDispatcher_t* dispatcher) {
   sm_dispatcher = dispatcher;
-  sm_magnet = magnet;
-
   current_state = SM_INIT_HOMING;
   current_piece_idx = 0;
 }
@@ -69,7 +66,7 @@ void StateMachine_Update(void) {
     if (LimitSwitch_Activated() || Interrupt_GetState() == IS_ESTOP) {
       StepGenerator_Abort();
       Rotator_Abort();
-      Magnet_SetState(sm_magnet, false);
+      Magnet_SetState(false);
 
       CommandDispatcher_SendAck(sm_dispatcher, Status_STATUS_ERROR, 0);
       current_state = SM_ERROR;
@@ -126,7 +123,7 @@ void StateMachine_Update(void) {
 
     case SM_LOWER_TO_PICK:
       if (!Piston_IsBusy()) {
-        Magnet_SetState(sm_magnet, true);
+        Magnet_SetState(true);
         wait_start_tick = HAL_GetTick();
         current_state = SM_WAIT_MAGNET_ON;
       }
@@ -173,7 +170,7 @@ void StateMachine_Update(void) {
 
     case SM_LOWER_TO_PLACE:
       if (!Piston_IsBusy()) {
-        Magnet_SetState(sm_magnet, false);
+        Magnet_SetState(false);
         wait_start_tick = HAL_GetTick();
         current_state = SM_WAIT_MAGNET_OFF;
       }
@@ -225,15 +222,15 @@ void StateMachine_Update(void) {
       }
       break;
   }
+}
 
-  /* --- Manual control for CLI testing --- */
-  bool StateMachine_IsIdle(void) { return (current_state == SM_IDLE); }
+/* --- Manual control for CLI testing --- */
+bool StateMachine_IsIdle(void) { return (current_state == SM_IDLE); }
 
-  void StateMachine_StartManual(PuzzleCommand * cmd) {
-    current_puzzle = *cmd;
-    current_piece_idx = 0;
-    if (current_puzzle.pieces_count > 0) {
-      current_state = SM_CALC_TO_PICK;
-    }
+void StateMachine_StartManual(PuzzleCommand * cmd) {
+  current_puzzle = *cmd;
+  current_piece_idx = 0;
+  if (current_puzzle.pieces_count > 0) {
+    current_state = SM_CALC_TO_PICK;
   }
 }

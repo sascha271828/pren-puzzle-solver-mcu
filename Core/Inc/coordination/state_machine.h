@@ -7,8 +7,6 @@
 #include "rotator.h"
 #include <stdbool.h>
 
-struct Magnet;
-typedef struct Magnet Magnet_t;
 
 /**
  * @file state_machine.h
@@ -27,10 +25,8 @@ typedef struct Magnet Magnet_t;
  *
  * @param dispatcher Pointer to the command dispatcher handling incoming PC
  * data.
- * @param magnet     Pointer to the electromagnet driver.
  */
-void StateMachine_Init(CommandDispatcher_t* dispatcher,
-                       Magnet_t* magnet);
+void StateMachine_Init(CommandDispatcher_t* dispatcher);
 
 /**
  * @brief Main update routine of the state machine.
