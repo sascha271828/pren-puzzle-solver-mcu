@@ -153,24 +153,6 @@ static void cmd_status(void) {
     default:
       sys_state = "UNKNOWN";
       break;
-    case IS_INIT:
-      sys_state = "INIT";
-      break;
-    case IS_HOMING:
-      sys_state = "HOMING";
-      break;
-    case IS_READY:
-      sys_state = "READY";
-      break;
-    case IS_RUNNING:
-      sys_state = "RUNNING";
-      break;
-    case IS_ESTOP:
-      sys_state = "ESTOP";
-      break;
-    default:
-      sys_state = "UNKNOWN";
-      break;
   }
 
   snprintf(buf, sizeof(buf), "SYS:  %s\r\n", sys_state);
@@ -179,20 +161,13 @@ static void cmd_status(void) {
   snprintf(buf,
            sizeof(buf),
            "XY:   %s\r\n",
-  snprintf(buf,
-           sizeof(buf),
-           "XY:   %s\r\n",
            StepGenerator_IsBusy() ? "busy" : "idle");
   cli_putstr(buf);
 
   snprintf(
       buf, sizeof(buf), "ROT:  %s\r\n", Rotator_IsBusy() ? "busy" : "idle");
-  snprintf(
-      buf, sizeof(buf), "ROT:  %s\r\n", Rotator_IsBusy() ? "busy" : "idle");
-  cli_putstr(buf);
 
-  snprintf(buf, sizeof(buf), "PST:  %s\r\n", Piston_IsBusy() ? "busy" : "idle");
-  snprintf(buf, sizeof(buf), "PST:  %s\r\n", Piston_IsBusy() ? "busy" : "idle");
+ snprintf(buf, sizeof(buf), "PST:  %s\r\n", Piston_IsBusy() ? "busy" : "idle");
   cli_putstr(buf);
 }
 
@@ -405,27 +380,6 @@ static void cli_dispatch(char* line) {
       break;
     case 'l':
       cmd_led(args);
-      break;
-    case '?':
-      cmd_help();
-      break;
-    case 's':
-      cmd_status();
-      break;
-    case 'h':
-      cmd_home();
-      break;
-    case 'm':
-      cmd_move(args);
-      break;
-    case 'r':
-      cmd_rotate(args);
-      break;
-    case 'p':
-      cmd_piston(args);
-      break;
-    case 'g':
-      cmd_magnet(args);
       break;
     case 't':
       cmd_testmachine_sequence();

@@ -6,7 +6,7 @@ static GPIO_Pin_t led;
 
 void Leds_Init(GPIO_Pin_t pin) {
   led = pin;
-  Leds_Set(true);
+  Leds_Set(false);
 }
 void Leds_Set(bool state) {
   HAL_GPIO_WritePin(led.port, led.pin, state ? GPIO_PIN_RESET : GPIO_PIN_SET);

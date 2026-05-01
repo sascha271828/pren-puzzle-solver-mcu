@@ -29,6 +29,77 @@ void App_Run(void) {
   HAL_Delay(500); /* let peripherals settle */
 
 #if RUN_MODE == RUN_MODE_TEST_CLI
+
+  /* LED test*/
+  //  while (true) {
+  //    if (HAL_GPIO_ReadPin(DIN_1_GPIO_Port, DIN_1_Pin) == GPIO_PIN_SET) {
+  //      HAL_GPIO_WritePin(DOUT_2_GPIO_Port, DOUT_2_Pin, GPIO_PIN_RESET);
+  //    } else {
+  //      HAL_GPIO_WritePin(DOUT_2_GPIO_Port, DOUT_2_Pin, GPIO_PIN_SET);
+  //    }
+  //    if (HAL_GPIO_ReadPin(DIN_2_GPIO_Port, DIN_2_Pin) == GPIO_PIN_SET) {
+  //      HAL_GPIO_WritePin(DOUT_2_GPIO_Port, DOUT_2_Pin, GPIO_PIN_RESET);
+  //    } else {
+  //      HAL_GPIO_WritePin(DOUT_2_GPIO_Port, DOUT_2_Pin, GPIO_PIN_SET);
+  //    }
+  //    if (HAL_GPIO_ReadPin(DIN_3_GPIO_Port, DIN_3_Pin) == GPIO_PIN_SET) {
+  //      HAL_GPIO_WritePin(DOUT_2_GPIO_Port, DOUT_2_Pin, GPIO_PIN_RESET);
+  //    } else {
+  //      HAL_GPIO_WritePin(DOUT_2_GPIO_Port, DOUT_2_Pin, GPIO_PIN_SET);
+  //    }
+  //    if (HAL_GPIO_ReadPin(DIN_4_GPIO_Port, DIN_4_Pin) == GPIO_PIN_SET) {
+  //      HAL_GPIO_WritePin(DOUT_2_GPIO_Port, DOUT_2_Pin, GPIO_PIN_RESET);
+  //    } else {
+  //      HAL_GPIO_WritePin(DOUT_2_GPIO_Port, DOUT_2_Pin, GPIO_PIN_SET);
+  //    }
+  //  }
+
+  /* STEPPER Y */
+  //  HAL_GPIO_WritePin(
+  //      STEPPER_Y_ENABLE_GPIO_Port, STEPPER_Y_ENABLE_Pin, GPIO_PIN_RESET);
+  //
+  //  HAL_GPIO_WritePin(STEPPER_Y_DIR_GPIO_Port, STEPPER_Y_DIR_Pin,
+  //  GPIO_PIN_RESET);
+  //
+  //  HAL_GPIO_WritePin(STEPPER_Y_M0_GPIO_Port, STEPPER_Y_M0_Pin,
+  //  GPIO_PIN_RESET);
+  //
+  //  HAL_GPIO_WritePin(STEPPER_Y_M1_GPIO_Port, STEPPER_Y_M1_Pin,
+  //  GPIO_PIN_RESET);
+  //
+  //  HAL_GPIO_WritePin(
+  //      STEPPER_Y_NSLEEP_GPIO_Port, STEPPER_Y_NSLEEP_Pin, GPIO_PIN_RESET);
+  //
+  //  while (true) {
+  //    HAL_GPIO_WritePin(
+  //        STEPPER_Y_STEP_GPIO_Port, STEPPER_Y_STEP_Pin, GPIO_PIN_SET);
+  //
+  //    HAL_GPIO_WritePin(
+  //        STEPPER_Y_STEP_GPIO_Port, STEPPER_Y_STEP_Pin, GPIO_PIN_RESET);
+  //
+  //    HAL_GPIO_WritePin(
+  //        STEPPER_Y_ENABLE_GPIO_Port, STEPPER_Y_ENABLE_Pin, GPIO_PIN_SET);
+  //    HAL_GPIO_WritePin(
+  //        STEPPER_Y_ENABLE_GPIO_Port, STEPPER_Y_ENABLE_Pin, GPIO_PIN_RESET);
+  //
+  //    HAL_GPIO_WritePin(STEPPER_Y_DIR_GPIO_Port, STEPPER_Y_DIR_Pin,
+  //    GPIO_PIN_SET); HAL_GPIO_WritePin(
+  //        STEPPER_Y_DIR_GPIO_Port, STEPPER_Y_DIR_Pin, GPIO_PIN_RESET);
+  //
+  //    HAL_GPIO_WritePin(STEPPER_Y_M0_GPIO_Port, STEPPER_Y_M0_Pin,
+  //    GPIO_PIN_SET); HAL_GPIO_WritePin(STEPPER_Y_M0_GPIO_Port,
+  //    STEPPER_Y_M0_Pin, GPIO_PIN_RESET);
+  //
+  //    HAL_GPIO_WritePin(STEPPER_Y_M1_GPIO_Port, STEPPER_Y_M1_Pin,
+  //    GPIO_PIN_SET); HAL_GPIO_WritePin(STEPPER_Y_M1_GPIO_Port,
+  //    STEPPER_Y_M1_Pin, GPIO_PIN_RESET);
+  //
+  //    HAL_GPIO_WritePin(
+  //        STEPPER_Y_NSLEEP_GPIO_Port, STEPPER_Y_NSLEEP_Pin, GPIO_PIN_SET);
+  //    HAL_GPIO_WritePin(
+  //        STEPPER_Y_NSLEEP_GPIO_Port, STEPPER_Y_NSLEEP_Pin, GPIO_PIN_RESET);
+  //  }
+
   TestCLI_Init(&huart3);
   TestCLI_Run(); /* never returns */
 
