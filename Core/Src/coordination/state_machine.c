@@ -11,13 +11,13 @@
 #include "rotator.h"
 #include "step_generator.h"
 #include "sys_config.h"
+#include "leds.h"  /* WICHTIG: Include für die Kamera-LED */
 
 /**
  * @brief Internal states for the puzzle coordination logic.
  */
 typedef enum {
-  SM_INIT_HOMING, /* Start the homing sequence to find the physical zero point
-                   */
+  SM_INIT_HOMING, /* Start the homing sequence to find the physical zero point */
   SM_HOMING_BUSY, /* Wait for endstops to be triggered and stop the motors */
   SM_WAIT_FOR_START, /* Wait for the physical start button to be pressed */
   SM_IDLE,          /* System is ready to receive puzzle commands from the PC */
@@ -27,8 +27,7 @@ typedef enum {
   SM_WAIT_MAGNET_ON, /* Delay to allow the magnetic field to build up */
   SM_GRAB_PIECE,     /* Command the piston to lift the grabbed piece */
   SM_LIFT_PIECE,     /* Wait for the piston to finish lifting the piece */
-  SM_CALC_TO_PLACE, /* Calculate path and rotation for the target place location
-                     */
+  SM_CALC_TO_PLACE, /* Calculate path and rotation for the target place location */
   SM_MOVE_TO_PLACE, /* Move XY-axes and rotator simultaneously to the target */
   SM_LOWER_TO_PLACE,  /* Extend the piston to place the piece on the board */
   SM_WAIT_MAGNET_OFF, /* Delay to ensure the piece is fully released */
@@ -44,10 +43,17 @@ static PuzzleCommand current_puzzle;
 static uint8_t current_piece_idx;
 static uint32_t wait_start_tick;
 
+static uint32_t led_turn_on_tick = 0;
+static bool led_is_active = false;
+#define CONFIG_LED_ON_TIME_MS 4000 
+
 void StateMachine_Init(CommandDispatcher_t* dispatcher) {
   sm_dispatcher = dispatcher;
   current_state = SM_INIT_HOMING;
   current_piece_idx = 0;
+  
+  Leds_Set(false);
+  led_is_active = false;
 }
 
 /**
@@ -58,9 +64,34 @@ void StateMachine_Update(void) {
   MoveBlock_t active_xy_move;
   RotateBlock_t active_rot_move;
 
-  /* --- Global Error Monitoring --- */
-  /* Abort on limit switch hit (collision) or emergency stop during active moves
-   */
+  if (Buttons_Reset_Pressed()) {
+    Buttons_Reset_RearmPressDetection();
+
+    StepGenerator_Abort();
+    Rotator_Abort();
+    Magnet_SetState(false);
+    
+    Leds_Set(false);
+    led_is_active = false;
+
+    CommandDispatcher_SendAck(sm_dispatcher, Status_STATUS_ERROR, 0);
+    
+    if (Interrupt_GetState() != IS_ESTOP) {
+      current_state = SM_INIT_HOMING; 
+    } else {
+      current_state = SM_ERROR;
+    }
+    
+    return; 
+  }
+
+  if (led_is_active) {
+    if (HAL_GetTick() - led_turn_on_tick >= CONFIG_LED_ON_TIME_MS) {
+      Leds_Set(false);
+      led_is_active = false;
+    }
+  }
+
   if (current_state > SM_HOMING_BUSY && current_state != SM_ERROR &&
       current_state != SM_IDLE && current_state != SM_WAIT_FOR_START) {
     if (LimitSwitch_Activated() || Interrupt_GetState() == IS_ESTOP) {
@@ -89,7 +120,11 @@ void StateMachine_Update(void) {
     case SM_WAIT_FOR_START:
       if (Buttons_Start_Pressed()) {
         Buttons_Start_RearmPressDetection();
-        /* Signal the PC that the system is mechanically ready */
+        
+        Leds_Set(true);
+        led_is_active = true;
+        led_turn_on_tick = HAL_GetTick();
+
         CommandDispatcher_SendAck(sm_dispatcher, Status_STATUS_READY, 0);
         current_state = SM_IDLE;
       }
@@ -108,8 +143,7 @@ void StateMachine_Update(void) {
 
     case SM_CALC_TO_PICK:
       piece = &current_puzzle.pieces[current_piece_idx];
-      active_xy_move =
-          MotionPlanner_PlanMoveToPickMM(piece->pick_x, piece->pick_y);
+      active_xy_move = MotionPlanner_PlanMoveToPickMM(piece->pick_x, piece->pick_y);
       StepGenerator_StartMove(&active_xy_move);
       current_state = SM_MOVE_TO_PICK;
       break;
@@ -148,12 +182,10 @@ void StateMachine_Update(void) {
 
     case SM_CALC_TO_PLACE:
       piece = &current_puzzle.pieces[current_piece_idx];
-      active_xy_move =
-          MotionPlanner_PlanMoveToPlaceMM(piece->place_x, piece->place_y);
+      active_xy_move = MotionPlanner_PlanMoveToPlaceMM(piece->place_x, piece->place_y);
       StepGenerator_StartMove(&active_xy_move);
 
-      int32_t rot_steps =
-          (int32_t)(piece->rotation * 10.0f) * CONFIG_STEPS_PER_01_DEGREE;
+      int32_t rot_steps = (int32_t)(piece->rotation * 10.0f) * CONFIG_STEPS_PER_01_DEGREE;
       if (rot_steps != 0) {
         active_rot_move = Rotator_GenerateBlock(rot_steps);
         Rotator_StartMove(&active_rot_move);
@@ -192,8 +224,7 @@ void StateMachine_Update(void) {
         Rotator_ReturnStart();
 
         if (current_piece_idx + 1 >= current_puzzle.pieces_count) {
-          active_xy_move =
-              MotionPlanner_PlanMoveToPickMM(0, 0);
+          active_xy_move = MotionPlanner_PlanMoveToPickMM(0, 0);
           StepGenerator_StartMove(&active_xy_move);
         }
 
@@ -209,24 +240,12 @@ void StateMachine_Update(void) {
           current_state = SM_CALC_TO_PICK;
         } else {
           CommandDispatcher_SendAck(sm_dispatcher, Status_STATUS_DONE, 0);
-
           current_state = SM_WAIT_FOR_START;
         }
       }
       break;
 
     case SM_ERROR:
-      /* Block until user intervention (start button pressed) and e-stop
-       * released */
-      if (Buttons_Start_Pressed()) {
-        if (Interrupt_GetState() != IS_ESTOP) {
-          Buttons_Start_RearmPressDetection();
-          /* Force homing to recover the coordinate system */
-          current_state = SM_INIT_HOMING;
-        } else {
-          Buttons_Start_RearmPressDetection();
-        }
-      }
       break;
   }
 }
