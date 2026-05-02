@@ -101,6 +101,8 @@ void StepGenerator_Update(void) {
       current_block.block = NULL;
       Stepper_ClearStep(motor_x);
       Stepper_ClearStep(motor_y);
+      Stepper_Enable(motor_x, false);
+      Stepper_Enable(motor_y, false);
       return;
     }
 

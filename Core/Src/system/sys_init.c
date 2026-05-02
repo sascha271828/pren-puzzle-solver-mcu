@@ -192,10 +192,12 @@ void Sys_Init(void) {
 
   /* --- UART / COMMUNICATION INIT --- */
   HAL_TIM_Base_Start_IT(&htim2);
-  /*
-  UartReceiver_Init(&uart_receiver, &huart5);
+
+  #if RUN_MODE != RUN_MODE_TEST_CLI
+  UartReceiver_Init(&uart_receiver, &huart3);
   CommandDispatcher_Init(&command_dispatcher, &uart_receiver);
-  UartReceiver_Start(&uart_receiver);*/
+  UartReceiver_Start(&uart_receiver);
+  #endif
 }
 
 UartReceiver_t* Sys_GetUartReceiver(void) { return &uart_receiver; }

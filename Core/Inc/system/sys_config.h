@@ -22,9 +22,10 @@
  * ─────────────────────────────────────────────────────────────────────── */
 #define RUN_MODE_TEST_CLI 0
 #define RUN_MODE_APP 1
+#define RUN_MODE_TEST_STATE 2
 
 #define RUN_MODE RUN_MODE_TEST_CLI
-
+#define TEST_ISR_TIME 0
 /* ============================================================================
  * TIMER
  * ========================================================================== */
@@ -94,7 +95,8 @@
 /* ============================================================================
  * MAGNET
  * ========================================================================== */
-#define CONFIG_MAGNET_DELAY_MS 500UL /* Zeit in ms zum Auf-/Abbau des Magnetfelds */
+#define CONFIG_MAGNET_DELAY_MS \
+  500UL /* Zeit in ms zum Auf-/Abbau des Magnetfelds */
 
 /* ============================================================================
  * DRIVER FEATURE FLAGS

@@ -121,10 +121,10 @@ void Error_Handler(void);
 #define STEPPER_Y_STEP_GPIO_Port GPIOD
 #define STEPPER_Y_NSLEEP_Pin GPIO_PIN_13
 #define STEPPER_Y_NSLEEP_GPIO_Port GPIOD
-#define DOUT_4_Pin GPIO_PIN_14
-#define DOUT_4_GPIO_Port GPIOD
-#define DOUT_6_Pin GPIO_PIN_15
+#define DOUT_6_Pin GPIO_PIN_14
 #define DOUT_6_GPIO_Port GPIOD
+#define DOUT_4_Pin GPIO_PIN_15
+#define DOUT_4_GPIO_Port GPIOD
 #define STEPPER_ROT_M0_Pin GPIO_PIN_6
 #define STEPPER_ROT_M0_GPIO_Port GPIOG
 #define DOUT_7_Pin GPIO_PIN_7

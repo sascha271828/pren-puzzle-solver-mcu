@@ -168,6 +168,8 @@ void Homer_Update(void) {
     case HS_DONE:
       Homer_ClearSteps();
       homer_Phase = HS_FINE;
+      Stepper_Enable(motor_x, false);
+      Stepper_Enable(motor_y, false);
       Interrupt_SetState(IS_READY);
       break;
     default:
@@ -179,6 +181,9 @@ void Homer_HomingStart(void) {
   homer_Phase = HS_COARSE;
   Stepper_SetDirection(motor_x, false);
   Stepper_SetDirection(motor_y, false);
+  Stepper_Enable(motor_x, true);
+  Stepper_Enable(motor_y, true);
+
   Interrupt_SetState(IS_HOMING);
 }
 

@@ -21,7 +21,10 @@
 #if RUN_MODE == RUN_MODE_TEST_CLI
 #include "test_cli.h"
 #endif
-#define TEST_ISR_TIME 0
+
+#if RUN_MODE == RUN_MODE_TEST_STATE
+static PuzzleCommand test_cmd = PuzzleCommand_init_zero;
+#endif
 
 /* ── Entry point ───────────────────────────────────────────────────────────
  */
@@ -30,78 +33,49 @@ void App_Run(void) {
 
 #if RUN_MODE == RUN_MODE_TEST_CLI
 
-  /* LED test*/
-  //  while (true) {
-  //    if (HAL_GPIO_ReadPin(DIN_1_GPIO_Port, DIN_1_Pin) == GPIO_PIN_SET) {
-  //      HAL_GPIO_WritePin(DOUT_2_GPIO_Port, DOUT_2_Pin, GPIO_PIN_RESET);
-  //    } else {
-  //      HAL_GPIO_WritePin(DOUT_2_GPIO_Port, DOUT_2_Pin, GPIO_PIN_SET);
-  //    }
-  //    if (HAL_GPIO_ReadPin(DIN_2_GPIO_Port, DIN_2_Pin) == GPIO_PIN_SET) {
-  //      HAL_GPIO_WritePin(DOUT_2_GPIO_Port, DOUT_2_Pin, GPIO_PIN_RESET);
-  //    } else {
-  //      HAL_GPIO_WritePin(DOUT_2_GPIO_Port, DOUT_2_Pin, GPIO_PIN_SET);
-  //    }
-  //    if (HAL_GPIO_ReadPin(DIN_3_GPIO_Port, DIN_3_Pin) == GPIO_PIN_SET) {
-  //      HAL_GPIO_WritePin(DOUT_2_GPIO_Port, DOUT_2_Pin, GPIO_PIN_RESET);
-  //    } else {
-  //      HAL_GPIO_WritePin(DOUT_2_GPIO_Port, DOUT_2_Pin, GPIO_PIN_SET);
-  //    }
-  //    if (HAL_GPIO_ReadPin(DIN_4_GPIO_Port, DIN_4_Pin) == GPIO_PIN_SET) {
-  //      HAL_GPIO_WritePin(DOUT_2_GPIO_Port, DOUT_2_Pin, GPIO_PIN_RESET);
-  //    } else {
-  //      HAL_GPIO_WritePin(DOUT_2_GPIO_Port, DOUT_2_Pin, GPIO_PIN_SET);
-  //    }
-  //  }
-
-  /* STEPPER Y */
-  //  HAL_GPIO_WritePin(
-  //      STEPPER_Y_ENABLE_GPIO_Port, STEPPER_Y_ENABLE_Pin, GPIO_PIN_RESET);
-  //
-  //  HAL_GPIO_WritePin(STEPPER_Y_DIR_GPIO_Port, STEPPER_Y_DIR_Pin,
-  //  GPIO_PIN_RESET);
-  //
-  //  HAL_GPIO_WritePin(STEPPER_Y_M0_GPIO_Port, STEPPER_Y_M0_Pin,
-  //  GPIO_PIN_RESET);
-  //
-  //  HAL_GPIO_WritePin(STEPPER_Y_M1_GPIO_Port, STEPPER_Y_M1_Pin,
-  //  GPIO_PIN_RESET);
-  //
-  //  HAL_GPIO_WritePin(
-  //      STEPPER_Y_NSLEEP_GPIO_Port, STEPPER_Y_NSLEEP_Pin, GPIO_PIN_RESET);
-  //
-  //  while (true) {
-  //    HAL_GPIO_WritePin(
-  //        STEPPER_Y_STEP_GPIO_Port, STEPPER_Y_STEP_Pin, GPIO_PIN_SET);
-  //
-  //    HAL_GPIO_WritePin(
-  //        STEPPER_Y_STEP_GPIO_Port, STEPPER_Y_STEP_Pin, GPIO_PIN_RESET);
-  //
-  //    HAL_GPIO_WritePin(
-  //        STEPPER_Y_ENABLE_GPIO_Port, STEPPER_Y_ENABLE_Pin, GPIO_PIN_SET);
-  //    HAL_GPIO_WritePin(
-  //        STEPPER_Y_ENABLE_GPIO_Port, STEPPER_Y_ENABLE_Pin, GPIO_PIN_RESET);
-  //
-  //    HAL_GPIO_WritePin(STEPPER_Y_DIR_GPIO_Port, STEPPER_Y_DIR_Pin,
-  //    GPIO_PIN_SET); HAL_GPIO_WritePin(
-  //        STEPPER_Y_DIR_GPIO_Port, STEPPER_Y_DIR_Pin, GPIO_PIN_RESET);
-  //
-  //    HAL_GPIO_WritePin(STEPPER_Y_M0_GPIO_Port, STEPPER_Y_M0_Pin,
-  //    GPIO_PIN_SET); HAL_GPIO_WritePin(STEPPER_Y_M0_GPIO_Port,
-  //    STEPPER_Y_M0_Pin, GPIO_PIN_RESET);
-  //
-  //    HAL_GPIO_WritePin(STEPPER_Y_M1_GPIO_Port, STEPPER_Y_M1_Pin,
-  //    GPIO_PIN_SET); HAL_GPIO_WritePin(STEPPER_Y_M1_GPIO_Port,
-  //    STEPPER_Y_M1_Pin, GPIO_PIN_RESET);
-  //
-  //    HAL_GPIO_WritePin(
-  //        STEPPER_Y_NSLEEP_GPIO_Port, STEPPER_Y_NSLEEP_Pin, GPIO_PIN_SET);
-  //    HAL_GPIO_WritePin(
-  //        STEPPER_Y_NSLEEP_GPIO_Port, STEPPER_Y_NSLEEP_Pin, GPIO_PIN_RESET);
-  //  }
-
   TestCLI_Init(&huart3);
   TestCLI_Run(); /* never returns */
+#elif RUN_MODE == RUN_MODE_TEST_STATE
+
+  CommandDispatcher_t* dispatcher = Sys_GetCommandDispatcher();
+  StateMachine_Init(dispatcher);
+
+  bool data_injected = false;
+
+  while (1) {
+    StateMachine_Update();
+
+    if (Interrupt_GetState() == IS_ESTOP) {
+      return;
+    }
+
+    if (StateMachine_IsIdle() && !data_injected) {
+      test_cmd.pieces_count = 2;
+
+      /* Piece 1 */
+      test_cmd.pieces[0].piece_id = 1;
+      test_cmd.pieces[0].pick_x = 30.0f;
+      test_cmd.pieces[0].pick_y = 30.0f;
+      test_cmd.pieces[0].place_x = 40.0f;
+      test_cmd.pieces[0].place_y = 40.0f;
+      test_cmd.pieces[0].rotation = 90.0f;
+
+      /* Piece 2 */
+      test_cmd.pieces[1].piece_id = 2;
+      test_cmd.pieces[1].pick_x = 100.0f;
+      test_cmd.pieces[1].pick_y = 100.0f;
+      test_cmd.pieces[1].place_x = 180.0f;
+      test_cmd.pieces[1].place_y = 200.0f;
+      test_cmd.pieces[1].rotation = -45.0f;
+
+      StateMachine_StartManual(&test_cmd);
+      data_injected = true;
+    }
+
+    if (StateMachine_IsIdle() && data_injected) {
+      return;
+    }
+  }
 
 #elif RUN_MODE == RUN_MODE_APP
   /* --- STATE MACHINE MODUS --- */
