@@ -23,7 +23,7 @@
 #include <stdbool.h>
 
 /**
- * @brief Initialises the LED driver and turns the LED on.
+ * @brief Initialises the LED driver and turns the LEDs off.
  *
  * Stores the GPIO descriptor for subsequent calls and drives the pin to the
  * on state.  Must be called before Leds_Set() or Leds_Get().

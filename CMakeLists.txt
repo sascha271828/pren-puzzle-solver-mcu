@@ -52,6 +52,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/actuators/buttons.c
     Core/Src/actuators/magnet.c
     Core/Src/actuators/rotator.c
+    Core/Src/actuators/status_leds.c
     Core/Src/actuators/step_generator.c
     Core/Src/actuators/stepper.c
     Core/Src/actuators/homer.c

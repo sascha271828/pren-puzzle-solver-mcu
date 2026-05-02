@@ -17,6 +17,7 @@
 #include "sys_init.h"
 #include "uart_receiver.h"
 #include "usart.h"
+#include "status_leds.h"
 
 #if RUN_MODE == RUN_MODE_TEST_CLI
 #include "test_cli.h"
@@ -34,7 +35,7 @@ void App_Run(void) {
 #if RUN_MODE == RUN_MODE_TEST_CLI
 
   TestCLI_Init(&huart3);
-  TestCLI_Run(); /* never returns */
+  TestCLI_Run();
 #elif RUN_MODE == RUN_MODE_TEST_STATE
 
   CommandDispatcher_t* dispatcher = Sys_GetCommandDispatcher();
@@ -106,6 +107,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
 #endif
     EmergencyStop_Process();
     Buttons_Poll_ISR();
+    StatusLeds_Blink_ISR();
 
     switch (Interrupt_GetState()) {
       case IS_HOMING:

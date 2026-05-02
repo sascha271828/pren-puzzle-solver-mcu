@@ -10,6 +10,7 @@
 #include "magnet.h"
 #include "motion_planner.h"
 #include "rotator.h"
+#include "status_leds.h"
 #include "step_generator.h"
 #include "stepper.h"
 #include "tim.h"
@@ -182,6 +183,8 @@ void Sys_Init(void) {
   GPIO_Pin_t led = { .port = DOUT_2_GPIO_Port, .pin = DOUT_2_Pin };
   Leds_Init(led);
 
+  StatusLeds_Init();
+
   /* --- HOMER --- */
   Homer_Init(&stepper_x, &stepper_y);
 
@@ -193,11 +196,11 @@ void Sys_Init(void) {
   /* --- UART / COMMUNICATION INIT --- */
   HAL_TIM_Base_Start_IT(&htim2);
 
-  #if RUN_MODE != RUN_MODE_TEST_CLI
+#if RUN_MODE != RUN_MODE_TEST_CLI
   UartReceiver_Init(&uart_receiver, &huart3);
   CommandDispatcher_Init(&command_dispatcher, &uart_receiver);
   UartReceiver_Start(&uart_receiver);
-  #endif
+#endif
 }
 
 UartReceiver_t* Sys_GetUartReceiver(void) { return &uart_receiver; }

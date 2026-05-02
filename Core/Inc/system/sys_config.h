@@ -239,4 +239,13 @@
   (CONFIG_HOMING_BACKOFF_DIST_MM * AXIS_STEPS_PER_MM_NUM / \
    AXIS_STEPS_PER_MM_DEN * HOMING_BACKOFF_INTERVAL)
 
+/* ============================================================================
+ * STATUS LEDS
+ * ========================================================================== */
+#define STATUSLED_BLINK_FREQUENCY 1000 /* mHz*/
+
+#define STATUSLED_BLINK_TICKS                                                 \
+  ((uint32_t)(((TIMER_FREQ_HZ_ACTUATORS) / (STATUSLED_BLINK_FREQUENCY * 2)) * \
+              1000))
+
 #endif /* __SYS_CONFIG_MY_H__ */
