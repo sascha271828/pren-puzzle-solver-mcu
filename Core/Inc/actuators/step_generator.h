@@ -5,16 +5,6 @@
 #include "sys_config.h"
 
 /**
- * @brief Precomputed timer-tick intervals for the acceleration/deceleration
- *        ramp. Entry [n] holds the number of ISR ticks to wait before step n
- *        during the ramp. The same table is mirrored for deceleration.
- *        Size is fixed at MAX_ACCEL_STEPS (defined in sys_config.h).
- */
-typedef struct {
-  uint32_t interval[AXIS_ACCEL_STEPS_IDEAL];
-} interval_table_t;
-
-/**
  * @brief Fully describes a single linear move, including its trapezoidal
  *        (or triangular) speed profile. Generated once by
  *        StepGenerator_GenerateBlock() and treated as read-only thereafter.
@@ -39,9 +29,8 @@ typedef struct {
   uint32_t decel_at;        /**< Step index where deceleration phase begins*/
   uint32_t cruise_interval; /**< Constant ISR-tick interval during cruise  */
   uint32_t path_steps;      /**< Total steps along the dominant axis       */
-  interval_table_t interval_table; /**< Precomputed ramp intervals           */
-  uint32_t table_len; /**< Number of valid entries in interval_table */
-  bool x_dominant;    /**< True if X axis drives the DDA             */
+  uint32_t table_len;       /**< Number of valid entries in interval_table */
+  bool x_dominant;          /**< True if X axis drives the DDA             */
 } MoveBlock_t;
 
 /**

@@ -114,12 +114,12 @@
 /* Options: 1, 2, 4, 16       */
 
 /** Circumference of the drive pulley / shaft [mm].
- *  GT2 belt + 20-tooth pulley → 20 × 2 mm = 40 mm.
+ * 15 mm * pi = 50 mm
  *  Adjust if using a different pulley or leadscrew pitch. */
-#define CONFIG_AXIS_CIRCUMFERENCE_MM 40UL
+#define CONFIG_AXIS_CIRCUMFERENCE_MM 50UL
 
-#define CONFIG_AXIS_MAX_SPEED_MM_S 150UL /* Cruise speed        [mm/s]  */
-#define CONFIG_AXIS_ACCEL_MM_S2 2000UL   /* Acceleration        [mm/s²] */
+#define CONFIG_AXIS_MAX_SPEED_MM_S 200UL /* Cruise speed        [mm/s]  */
+#define CONFIG_AXIS_ACCEL_MM_S2 1000UL   /* Acceleration        [mm/s²] */
 
 /* --- Derived: steps/mm (kept as NUM/DEN fraction to avoid truncation) ----- */
 #define AXIS_STEPS_PER_MM_NUM (CONFIG_AXIS_MICRO * CONFIG_AXIS_STEPS_PER_REV)
@@ -216,9 +216,9 @@
  * ========================================================================== */
 
 /* Speeds as fraction of cruise speed */
-#define CONFIG_HOMING_COARSE_SPEED_MM_S 40UL  /* fast search          */
+#define CONFIG_HOMING_COARSE_SPEED_MM_S 120UL /* fast search          */
 #define CONFIG_HOMING_FINE_SPEED_MM_S 10UL    /* slow precise touch   */
-#define CONFIG_HOMING_BACKOFF_SPEED_MM_S 20UL /* retreat              */
+#define CONFIG_HOMING_BACKOFF_SPEED_MM_S 40UL /* retreat              */
 #define CONFIG_HOMING_BACKOFF_DIST_MM 5UL     /* retreat distance     */
 
 /* Derived: ticks between steps (= ISR interval) */

@@ -9,6 +9,7 @@
 #include "piston.h"
 #include "rotator.h"
 #include "state_machine.h"
+#include "status_leds.h"
 #include "step_generator.h"
 #include "sys_config.h"
 #include "sys_init.h"
@@ -125,7 +126,8 @@ static void cmd_help(void) {
   cli_putstr("  r <steps>      Move rotator (steps, signed)\r\n");
   cli_putstr("  p <0..3>       Piston retract/extend\r\n");
   cli_putstr("  g <0|1>        Magnet off/on\r\n");
-  cli_putstr("  l <0|1>        Led off/on\r\n");
+  cli_putstr("  l <0|1>        Leds off/on\r\n");
+  cli_putstr("  a <0|1>        Leds signal (g y r) off/blink/on\r\n");
   cli_putstr(
       "  t              Testmachine sequence (with Hardware Button)\r\n");
 }
@@ -167,7 +169,7 @@ static void cmd_status(void) {
   snprintf(
       buf, sizeof(buf), "ROT:  %s\r\n", Rotator_IsBusy() ? "busy" : "idle");
 
- snprintf(buf, sizeof(buf), "PST:  %s\r\n", Piston_IsBusy() ? "busy" : "idle");
+  snprintf(buf, sizeof(buf), "PST:  %s\r\n", Piston_IsBusy() ? "busy" : "idle");
   cli_putstr(buf);
 }
 
@@ -268,6 +270,40 @@ static void cmd_magnet(const char* args) {
   }
 
   Magnet_SetState((bool)val);
+  cli_ok();
+}
+
+static void cmd_led_signal(const char* args) {
+  int val;
+  if (sscanf(args, "%d", &val) != 1 || (val < 1 && val > 9)) {
+    cli_err("usage: a <1...9>");
+    return;
+  }
+  StatusLeds_e led;
+  if (val > 6) {
+    led = STATUSLED_RED;
+    val %= 7;
+  } else if (val > 3) {
+    led = STATUSLED_YELLOW;
+    val %= 4;
+  } else {
+    led = STATUSLED_GREEN;
+    val %= 1;
+  }
+  switch (val) {
+    case 0:
+      /* TODO */
+      break;
+    case 1:
+      StatusLeds_Blink(led);
+      break;
+    case 2:
+      StatusLeds_On(led);
+      break;
+    default:
+      break;
+  }
+
   cli_ok();
 }
 
@@ -383,6 +419,9 @@ static void cli_dispatch(char* line) {
       break;
     case 't':
       cmd_testmachine_sequence();
+      break;
+    case 'a':
+      cmd_led_signal(args);
       break;
     default:
       cli_err("unknown command — type ? for help");

@@ -81,78 +81,125 @@ typedef enum {
 } StatusLeds_Type_e;
 
 /**
- * @brief Initialize status LED subsystem
+ * @brief Initialize status LED driver and turn all LEDs off
  *
- * Turns off all LEDs and prepares GPIO states. Must be called once
- * during system initialization before any StatusLeds_On/Blink calls.
+ * Sets all three LEDs to off state and clears any blinking modes.
+ * Must be called once during system initialization before using any other
+ * StatusLed functions.
  *
- * @pre GPIO clocks and pin modes configured by CubeMX/main.c
- * @post All LEDs off, blinking mode disabled
+ * @pre GPIO pins for DOUT_5/6/7 must be initialized by HAL/CubeMX
+ * @post All LEDs off, blinking disabled
+ *
+ * @note Idempotent — safe to call multiple times
  */
 void StatusLeds_Init(void);
 
 /**
- * @brief Start blinking a specific LED
+ * @brief Read current state/mode of specified LED
  *
- * @details
- * Enters blinking mode for the specified LED. All other LEDs are turned off.
- * The blink timing is controlled by StatusLeds_Blink_ISR() which must be
- * called periodically from an ISR (typically TIM2 at 120 kHz).
+ * Returns the LED's current operational mode by checking blinking mode flag
+ * first, then reading GPIO pin state if not blinking.
  *
- * **Thread safety:** Uses TIM2 interrupt masking to atomically update shared
- * state. Safe to call from main context while ISR is active.
+ * Return priority:
+ * 1. STATUSLED_TYPE_BLINK if led_blinking_mode[led] is active
+ * 2. STATUSLED_TYPE_ON if GPIO pin reads high (and not blinking)
+ * 3. STATUSLED_TYPE_OFF if GPIO pin reads low (and not blinking)
  *
- * @param[in] led  LED to blink (STATUSLED_GREEN/YELLOW/RED)
+ * @param[in] led  LED identifier (STATUSLED_GREEN/YELLOW/RED)
  *
- * @pre StatusLeds_Init() called
- * @post Specified LED blinking, others off, blinking mode active
+ * @return Current LED mode:
+ *         - STATUSLED_TYPE_BLINK: LED in blinking mode (ISR-driven)
+ *         - STATUSLED_TYPE_ON: LED static on
+ *         - STATUSLED_TYPE_OFF: LED off
  *
- * @see StatusLeds_Blink_ISR()
+ * @pre StatusLeds_Init() must have been called
+ *
+ * @note If LED is blinking, return value is BLINK regardless of instantaneous
+ *       GPIO pin state (on or off phase)
+ */
+StatusLeds_Type_e StatusLed_Read(StatusLeds_e led);
+
+
+/**
+ * @brief Enable blinking mode for specified LED
+ *
+ * Activates ISR-driven blinking at the frequency configured by
+ * STATUSLED_BLINK_FREQUENCY in sys_config.h. LED immediately turns on, then
+ * toggles on/off at each blink interval driven by StatusLeds_Blink_ISR().
+ *
+ * Multiple LEDs can blink simultaneously — they toggle in sync.
+ *
+ * @param[in] led  LED identifier (STATUSLED_GREEN/YELLOW/RED)
+ *
+ * @pre StatusLeds_Init() must have been called
+ * @pre TIM2 interrupt must be running and calling StatusLeds_Blink_ISR()
+ * @post LED enters blinking mode; led_blinking_mode[led] = true
+ *
+ * @note Thread-safe: Uses NVIC disable/enable for atomic update
+ * @note To stop blinking, call StatusLeds_On() or StatusLeds_Off()
+ *
+ * @warning Does not validate led parameter — UB if led >= STATUSLED_SENTINEL
  */
 void StatusLeds_Blink(StatusLeds_e led);
 
 /**
- * @brief Turn on a specific LED (static)
+ * @brief Turn LED on (static, non-blinking)
  *
- * @details
- * Sets the specified LED to static on, turns off all other LEDs,
- * and disables blinking mode if it was active.
+ * Sets LED to constant-on state. If LED was previously blinking, blinking is
+ * disabled and LED remains on.
  *
- * **Thread safety:** Uses TIM2 interrupt masking to atomically disable
- * blinking mode. Safe to call from main context while ISR is active.
+ * @param[in] led  LED identifier (STATUSLED_GREEN/YELLOW/RED)
  *
- * @param[in] led  LED to turn on (STATUSLED_GREEN/YELLOW/RED)
+ * @pre StatusLeds_Init() must have been called
+ * @post LED on; led_blinking_mode[led] = false
  *
- * @pre StatusLeds_Init() called
- * @post Specified LED on, others off, blinking mode disabled
+ * @note Thread-safe: Uses NVIC disable/enable for atomic mode update
+ * @warning Does not validate led parameter — UB if led >= STATUSLED_SENTINEL
  */
 void StatusLeds_On(StatusLeds_e led);
 
 /**
- * @brief ISR callback to update LED blink state
+ * @brief Turn LED off
  *
- * @details
- * Must be called periodically from an interrupt context to drive the
- * blink timing. Typically invoked from TIM2 period elapsed callback
- * at 120 kHz (8.3 µs period). Does nothing if blinking mode is not active.
+ * Sets LED to off state. If LED was previously blinking, blinking is disabled
+ * and LED turns off.
  *
- * The blink period is determined by `STATUSLED_BLINK_FREQUENCY` in sys_config.h
- * (in mHz). Internal tick counter decrements each call; when it reaches zero,
- * the LED toggles and the counter reloads with `STATUSLED_BLINK_TICKS`.
+ * @param[in] led  LED identifier (STATUSLED_GREEN/YELLOW/RED)
  *
- * **Example timing:**
- * - STATUSLED_BLINK_FREQUENCY = 1000 mHz (1 Hz)
- * - At 120 kHz ISR rate: 120,000 ticks per ON phase, 120,000 ticks per OFF
- * phase
- * - Total period = 1 second (500 ms ON, 500 ms OFF)
+ * @pre StatusLeds_Init() must have been called
+ * @post LED off; led_blinking_mode[led] = false
  *
- * ⚠ Must be called from ISR context for timing accuracy.
+ * @note Thread-safe: Uses NVIC disable/enable for atomic mode update
+ * @warning Does not validate led parameter — UB if led >= STATUSLED_SENTINEL
+ */
+void StatusLeds_Off(StatusLeds_e led);
+
+/**
+ * @brief ISR callback to update LED blinking state
  *
- * @pre StatusLeds_Blink() called to enter blinking mode
- * @post LED state toggled when tick counter expires (if blinking active)
+ * Must be called from TIM2 ISR at 120 kHz (every 8.33 µs). Maintains internal
+ * tick counter; toggles all LEDs in blinking mode when counter reaches zero.
  *
- * @see StatusLeds_Blink()
- * @see STATUSLED_BLINK_FREQUENCY in sys_config.h
+ * Timing:
+ * - Blink interval = STATUSLED_BLINK_TICKS (derived from
+ * STATUSLED_BLINK_FREQUENCY)
+ * - All blinking LEDs toggle simultaneously (synchronized)
+ *
+ * @pre TIM2 running at SYSTEM_TICK_FREQ (120 kHz)
+ * @post Decrements led_blinking_tick; toggles LEDs if tick == 0
+ *
+ * @note Execution time must fit within 8.33 µs ISR budget
+ * @note Shared state (led_blinking_mode[]) protected by NVIC masking in
+ * caller functions
+ *
+ * Usage:
+ * @code
+ * void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+ *   if (htim == &htim2) {
+ *     StatusLeds_Blink_ISR();
+ *   }
+ * }
+ * @endcode
  */
 void StatusLeds_Blink_ISR(void);
 

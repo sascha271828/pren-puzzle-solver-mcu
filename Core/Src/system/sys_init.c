@@ -157,12 +157,12 @@ void Sys_Init(void) {
 
   /* --- PISTON --- */
   GPIO_Pin_t piston_1_extend = {
-    .port = DOUT_5_GPIO_Port,
-    .pin = DOUT_5_Pin,
+    .port = DOUT_3_GPIO_Port,
+    .pin = DOUT_3_Pin,
   };
   GPIO_Pin_t piston_1_retract = {
-    .port = DOUT_8_GPIO_Port,
-    .pin = DOUT_8_Pin,
+    .port = DOUT_4_GPIO_Port,
+    .pin = DOUT_4_Pin,
   };
 
   GPIO_Pin_t magnet_pin = {
