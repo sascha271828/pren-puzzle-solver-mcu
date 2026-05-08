@@ -6,6 +6,7 @@
 #include "interrupt.h"
 #include "leds.h"
 #include "magnet.h"
+#include "motion_planner.h"
 #include "piston.h"
 #include "rotator.h"
 #include "state_machine.h"
@@ -129,6 +130,7 @@ static void cmd_help(void) {
   cli_putstr("  l <0|1>        Leds (area) off/on\r\n");
   cli_putstr("  a <0|1>        Leds signal (0:g 10:y 20:r)\r\n");
   cli_putstr("                 +0: off, +1: blink, +2 on\r\n");
+  cli_putstr("  b <x> <y>      move planner [um] absolut \r\n");
   // cli_putstr(
   //     "  t              Testmachine sequence (with Hardware Button)\r\n");
 }
@@ -210,6 +212,44 @@ static void cmd_move(const char* args) {
 
   static MoveBlock_t block; /* static: outlives StartMove */
   block = StepGenerator_GenerateBlock(x, y);
+
+  if (!StepGenerator_StartMove(&block)) {
+    cli_busy();
+    return;
+  }
+
+  cli_wait_step_generator();
+  cli_ok();
+}
+
+static int32_t current_pos_steps_x = 0;
+static int32_t current_pos_steps_y = 0;
+
+/* move to absolute position */
+static void cmd_move_planner(const char* args) {
+  int32_t x, y;
+  if (sscanf(args, "%ld %ld", &x, &y) != 2) {
+    cli_err("usage: b <x> <y> [um]");
+    return;
+  }
+  if (Interrupt_GetState() != IS_READY && Interrupt_GetState() != IS_RUNNING) {
+    cli_err("not ready — home first");
+    return;
+  }
+  if (StepGenerator_IsBusy()) {
+    cli_busy();
+    return;
+  }
+
+  int32_t target_steps_x = (x * CONFIG_STEPS_PER_MM_X) / 1000;
+  int32_t target_steps_y = (y * CONFIG_STEPS_PER_MM_Y) / 1000;
+  int32_t move_steps_x = target_steps_x - current_pos_steps_x;
+  int32_t move_steps_y = target_steps_y - current_pos_steps_y;
+  current_pos_steps_x = target_steps_x;
+  current_pos_steps_y = target_steps_y;
+
+  static MoveBlock_t block; /* static: outlives StartMove */
+  block = StepGenerator_GenerateBlock(move_steps_x, move_steps_y);
 
   if (!StepGenerator_StartMove(&block)) {
     cli_busy();
@@ -320,60 +360,6 @@ static void cmd_led(const char* args) {
   cli_ok();
 }
 
-static void cmd_testmachine_sequence(void) {
-  cli_putstr("Starting State Machine...\r\n");
-
-  CommandDispatcher_t* dispatcher = Sys_GetCommandDispatcher();
-  StateMachine_Init(dispatcher);
-
-  cli_putstr(
-      "Waiting for homing to finish, then waiting for hardware START "
-      "button...\r\n");
-
-  bool data_injected = false;
-
-  while (1) {
-    StateMachine_Update();
-
-    if (Interrupt_GetState() == IS_ESTOP) {
-      cli_err("Emergency Stop triggered!");
-      return;
-    }
-
-    if (StateMachine_IsIdle() && !data_injected) {
-      cli_putstr("Start button pressed! Injecting test data...\r\n");
-
-      PuzzleCommand test_cmd = PuzzleCommand_init_zero;
-      test_cmd.pieces_count = 2;
-
-      /* Piece 1 */
-      test_cmd.pieces[0].piece_id = 1;
-      test_cmd.pieces[0].pick_x = 30.0f;
-      test_cmd.pieces[0].pick_y = 30.0f;
-      test_cmd.pieces[0].place_x = 40.0f;
-      test_cmd.pieces[0].place_y = 40.0f;
-      test_cmd.pieces[0].rotation = 90.0f;
-
-      /* Piece 2 */
-      test_cmd.pieces[1].piece_id = 2;
-      test_cmd.pieces[1].pick_x = 100.0f;
-      test_cmd.pieces[1].pick_y = 100.0f;
-      test_cmd.pieces[1].place_x = 180.0f;
-      test_cmd.pieces[1].place_y = 200.0f;
-      test_cmd.pieces[1].rotation = -45.0f;
-
-      StateMachine_StartManual(&test_cmd);
-      data_injected = true;
-    }
-
-    if (StateMachine_IsIdle() && data_injected) {
-      cli_putstr("Test sequence finished successfully.\r\n");
-      cli_ok();
-      return;
-    }
-  }
-}
-
 /* ── Dispatcher ─────────────────────────────────────────────────────────── */
 
 /**
@@ -418,6 +404,9 @@ static void cli_dispatch(char* line) {
       break;
     case 'l':
       cmd_led(args);
+      break;
+    case 'b':
+      cmd_move_planner(args);
       break;
       //    case 't':
       //      cmd_testmachine_sequence();

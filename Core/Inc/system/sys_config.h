@@ -23,8 +23,9 @@
 #define RUN_MODE_TEST_CLI 0
 #define RUN_MODE_APP 1
 #define RUN_MODE_TEST_STATE 2
+#define RUN_MODE_LED 3
 
-#define RUN_MODE RUN_MODE_TEST_CLI
+#define RUN_MODE RUN_MODE_APP
 #define TEST_ISR_TIME 0
 /* ============================================================================
  * TIMER
@@ -163,8 +164,8 @@
  *  Measure the actual travel distance for one full shaft revolution. */
 #define CONFIG_ROT_CIRCUMFERENCE_MM 100UL
 
-#define CONFIG_ROT_MAX_SPEED_MM_S 50UL /* Cruise speed        [mm/s]  */
-#define CONFIG_ROT_ACCEL_MM_S2 100UL   /* Acceleration        [mm/s²] */
+#define CONFIG_ROT_MAX_SPEED_MM_S 100UL /* Cruise speed        [mm/s]  */
+#define CONFIG_ROT_ACCEL_MM_S2 300UL    /* Acceleration        [mm/s²] */
 
 /* --- Derived: steps/mm ---------------------------------------------------- */
 #define ROT_STEPS_PER_MM_NUM (CONFIG_ROT_MICRO * CONFIG_ROT_STEPS_PER_REV)

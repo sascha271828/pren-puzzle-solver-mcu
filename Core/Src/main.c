@@ -49,7 +49,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -71,7 +70,6 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -92,17 +90,14 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
-  MX_UART5_Init();
   MX_USART3_UART_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_Base_Init(&htim2);
+  HAL_TIM_Base_Init(&htim3);
+
   Sys_Init();
-  /*HAL_TIM_Base_Init(&htim3);*/
-
-  /*HAL_NVIC_SetPriority(UART5_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(UART5_IRQn);*/
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -185,7 +180,8 @@ void SystemClock_Config(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
+  /* User can add his own implementation to report the HAL error return state
+   */
   __disable_irq();
   while (1) {
   }
@@ -203,8 +199,8 @@ void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line
-     number, ex: printf("Wrong parameters value: file %s on line %d\r\n", file,
-     line) */
+     number, ex: printf("Wrong parameters value: file %s on line %d\r\n",
+     file, line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

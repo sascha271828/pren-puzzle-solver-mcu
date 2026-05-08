@@ -101,6 +101,7 @@ bool Rotator_StartMove(const RotateBlock_t* block) {
 
   Stepper_Enable(rotator.motor_rot, true);
   Stepper_SetDirection(rotator.motor_rot, (current_block.block->steps > 0));
+  rotator.current_position += current_block.block->steps;
 
   HAL_TIM_Base_Start_IT(&htim2);
   return true;

@@ -7,6 +7,7 @@
 #include "emergency_stop.h"
 #include "homer.h"
 #include "interrupt.h"
+#include "leds.h"
 #include "limit_switch.h"
 #include "magnet.h"
 #include "piston.h"
@@ -34,7 +35,8 @@ void App_Run(void) {
 
 #if RUN_MODE == RUN_MODE_TEST_CLI
 
-  TestCLI_Init(&huart3);
+  // TestCLI_Init(&huart3);
+  TestCLI_Init(&huart2);
   TestCLI_Run();
 #elif RUN_MODE == RUN_MODE_TEST_STATE
 
@@ -84,12 +86,25 @@ void App_Run(void) {
 
   StateMachine_Init(dispatcher);
 
-  Piston_Set(PISTON_POS_START);
-  Magnet_SetState(false);
+  // Piston_Set(PISTON_POS_START);
+  // Magnet_SetState(false);
 
   for (;;) {
     CommandDispatcher_Poll(dispatcher);
     StateMachine_Update();
+  }
+
+#elif RUN_MODE == RUN_MODE_LED
+  while (1) {
+    if (Buttons_Start_Pressed()) {
+      Leds_Set(true);
+      Buttons_Start_RearmPressDetection();
+    }
+
+    if (Buttons_Reset_Pressed()) {
+      Leds_Set(false);
+      Buttons_Reset_RearmPressDetection();
+    }
   }
 
 #else
@@ -102,6 +117,9 @@ void App_Run(void) {
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
   if (htim->Instance == TIM2) {
+#if RUN_MODE == RUN_MODE_LED
+    Buttons_Poll_ISR();
+#else
 #if TEST_ISR_TIME
     HAL_GPIO_WritePin(DOUT_8_GPIO_Port, DOUT_8_Pin, GPIO_PIN_SET);
 #endif
@@ -118,7 +136,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
       case IS_READY:
         // StatusLeds_On(STATUSLED_YELLOW);
         // break;
-
       case IS_RUNNING:
         if (LimitSwitch_Activated()) {
           Interrupt_SetState(IS_ESTOP);
@@ -127,7 +144,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
         StepGenerator_Update();
         Rotator_Update();
         Piston_Update();
-        StatusLeds_Blink(STATUSLED_YELLOW);
         break;
       case IS_ESTOP:
         Magnet_SetState(false);
@@ -152,11 +168,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
 #if TEST_ISR_TIME
     HAL_GPIO_WritePin(DOUT_8_GPIO_Port, DOUT_8_Pin, GPIO_PIN_RESET);
 #endif
+#endif
   }
 }
-
+#if RUN_MODE == RUN_MODE_APP
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
-  if (huart->Instance == UART7) {
+  if (huart->Instance == UART5) {
     UartReceiver_RxCallback(Sys_GetUartReceiver());
   }
 }
+#endif

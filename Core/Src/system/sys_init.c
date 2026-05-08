@@ -13,6 +13,7 @@
 #include "status_leds.h"
 #include "step_generator.h"
 #include "stepper.h"
+#include "sys_config.h"
 #include "tim.h"
 #include "uart_receiver.h"
 #include "usart.h"
@@ -135,6 +136,13 @@ static CommandDispatcher_t command_dispatcher;
 #pragma endregion
 
 void Sys_Init(void) {
+#if RUN_MODE == RUN_MODE_LED
+  GPIO_Pin_t led = { .port = DOUT_2_GPIO_Port, .pin = DOUT_2_Pin };
+  Leds_Init(led);
+
+  HAL_TIM_Base_Start_IT(&htim2);
+
+#else
   Interrupt_Init();
 
   /* --- STEPPER --- */
@@ -193,13 +201,16 @@ void Sys_Init(void) {
   Rotator_Init(&stepper_rot);
   Magnet_Init(magnet_pin);
 
-  /* --- UART / COMMUNICATION INIT --- */
   HAL_TIM_Base_Start_IT(&htim2);
 
-#if RUN_MODE != RUN_MODE_TEST_CLI
-  UartReceiver_Init(&uart_receiver, &huart3);
+#if RUN_MODE == RUN_MODE_APP
+  UartReceiver_Init(&uart_receiver, &huart2);
   CommandDispatcher_Init(&command_dispatcher, &uart_receiver);
   UartReceiver_Start(&uart_receiver);
+
+#endif
+
+
 #endif
 }
 

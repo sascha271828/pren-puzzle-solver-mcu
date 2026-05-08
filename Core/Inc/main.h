@@ -111,10 +111,6 @@ void Error_Handler(void);
 #define STEPPER_X_DIR_GPIO_Port GPIOB
 #define STEPPER_X_M1_Pin GPIO_PIN_11
 #define STEPPER_X_M1_GPIO_Port GPIOB
-#define UART_RX_Pin GPIO_PIN_12
-#define UART_RX_GPIO_Port GPIOB
-#define UART_TX_Pin GPIO_PIN_13
-#define UART_TX_GPIO_Port GPIOB
 #define STLINK_RX_Pin GPIO_PIN_8
 #define STLINK_RX_GPIO_Port GPIOD
 #define STLINK_TX_Pin GPIO_PIN_9
