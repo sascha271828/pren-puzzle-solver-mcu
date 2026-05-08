@@ -284,14 +284,14 @@ static void cmd_led_signal(const char* args) {
   if (val >= 20) {
     led = STATUSLED_RED;
     val %= 20;
-    val %= 3
+    val %= 3;
   } else if (val >= 10) {
     led = STATUSLED_YELLOW;
     val %= 10;
-    val %= 3
+    val %= 3;
   } else {
     led = STATUSLED_GREEN;
-    val %= 3
+    val %= 3;
   }
   switch (val) {
     case 0:

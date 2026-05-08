@@ -2,6 +2,7 @@
 
 #include "emergency_stop.h"
 
+#include "buttons.h"
 #include "interrupt.h"
 
 static GPIO_Pin_t emergency_stop = {
@@ -13,6 +14,7 @@ void EmergencyStop_Process(void) {
   if (HAL_GPIO_ReadPin(emergency_stop.port, emergency_stop.pin) ==
       GPIO_PIN_SET) {
     Interrupt_SetState(IS_ESTOP);
+    Buttons_Reset_RearmPressDetection();
   }
 }
 

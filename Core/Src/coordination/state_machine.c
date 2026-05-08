@@ -62,51 +62,16 @@ static PieceCommand* piece;
 static MoveBlock_t active_xy_move;
 static RotateBlock_t active_rot_move;
 
-
 /**
  * @brief Non-blocking state machine update loop.
  */
 void StateMachine_Update(void) {
-
-  //  if (Buttons_Reset_Pressed()) {
-  //    Buttons_Reset_RearmPressDetection();
-  //
-  //    StepGenerator_Abort();
-  //    Rotator_Abort();
-  //    Magnet_SetState(false);
-  //
-  //    Leds_Set(false);
-  //    led_is_active = false;
-  //
-  //    CommandDispatcher_SendAck(sm_dispatcher, Status_STATUS_ERROR, 0);
-  //
-  //    if (Interrupt_GetState() != IS_ESTOP) {
-  //      current_state = SM_INIT_HOMING;
-  //    } else {
-  //      current_state = SM_ERROR;
-  //    }
-  //
-  //    return;
-  //  }
-
   if (led_is_active) {
-    if (HAL_GetTick() - led_turn_on_tick >= CONFIG_LED_ON_TIME_MS) {
+    if (HAL_GetTick() - led_turn_on_tick >= CONFIG_LED_ON_TIME_MS) { /* TODO change to state check*/
       Leds_Set(false);
       led_is_active = false;
     }
   }
-
-  //  if (current_state > SM_HOMING_BUSY && current_state != SM_ERROR &&
-  //      current_state != SM_IDLE && current_state != SM_WAIT_FOR_START) {
-  //    if (LimitSwitch_Activated() || Interrupt_GetState() == IS_ESTOP) {
-  //      StepGenerator_Abort();
-  //      Rotator_Abort();
-  //      Magnet_SetState(false);
-  //
-  //      CommandDispatcher_SendAck(sm_dispatcher, Status_STATUS_ERROR, 0);
-  //      current_state = SM_ERROR;
-  //    }
-  //  }
 
   switch (current_state) {
     case SM_INIT_HOMING:
@@ -150,6 +115,7 @@ void StateMachine_Update(void) {
       active_xy_move =
           MotionPlanner_PlanMoveToPickMM(piece->pick_x, piece->pick_y);
       StepGenerator_StartMove(&active_xy_move);
+
       current_state = SM_MOVE_TO_PICK;
       break;
 

@@ -12,12 +12,12 @@
 #include "piston.h"
 #include "rotator.h"
 #include "state_machine.h"
+#include "status_leds.h"
 #include "step_generator.h"
 #include "sys_config.h"
 #include "sys_init.h"
 #include "uart_receiver.h"
 #include "usart.h"
-#include "status_leds.h"
 
 #if RUN_MODE == RUN_MODE_TEST_CLI
 #include "test_cli.h"
@@ -112,14 +112,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
     switch (Interrupt_GetState()) {
       case IS_HOMING:
         Homer_Update();
+        Piston_Update();
+        Rotator_Update();
         break;
       case IS_READY:
       case IS_RUNNING:
         if (LimitSwitch_Activated()) {
-          StepGenerator_Abort();
-        } else {
-          StepGenerator_Update();
+          Interrupt_SetState(IS_ESTOP);
+          break;
         }
+        StepGenerator_Update();
         Rotator_Update();
         Piston_Update();
         break;
@@ -129,9 +131,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
         Rotator_Abort();
         Piston_Abort();
         if (EmergencyStop_IsActivated() == false) {
-          Buttons_Reset_RearmPressDetection();
           if (Buttons_Reset_Pressed() == true) {
             Homer_HomingStart();
+            Piston_Set(PISTON_POS_START);
+            Rotator_ReturnStart();
           }
         }
         break;
