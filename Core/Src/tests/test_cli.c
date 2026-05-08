@@ -126,10 +126,11 @@ static void cmd_help(void) {
   cli_putstr("  r <steps>      Move rotator (steps, signed)\r\n");
   cli_putstr("  p <0..3>       Piston retract/extend\r\n");
   cli_putstr("  g <0|1>        Magnet off/on\r\n");
-  cli_putstr("  l <0|1>        Leds off/on\r\n");
-  cli_putstr("  a <0|1>        Leds signal (g y r) off/blink/on\r\n");
-  cli_putstr(
-      "  t              Testmachine sequence (with Hardware Button)\r\n");
+  cli_putstr("  l <0|1>        Leds (area) off/on\r\n");
+  cli_putstr("  a <0|1>        Leds signal (0:g 10:y 20:r)\r\n");
+  cli_putstr("                 +0: off, +1: blink, +2 on\r\n");
+  // cli_putstr(
+  //     "  t              Testmachine sequence (with Hardware Button)\r\n");
 }
 
 static void cmd_status(void) {
@@ -275,24 +276,26 @@ static void cmd_magnet(const char* args) {
 
 static void cmd_led_signal(const char* args) {
   int val;
-  if (sscanf(args, "%d", &val) != 1 || (val < 1 && val > 9)) {
-    cli_err("usage: a <1...9>");
+  if (sscanf(args, "%d", &val) != 1 || (val < 1 && val > 29)) {
+    cli_err("usage: a <0...29>");
     return;
   }
   StatusLeds_e led;
-  if (val > 6) {
+  if (val >= 20) {
     led = STATUSLED_RED;
-    val %= 7;
-  } else if (val > 3) {
+    val %= 20;
+    val %= 3
+  } else if (val >= 10) {
     led = STATUSLED_YELLOW;
-    val %= 4;
+    val %= 10;
+    val %= 3
   } else {
     led = STATUSLED_GREEN;
-    val %= 1;
+    val %= 3
   }
   switch (val) {
     case 0:
-      /* TODO */
+      StatusLeds_Off(led);
       break;
     case 1:
       StatusLeds_Blink(led);
@@ -303,7 +306,6 @@ static void cmd_led_signal(const char* args) {
     default:
       break;
   }
-
   cli_ok();
 }
 
@@ -417,9 +419,9 @@ static void cli_dispatch(char* line) {
     case 'l':
       cmd_led(args);
       break;
-    case 't':
-      cmd_testmachine_sequence();
-      break;
+      //    case 't':
+      //      cmd_testmachine_sequence();
+      //      break;
     case 'a':
       cmd_led_signal(args);
       break;

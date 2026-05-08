@@ -22,42 +22,60 @@ typedef struct {
   int32_t current_position;
 } Rotator_t;
 
+/**
+ * @brief Precomputed timer-tick intervals for the acceleration ramp.
+ *        Entry [n] is the number of ISR ticks to wait before step n.
+ *        The same table is mirrored for the deceleration phase.
+ */
+typedef struct {
+  uint32_t interval[ROT_ACCEL_STEPS_IDEAL];
+} interval_table_rot_t;
+
 static MoveExec_t current_block;
 static RotateBlock_t home_block;
+static interval_table_rot_t rotator_table;
 
 static Rotator_t rotator = { .motor_rot = NULL, .current_position = 0 };
 
-void Rotator_Init(Stepper_t* rot) { rotator.motor_rot = rot; }
+static void Rotator_BuildRampTable(void) {
+  float c = (float)TIMER_FREQ_HZ_ACTUATORS *
+            sqrtf(2.0f / (float)ROT_ACCEL_STEPS_IDEAL);
+
+  rotator_table.interval[0] = (uint32_t)(c + 0.5f);
+
+  for (size_t k = 1; k < ROT_ACCEL_STEPS_IDEAL; k++) {
+    c = c - (2.0f * c) / (4.0f * k + 1);
+    uint32_t interval = (uint32_t)(c + 0.5f);
+    if (interval <= ROT_CRUISE_INTERVAL) {
+      interval = ROT_CRUISE_INTERVAL;
+    }
+    rotator_table.interval[k] = interval;
+  }
+}
+
+void Rotator_Init(Stepper_t* rot) {
+  rotator.motor_rot = rot;
+  Rotator_BuildRampTable();
+}
 
 RotateBlock_t Rotator_GenerateBlock(int32_t steps) {
   uint32_t path_steps_uint = (uint32_t)(abs(steps));
-  if (path_steps_uint <= 1) {
-    path_steps_uint = 2;
-  }
 
   uint32_t accel_steps = path_steps_uint / 2;
+  uint32_t decel_at;
 
-  /* trapezoid or triangle profile */
-  if (2 * ROT_ACCEL_STEPS_IDEAL < path_steps_uint) {
-    accel_steps = ROT_ACCEL_STEPS_IDEAL;
-  }
-
-  interval_table_rot_t table;
-  float c = TIMER_FREQ_HZ_ACTUATORS * sqrtf(2.0f / ROT_ACCEL_STEPS_S2);
-  table.interval[0] = (uint32_t)c;
-
-  for (size_t k = 1; k < accel_steps; k++) {
-    c = c - (2.0f * c) / (4.0f * k + 1);
-    table.interval[k] = (uint32_t)c;
+  if (path_steps_uint >= 2 * ROT_ACCEL_STEPS_IDEAL) {
+  } else {
+    accel_steps = path_steps_uint / 2;
+    decel_at = accel_steps;
   }
 
   RotateBlock_t newBlock = {
     .steps = steps,
     .accel_until = accel_steps,
-    .decel_at = path_steps_uint - accel_steps,
+    .decel_at = decel_at,
     .cruise_interval = ROT_CRUISE_INTERVAL,
     .path_steps = path_steps_uint,
-    .interval_table = table,
     .table_len = accel_steps,
   };
 
@@ -106,8 +124,8 @@ void Rotator_Update(void) {
     Stepper_SetStep(rotator.motor_rot);
 
     if (current_block.step_index < current_block.block->accel_until) {
-      current_block.current_interval = current_block.block->interval_table
-                                           .interval[current_block.step_index];
+      current_block.current_interval =
+          rotator_table.interval[current_block.step_index];
 
     } else if (current_block.step_index < current_block.block->decel_at) {
       current_block.current_interval = current_block.block->cruise_interval;
@@ -116,12 +134,10 @@ void Rotator_Update(void) {
           current_block.step_index - current_block.block->decel_at;
 
       if (decel_steps_done >= current_block.block->table_len) {
-        current_block.current_interval =
-            current_block.block->interval_table.interval[0];
+        current_block.current_interval = rotator_table.interval[0];
       } else {
         uint32_t mirror = current_block.block->table_len - decel_steps_done - 1;
-        current_block.current_interval =
-            current_block.block->interval_table.interval[mirror];
+        current_block.current_interval = rotator_table.interval[mirror];
       }
     }
 

@@ -118,7 +118,7 @@
  *  Adjust if using a different pulley or leadscrew pitch. */
 #define CONFIG_AXIS_CIRCUMFERENCE_MM 50UL
 
-#define CONFIG_AXIS_MAX_SPEED_MM_S 200UL /* Cruise speed        [mm/s]  */
+#define CONFIG_AXIS_MAX_SPEED_MM_S 150UL /* Cruise speed        [mm/s]  */
 #define CONFIG_AXIS_ACCEL_MM_S2 1000UL   /* Acceleration        [mm/s²] */
 
 /* --- Derived: steps/mm (kept as NUM/DEN fraction to avoid truncation) ----- */
@@ -147,8 +147,8 @@
  *  to cruise speed, so we apply that factor here.
  *  The result is used as the interval-table array size and the ramp length. */
 #define AXIS_ACCEL_STEPS_IDEAL                     \
-  (215UL * (AXIS_MAX_V_STEPS * AXIS_MAX_V_STEPS) / \
-   (2UL * AXIS_ACCEL_STEPS_S2 * 100UL))
+  (300UL * (AXIS_MAX_V_STEPS * AXIS_MAX_V_STEPS) / \
+   (200UL * AXIS_ACCEL_STEPS_S2))
 
 /* ============================================================================
  * ROTATION — NEMA 11
@@ -186,7 +186,7 @@
 /* --- Derived: ramp table length ------------------------------------------- */
 #define ROT_ACCEL_STEPS_IDEAL                    \
   (215UL * (ROT_MAX_V_STEPS * ROT_MAX_V_STEPS) / \
-   (2UL * ROT_ACCEL_STEPS_S2 * 100UL))
+   (200UL * ROT_ACCEL_STEPS_S2 ))
 
 /* ============================================================================
  * COMPILE-TIME SANITY CHECKS

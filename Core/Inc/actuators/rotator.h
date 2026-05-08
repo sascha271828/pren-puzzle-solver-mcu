@@ -24,14 +24,6 @@
  *  - TIMER_FREQ_HZ_STEP         – ISR tick frequency [Hz]
  */
 
-/**
- * @brief Precomputed timer-tick intervals for the acceleration ramp.
- *        Entry [n] is the number of ISR ticks to wait before step n.
- *        The same table is mirrored for the deceleration phase.
- */
-typedef struct {
-  uint32_t interval[ROT_ACCEL_STEPS_IDEAL];
-} interval_table_rot_t;
 
 /**
  * @brief Fully describes a single rotation move including its speed profile.
@@ -57,7 +49,6 @@ typedef struct {
   uint32_t decel_at;        /**< Step index where deceleration begins       */
   uint32_t cruise_interval; /**< Constant ISR-tick interval during cruise   */
   uint32_t path_steps;      /**< Total steps to execute (always positive)   */
-  interval_table_rot_t interval_table; /**< Precomputed ramp intervals       */
   uint32_t table_len; /**< Number of valid entries in interval_table  */
 } RotateBlock_t;
 

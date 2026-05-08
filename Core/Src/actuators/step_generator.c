@@ -22,7 +22,7 @@ static interval_table_t StepGenerator_Table;
 
 /* runtime */
 typedef struct {
-  const MoveBlock_t* block;
+  const volatile MoveBlock_t* block;
   volatile int32_t dda_counter;
   volatile uint32_t step_index;
   volatile uint32_t current_interval;
@@ -45,7 +45,9 @@ static void StepGenerator_BuildRampTable(void) {
   for (size_t k = 1; k < AXIS_ACCEL_STEPS_IDEAL; k++) {
     c = c - (2.0f * c) / (4.0f * k + 1);
     uint32_t interval = (uint32_t)(c + 0.5f);
-
+    if (interval <= AXIS_CRUISE_INTERVAL) {
+      interval = AXIS_CRUISE_INTERVAL;
+    }
     StepGenerator_Table.interval[k] = interval;
   }
 }
