@@ -35,8 +35,8 @@ void App_Run(void) {
 
 #if RUN_MODE == RUN_MODE_TEST_CLI
 
-  // TestCLI_Init(&huart3);
-  TestCLI_Init(&huart2);
+  TestCLI_Init(&huart3);
+  // TestCLI_Init(&huart2);
   TestCLI_Run();
 #elif RUN_MODE == RUN_MODE_TEST_STATE
 
