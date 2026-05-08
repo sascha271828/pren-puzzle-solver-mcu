@@ -11,13 +11,12 @@
 
 /* Enum definitions */
 typedef enum _Status {
-  Status_STATUS_OK = 0,
-  Status_STATUS_ERROR = 1,
-  Status_STATUS_BUSY = 2,
-  Status_STATUS_DONE = 3,
-  Status_STATUS_READY = 4
-}
-Status;
+    Status_STATUS_OK = 0,
+    Status_STATUS_ERROR = 1,
+    Status_STATUS_BUSY = 2,
+    Status_STATUS_DONE = 3,
+    Status_STATUS_READY = 4
+} Status;
 
 /* Struct definitions */
 typedef struct _PieceCommand {
@@ -49,8 +48,8 @@ extern "C" {
 
 /* Helper constants for enums */
 #define _Status_MIN Status_STATUS_OK
-#define _Status_MAX Status_STATUS_DONE
-#define _Status_ARRAYSIZE ((Status)(Status_STATUS_DONE+1))
+#define _Status_MAX Status_STATUS_READY
+#define _Status_ARRAYSIZE ((Status)(Status_STATUS_READY+1))
 
 
 
