@@ -91,6 +91,8 @@ void Error_Handler(void);
 #define STEPPER_X_STEP_GPIO_Port GPIOB
 #define DIN_2_Pin GPIO_PIN_1
 #define DIN_2_GPIO_Port GPIOB
+#define DIN_11_Pin GPIO_PIN_1
+#define DIN_11_GPIO_Port GPIOG
 #define STEPPER_Y_ENABLE_Pin GPIO_PIN_7
 #define STEPPER_Y_ENABLE_GPIO_Port GPIOE
 #define STEPPER_Y_NFAULT_Pin GPIO_PIN_8
@@ -101,6 +103,8 @@ void Error_Handler(void);
 #define STEPPER_Y_DIR_GPIO_Port GPIOE
 #define STEPPER_Y_M1_Pin GPIO_PIN_12
 #define STEPPER_Y_M1_GPIO_Port GPIOE
+#define STEPPER_ROT_NFAULT_Pin GPIO_PIN_13
+#define STEPPER_ROT_NFAULT_GPIO_Port GPIOE
 #define STEPPER_X_ENABLE_Pin GPIO_PIN_15
 #define STEPPER_X_ENABLE_GPIO_Port GPIOE
 #define STEPPER_X_DIR_Pin GPIO_PIN_10
@@ -129,8 +133,6 @@ void Error_Handler(void);
 #define STEPPER_ROT_M0_GPIO_Port GPIOG
 #define DOUT_7_Pin GPIO_PIN_7
 #define DOUT_7_GPIO_Port GPIOC
-#define STEPPER_ROT_NFAULT_Pin GPIO_PIN_13
-#define STEPPER_ROT_NFAULT_GPIO_Port GPIOG
 #define STEPPER_ROT_ENABLE_Pin GPIO_PIN_14
 #define STEPPER_ROT_ENABLE_GPIO_Port GPIOG
 #define DOUT_5_Pin GPIO_PIN_3

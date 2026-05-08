@@ -4,6 +4,7 @@
 
 #include "buttons.h"
 #include "interrupt.h"
+#include "status_leds.h"
 
 static GPIO_Pin_t emergency_stop = {
   .port = DIN_9_GPIO_Port,
@@ -15,6 +16,9 @@ void EmergencyStop_Process(void) {
       GPIO_PIN_SET) {
     Interrupt_SetState(IS_ESTOP);
     Buttons_Reset_RearmPressDetection();
+    StatusLeds_Blink(STATUSLED_RED);
+    StatusLeds_Off(STATUSLED_YELLOW);
+    StatusLeds_Off(STATUSLED_GREEN);
   }
 }
 

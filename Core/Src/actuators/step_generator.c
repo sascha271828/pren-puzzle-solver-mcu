@@ -130,6 +130,8 @@ void StepGenerator_Update(void) {
       Stepper_Enable(motor_y, false);
       return;
     }
+    Stepper_SetStep(
+        current_block.block->x_dominant ? motor_x : motor_y); /* major motor */
 
     current_block.dda_counter += current_block.steps_minor;
     if (current_block.dda_counter >= 0) {

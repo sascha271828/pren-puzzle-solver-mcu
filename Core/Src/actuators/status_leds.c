@@ -61,6 +61,10 @@ void StatusLeds_Off(StatusLeds_e led) {
 }
 
 void StatusLeds_Blink(StatusLeds_e led) {
+  if (led_blinking_mode[led] == true) {
+    return;
+  }
+
   led_blinking_mode[led] = true;
 
   HAL_GPIO_WritePin(status_leds[led].port, status_leds[led].pin, GPIO_PIN_SET);

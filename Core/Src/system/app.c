@@ -116,6 +116,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
         Rotator_Update();
         break;
       case IS_READY:
+        // StatusLeds_On(STATUSLED_YELLOW);
+        // break;
+
       case IS_RUNNING:
         if (LimitSwitch_Activated()) {
           Interrupt_SetState(IS_ESTOP);
@@ -124,6 +127,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
         StepGenerator_Update();
         Rotator_Update();
         Piston_Update();
+        StatusLeds_Blink(STATUSLED_YELLOW);
         break;
       case IS_ESTOP:
         Magnet_SetState(false);
@@ -131,7 +135,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
         Rotator_Abort();
         Piston_Abort();
         if (EmergencyStop_IsActivated() == false) {
+          StatusLeds_On(STATUSLED_RED);
           if (Buttons_Reset_Pressed() == true) {
+            StatusLeds_Off(STATUSLED_RED);
             Homer_HomingStart();
             Piston_Set(PISTON_POS_START);
             Rotator_ReturnStart();

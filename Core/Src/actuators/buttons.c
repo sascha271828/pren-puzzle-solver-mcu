@@ -10,18 +10,18 @@ static GPIO_Pin_t btn_Start = {
 };
 
 static GPIO_Pin_t btn_Reset = {
-  .port = DIN_12_GPIO_Port,
-  .pin = DIN_12_Pin,
+  .port = DIN_11_GPIO_Port,
+  .pin = DIN_11_Pin,
 };
 
 static bool btn_Start_Pressed = false;
 static bool btn_Reset_Pressed = false;
 
 void Buttons_Poll_ISR(void) {
-  if (HAL_GPIO_ReadPin(btn_Start.port, btn_Start.pin) == GPIO_PIN_SET) {
+  if (HAL_GPIO_ReadPin(btn_Start.port, btn_Start.pin) == GPIO_PIN_RESET) {
     btn_Start_Pressed = true;
   }
-  if (HAL_GPIO_ReadPin(btn_Reset.port, btn_Reset.pin) == GPIO_PIN_SET) {
+  if (HAL_GPIO_ReadPin(btn_Reset.port, btn_Reset.pin) == GPIO_PIN_RESET) {
     btn_Reset_Pressed = true;
   }
 }

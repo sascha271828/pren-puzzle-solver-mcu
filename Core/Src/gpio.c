@@ -50,8 +50,8 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOF, DOUT_2_Pin|STEPPER_ROT_NSLEEP_Pin, GPIO_PIN_SET);
@@ -89,9 +89,9 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(DOUT_1_GPIO_Port, DOUT_1_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pins : DIN_3_Pin DIN_1_Pin STEPPER_X_NFAULT_Pin STEPPER_Y_NFAULT_Pin
-                           DIN_6_Pin */
+                           DIN_6_Pin STEPPER_ROT_NFAULT_Pin */
   GPIO_InitStruct.Pin = DIN_3_Pin|DIN_1_Pin|STEPPER_X_NFAULT_Pin|STEPPER_Y_NFAULT_Pin
-                          |DIN_6_Pin;
+                          |DIN_6_Pin|STEPPER_ROT_NFAULT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
@@ -140,6 +140,12 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(DIN_2_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : DIN_11_Pin */
+  GPIO_InitStruct.Pin = DIN_11_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(DIN_11_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pins : STEPPER_Y_ENABLE_Pin STEPPER_X_ENABLE_Pin */
   GPIO_InitStruct.Pin = STEPPER_Y_ENABLE_Pin|STEPPER_X_ENABLE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -181,12 +187,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(DOUT_7_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : STEPPER_ROT_NFAULT_Pin */
-  GPIO_InitStruct.Pin = STEPPER_ROT_NFAULT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(STEPPER_ROT_NFAULT_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : STEPPER_ROT_ENABLE_Pin */
   GPIO_InitStruct.Pin = STEPPER_ROT_ENABLE_Pin;
