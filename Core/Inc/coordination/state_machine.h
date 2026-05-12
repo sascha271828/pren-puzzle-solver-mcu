@@ -48,6 +48,17 @@ void StateMachine_Update(void);
 bool StateMachine_IsIdle(void);
 
 /**
+ * @brief Returns whether the last sequence (started via StateMachine_StartManual()
+ *        or via CommandDispatcher) has successfully placed all pieces.
+ *        Cleared automatically by StateMachine_Init() and
+ *        StateMachine_StartManual().
+ *
+ * @return true   All pieces processed; STATUS_DONE Ack was sent.
+ * @return false  Sequence not yet complete or not started.
+ */
+bool StateMachine_IsDone(void);
+
+/**
  * @brief Injects a puzzle command directly, bypassing CommandDispatcher.
  *        Intended for test mode (RUN_MODE_TEST_STATE) only. Starts execution
  *        from the first piece immediately.

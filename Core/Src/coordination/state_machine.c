@@ -59,6 +59,7 @@ static uint32_t wait_start_tick;
 static PieceCommand* piece;
 static MoveBlock_t active_xy_move;
 static RotateBlock_t active_rot_move;
+static bool sm_done = false;
 
 
 /* ========================
@@ -69,14 +70,17 @@ void StateMachine_Init(CommandDispatcher_t* dispatcher) {
   sm_dispatcher = dispatcher;
   current_state = SM_ESTOP;
   current_piece_idx = 0;
+  sm_done = false;
   Leds_Set(false);
 }
 
 bool StateMachine_IsIdle(void) { return (current_state == SM_IDLE); }
+bool StateMachine_IsDone(void) { return sm_done; }
 
 void StateMachine_StartManual(PuzzleCommand* cmd) {
   current_puzzle = *cmd;
   current_piece_idx = 0;
+  sm_done = false;
   if (current_puzzle.pieces_count > 0) {
     current_state = SM_CALC_TO_PICK;
   }
@@ -277,6 +281,7 @@ void StateMachine_Update(void) {
           CommandDispatcher_SendAck(sm_dispatcher, Status_STATUS_DONE, 0);
           StatusLeds_On(STATUSLED_GREEN);
           current_state = SM_ESTOP;
+          sm_done = true;
         }
       }
       break;
