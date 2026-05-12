@@ -9,7 +9,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-/* runtime */
+/* ========================
+ *   PRIVATE DECLARATION
+ * ======================== */
+
 typedef struct {
   const RotateBlock_t* block;
   volatile uint32_t step_index;
@@ -22,14 +25,13 @@ typedef struct {
   int32_t current_position;
 } Rotator_t;
 
-/**
- * @brief Precomputed timer-tick intervals for the acceleration ramp.
- *        Entry [n] is the number of ISR ticks to wait before step n.
- *        The same table is mirrored for the deceleration phase.
- */
 typedef struct {
   uint32_t interval[ROT_ACCEL_STEPS_IDEAL];
 } interval_table_rot_t;
+
+/* ========================
+ *   PRIVATE VARIABLES
+ * ======================== */
 
 static MoveExec_t current_block;
 static RotateBlock_t home_block;
@@ -37,9 +39,12 @@ static interval_table_rot_t rotator_table;
 
 static Rotator_t rotator = { .motor_rot = NULL, .current_position = 0 };
 
+/* ========================
+ *   PRIVATE FUNCTIONS
+ * ======================== */
+
 static void Rotator_BuildRampTable(void) {
-  float c = (float)TIMER_FREQ_HZ_ACTUATORS *
-            sqrtf(2.0f / (float)ROT_ACCEL_STEPS_IDEAL);
+  float c = (float)TIMER_FREQ_HZ_ACTUATORS * sqrtf(2.0f / (float)ROT_ACCEL_STEPS_IDEAL);
 
   rotator_table.interval[0] = (uint32_t)(c + 0.5f);
 
@@ -52,6 +57,10 @@ static void Rotator_BuildRampTable(void) {
     rotator_table.interval[k] = interval;
   }
 }
+
+/* ========================
+ *   PUBLIC API
+ * ======================== */
 
 void Rotator_Init(Stepper_t* rot) {
   rotator.motor_rot = rot;
@@ -125,14 +134,12 @@ void Rotator_Update(void) {
     Stepper_SetStep(rotator.motor_rot);
 
     if (current_block.step_index < current_block.block->accel_until) {
-      current_block.current_interval =
-          rotator_table.interval[current_block.step_index];
+      current_block.current_interval = rotator_table.interval[current_block.step_index];
 
     } else if (current_block.step_index < current_block.block->decel_at) {
       current_block.current_interval = current_block.block->cruise_interval;
     } else {
-      uint32_t decel_steps_done =
-          current_block.step_index - current_block.block->decel_at;
+      uint32_t decel_steps_done = current_block.step_index - current_block.block->decel_at;
 
       if (decel_steps_done >= current_block.block->table_len) {
         current_block.current_interval = rotator_table.interval[0];
@@ -142,7 +149,7 @@ void Rotator_Update(void) {
       }
     }
 
-    /* - update block - */
+    /* update block */
     current_block.ticks_until_next = current_block.current_interval - 1;
     current_block.step_index++;
   } else {

@@ -14,6 +14,10 @@
 #include "step_generator.h"
 #include "sys_config.h"
 
+/* ========================
+ *   PRIVATE DECLERATION
+ * ======================== */
+
 /**
  * @brief Internal states for the puzzle coordination logic.
  */
@@ -42,6 +46,10 @@ typedef enum {
   SM_ERROR
 } State_e;
 
+/* ========================
+ *   PRIVATE VARIABLES
+ * ======================== */
+
 static State_e current_state;
 static CommandDispatcher_t* sm_dispatcher;
 static PuzzleCommand current_puzzle;
@@ -52,11 +60,26 @@ static PieceCommand* piece;
 static MoveBlock_t active_xy_move;
 static RotateBlock_t active_rot_move;
 
+
+/* ========================
+ *   PUBLIC API
+ * ======================== */
+
 void StateMachine_Init(CommandDispatcher_t* dispatcher) {
   sm_dispatcher = dispatcher;
   current_state = SM_ESTOP;
   current_piece_idx = 0;
   Leds_Set(false);
+}
+
+bool StateMachine_IsIdle(void) { return (current_state == SM_IDLE); }
+
+void StateMachine_StartManual(PuzzleCommand* cmd) {
+  current_puzzle = *cmd;
+  current_piece_idx = 0;
+  if (current_puzzle.pieces_count > 0) {
+    current_state = SM_CALC_TO_PICK;
+  }
 }
 
 void StateMachine_Update(void) {
@@ -263,12 +286,3 @@ void StateMachine_Update(void) {
   }
 }
 
-bool StateMachine_IsIdle(void) { return (current_state == SM_IDLE); }
-
-void StateMachine_StartManual(PuzzleCommand* cmd) {
-  current_puzzle = *cmd;
-  current_piece_idx = 0;
-  if (current_puzzle.pieces_count > 0) {
-    current_state = SM_CALC_TO_PICK;
-  }
-}

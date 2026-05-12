@@ -8,19 +8,14 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-/**
- * @brief Precomputed timer-tick intervals for the acceleration/deceleration
- *        ramp. Entry [n] holds the number of ISR ticks to wait before step n
- *        during the ramp. The same table is mirrored for deceleration.
- *        Size is fixed at MAX_ACCEL_STEPS (defined in sys_config.h).
- */
+/* ========================
+ *   PRIVATE DECLARATION
+ * ======================== */
+
 typedef struct {
   uint32_t interval[AXIS_ACCEL_STEPS_IDEAL];
 } interval_table_t;
 
-static interval_table_t StepGenerator_Table;
-
-/* runtime */
 typedef struct {
   const volatile MoveBlock_t* block;
   volatile int32_t dda_counter;
@@ -30,17 +25,24 @@ typedef struct {
   volatile uint32_t steps_minor;
 } MoveExec_t;
 
+/* ========================
+ *   PRIVATE VARIABLES
+ * ======================== */
+
+static interval_table_t StepGenerator_Table;
 static MoveExec_t current_block;
 
 static Stepper_t* motor_x = NULL;
 static Stepper_t* motor_y = NULL;
 
-static void StepGenerator_BuildRampTable(void) {
-  float c =
-      (float)TIMER_FREQ_HZ_ACTUATORS * sqrtf(2.0f / (float)AXIS_ACCEL_STEPS_S2);
+/* ========================
+ *   PRIVATE FUNCTIONS
+ * ======================== */
 
-  StepGenerator_Table.interval[0] =
-      (uint32_t)(c + 0.5f); /* gerundet, nicht truncated */
+static void StepGenerator_BuildRampTable(void) {
+  float c = (float)TIMER_FREQ_HZ_ACTUATORS * sqrtf(2.0f / (float)AXIS_ACCEL_STEPS_S2);
+
+  StepGenerator_Table.interval[0] = (uint32_t)(c + 0.5f); /* gerundet, nicht truncated */
 
   for (size_t k = 1; k < AXIS_ACCEL_STEPS_IDEAL; k++) {
     c = c - (2.0f * c) / (4.0f * k + 1);
@@ -51,6 +53,10 @@ static void StepGenerator_BuildRampTable(void) {
     StepGenerator_Table.interval[k] = interval;
   }
 }
+
+/* ========================
+ *   PUBLIC API
+ * ======================== */
 
 void StepGenerator_Init(Stepper_t* mx, Stepper_t* my) {
   motor_x = mx;
@@ -96,8 +102,7 @@ bool StepGenerator_StartMove(const MoveBlock_t* block) {
   current_block.dda_counter = -(int32_t)(block->path_steps / 2);
   current_block.ticks_until_next = 0;
   current_block.step_index = 0;
-  current_block.steps_minor =
-      block->x_dominant ? abs(block->steps_y) : abs(block->steps_x);
+  current_block.steps_minor = block->x_dominant ? abs(block->steps_y) : abs(block->steps_x);
 
   /* direction */
   Stepper_Enable(motor_x, true);
@@ -130,27 +135,22 @@ void StepGenerator_Update(void) {
       Stepper_Enable(motor_y, false);
       return;
     }
-    Stepper_SetStep(
-        current_block.block->x_dominant ? motor_x : motor_y); /* major motor */
+    Stepper_SetStep(current_block.block->x_dominant ? motor_x : motor_y); /* major motor */
 
     current_block.dda_counter += current_block.steps_minor;
     if (current_block.dda_counter >= 0) {
-      Stepper_SetStep(current_block.block->x_dominant
-                          ? motor_y
-                          : motor_x); /* minor motor */
+      Stepper_SetStep(current_block.block->x_dominant ? motor_y : motor_x); /* minor motor */
       current_block.dda_counter -= current_block.block->path_steps;
     }
 
     /* - determine next interval - */
     if (current_block.step_index < current_block.block->accel_until) {
-      current_block.current_interval =
-          StepGenerator_Table.interval[current_block.step_index];
+      current_block.current_interval = StepGenerator_Table.interval[current_block.step_index];
 
     } else if (current_block.step_index < current_block.block->decel_at) {
       current_block.current_interval = current_block.block->cruise_interval;
     } else {
-      uint32_t decel_steps_done =
-          current_block.step_index - current_block.block->decel_at;
+      uint32_t decel_steps_done = current_block.step_index - current_block.block->decel_at;
 
       if (decel_steps_done >= current_block.block->table_len) {
         current_block.current_interval = StepGenerator_Table.interval[0];

@@ -6,14 +6,21 @@
 #include "interrupt.h"
 #include "status_leds.h"
 
+/* ========================
+ *   PRIVATE VARIABLES
+ * ======================== */
+
 static GPIO_Pin_t emergency_stop = {
   .port = DIN_9_GPIO_Port,
   .pin = DIN_9_Pin,
 };
 
+/* ========================
+ *   PUBLIC API
+ * ======================== */
+
 void EmergencyStop_Process(void) {
-  if (HAL_GPIO_ReadPin(emergency_stop.port, emergency_stop.pin) ==
-      GPIO_PIN_SET) {
+  if (HAL_GPIO_ReadPin(emergency_stop.port, emergency_stop.pin) == GPIO_PIN_SET) {
     Interrupt_SetState(IS_ESTOP);
     Buttons_Reset_RearmPressDetection();
     StatusLeds_Blink(STATUSLED_RED);
@@ -23,8 +30,7 @@ void EmergencyStop_Process(void) {
 }
 
 bool EmergencyStop_IsActivated(void) {
-  if (HAL_GPIO_ReadPin(emergency_stop.port, emergency_stop.pin) ==
-      GPIO_PIN_SET) {
+  if (HAL_GPIO_ReadPin(emergency_stop.port, emergency_stop.pin) == GPIO_PIN_SET) {
     return true;
   }
   return false;

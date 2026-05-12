@@ -2,6 +2,10 @@
 
 #include "stepper.h"
 
+/* ========================
+ *   PRIVATE FUNCTIONS
+ * ======================== */
+
 static uint32_t Stepper_ResolutionConversion(StepperMicro_e res) {
   switch (res) {
     case STEP_FULL:
@@ -17,10 +21,11 @@ static uint32_t Stepper_ResolutionConversion(StepperMicro_e res) {
   }
 }
 
-void Stepper_Init(Stepper_t* self,
-                  StepperPin_t pins,
-                  StepperMicro_e micro,
-                  bool enable) {
+/* ========================
+ *   PULIC API
+ * ======================== */
+
+void Stepper_Init(Stepper_t* self, StepperPin_t pins, StepperMicro_e micro, bool enable) {
   self->pins = pins;
   /* TODO implement homing */
   self->direction = false;
@@ -33,9 +38,7 @@ void Stepper_Init(Stepper_t* self,
 }
 
 void Stepper_SetDirection(Stepper_t* self, bool dir) {
-  HAL_GPIO_WritePin(self->pins.dir.port,
-                    self->pins.dir.pin,
-                    dir ? GPIO_PIN_SET : GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(self->pins.dir.port, self->pins.dir.pin, dir ? GPIO_PIN_SET : GPIO_PIN_RESET);
   self->direction = dir;
 }
 
@@ -53,20 +56,14 @@ void Stepper_ClearStep(Stepper_t* self) {
 }
 
 void Stepper_Enable(Stepper_t* self, bool enable) {
-  HAL_GPIO_WritePin(self->pins.enable.port,
-                    self->pins.enable.pin,
-                    enable ? GPIO_PIN_SET : GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(self->pins.enable.port, self->pins.enable.pin, enable ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
 void Stepper_SetMicrostep(Stepper_t* self, StepperMicro_e res) {
   uint32_t micro = Stepper_ResolutionConversion(res);
-  HAL_GPIO_WritePin(self->pins.m0.port,
-                    self->pins.m0.pin,
-                    micro & (1 << 0) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(self->pins.m0.port, self->pins.m0.pin, micro & (1 << 0) ? GPIO_PIN_SET : GPIO_PIN_RESET);
 
-  HAL_GPIO_WritePin(self->pins.m1.port,
-                    self->pins.m1.pin,
-                    micro & (1 << 1) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(self->pins.m1.port, self->pins.m1.pin, micro & (1 << 1) ? GPIO_PIN_SET : GPIO_PIN_RESET);
 
   self->current_micro = res;
 }

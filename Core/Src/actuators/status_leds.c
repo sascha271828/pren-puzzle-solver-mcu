@@ -4,6 +4,10 @@
 
 #include <stdbool.h>
 
+/* ========================
+ *   PRIVATE VARIABLES
+ * ======================== */
+
 /* clang-format off */
 static GPIO_Pin_t status_leds[STATUSLED_SENTINEL] = { 
     { 
@@ -25,6 +29,11 @@ static bool led_blinking_mode[STATUSLED_SENTINEL] = { false, false, false };
 static bool led_blinking_on = false;
 static uint32_t led_blinking_tick = 0;
 
+
+/* ========================
+ *   PRIVATE FUNCTIONS
+ * ======================== */
+
 static void StatusLeds_Off_All(void) {
   HAL_GPIO_WritePin(status_leds[STATUSLED_GREEN].port,
                     status_leds[STATUSLED_GREEN].pin,
@@ -36,6 +45,11 @@ static void StatusLeds_Off_All(void) {
                     status_leds[STATUSLED_RED].pin,
                     GPIO_PIN_RESET);
 }
+
+
+/* ========================
+ *   PUBLIC API
+ * ======================== */
 
 void StatusLeds_Init(void) { StatusLeds_Off_All(); }
 

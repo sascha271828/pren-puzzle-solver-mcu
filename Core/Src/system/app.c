@@ -106,9 +106,10 @@ void App_Run(void) {
 #endif
 }
 
-/* ----------- */
-/* --- ISR --- */
-/* ----------- */
+/* ========================
+ *   ISR
+ * ======================== */
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
   if (htim->Instance == TIM2) {
 #if RUN_MODE == RUN_MODE_LED
@@ -164,9 +165,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
   }
 }
 
-/* --------------------- */
-/* --- UART CALLBACK --- */
-/* --------------------- */
+/* ========================
+ *   UART CALLBACK
+ * ======================== */
+
 #if RUN_MODE == RUN_MODE_APP
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
   if (huart->Instance == UART5) {

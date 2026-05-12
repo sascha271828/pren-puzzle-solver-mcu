@@ -2,16 +2,21 @@
 
 #include "magnet.h"
 
+/* ========================
+ *   PRIVATE VARIABLES
+ * ======================== */
+
 static GPIO_Pin_t MagnetPin;
+
+/* ========================
+ *   PUBLIC API
+ * ======================== */
 
 void Magnet_Init(GPIO_Pin_t pin) { MagnetPin = pin; }
 
 void Magnet_SetState(bool state) {
   /* the state needs to be reversed because a separate switch is used */
-  HAL_GPIO_WritePin(
-      MagnetPin.port, MagnetPin.pin, (!state) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(MagnetPin.port, MagnetPin.pin, (!state) ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
-bool Magnet_GetState(void) {
-  return HAL_GPIO_ReadPin(MagnetPin.port, MagnetPin.pin) == GPIO_PIN_SET;
-}
+bool Magnet_GetState(void) { return HAL_GPIO_ReadPin(MagnetPin.port, MagnetPin.pin) == GPIO_PIN_SET; }

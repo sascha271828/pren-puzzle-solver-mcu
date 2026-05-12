@@ -4,6 +4,10 @@
 
 #include "utils.h"
 
+/* ========================
+ *   PRIVATE VARIABLES
+ * ======================== */
+
 static GPIO_Pin_t btn_Start = {
   .port = DIN_10_GPIO_Port,
   .pin = DIN_10_Pin,
@@ -17,6 +21,10 @@ static GPIO_Pin_t btn_Reset = {
 static bool btn_Start_Pressed = false;
 static bool btn_Reset_Pressed = false;
 
+/* ========================
+ *   PUBLIC API
+ * ======================== */
+
 void Buttons_Poll_ISR(void) {
   if (HAL_GPIO_ReadPin(btn_Start.port, btn_Start.pin) == GPIO_PIN_RESET) {
     btn_Start_Pressed = true;
@@ -27,6 +35,7 @@ void Buttons_Poll_ISR(void) {
 }
 
 bool Buttons_Start_Pressed(void) { return btn_Start_Pressed; }
+
 void Buttons_Start_RearmPressDetection(void) { btn_Start_Pressed = false; }
 
 bool Buttons_Reset_Pressed(void) { return btn_Reset_Pressed; }

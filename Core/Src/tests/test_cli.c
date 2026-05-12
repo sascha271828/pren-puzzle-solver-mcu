@@ -20,14 +20,24 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* ========================
+ *   PRIVATE DEFINTIONS
+ * ======================== */
 /* --- Configuration --- */
 #define CLI_LINE_BUF_SIZE 64
 #define CLI_HOMING_TIMEOUT_MS 30000
 
-/* --- Internal state --- */
+/* ========================
+ *   PRIVATE VARIABLES
+ * ======================== */
 static UART_HandleTypeDef* cli_huart = NULL;
+static int32_t current_pos_steps_x = 0;
+static int32_t current_pos_steps_y = 0;
 
-/* --- I/O --- */
+
+/* ========================
+ *   PRIVATE FUNCTIONS
+ * ======================== */
 static void cli_putstr(const char* s) { HAL_UART_Transmit(cli_huart, (const uint8_t*)s, strlen(s), HAL_MAX_DELAY); }
 
 static void cli_ok(void) { cli_putstr("OK\r\n"); }
@@ -79,7 +89,6 @@ static uint16_t cli_readline(char* buf, uint16_t max_len) {
 }
 
 /* --- Busy-wait helpers --- */
-
 static void cli_wait_step_generator(void) {
   while (StepGenerator_IsBusy()) {
   }
@@ -209,8 +218,6 @@ static void cmd_move(const char* args) {
   cli_ok();
 }
 
-static int32_t current_pos_steps_x = 0;
-static int32_t current_pos_steps_y = 0;
 
 /* move to absolute position */
 static void cmd_move_planner(const char* args) {
@@ -404,8 +411,9 @@ static void cli_dispatch(char* line) {
   }
 }
 
-/* --- Public API --- */
-
+/* ========================
+ *   PUBLIC API
+ * ======================== */
 void TestCLI_Init(UART_HandleTypeDef* huart) { cli_huart = huart; }
 
 void TestCLI_Run(void) {

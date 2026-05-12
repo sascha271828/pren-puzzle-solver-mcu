@@ -24,9 +24,11 @@
 #pragma region
 /* clang-format off */
 
-/*----------------*/
+/* ========================
+ *   PRIVATE VARIABLES
+ * ======================== */
+
 /* STEPPER MOTORS */
-/*----------------*/
 static Stepper_t stepper_x;
 static Stepper_t stepper_y;
 static Stepper_t stepper_rot;
@@ -131,14 +133,20 @@ static const StepperPin_t pins_stepper_rot = {
     },
 };
 
-/*---------------*/
-/* COMMUNICATION */
-/*---------------*/
+/* --- COMMUNICATION --- */
 static UartReceiver_t uart_receiver;
 static CommandDispatcher_t command_dispatcher;
 
 /* clang-format on */
 #pragma endregion
+
+/* ========================
+ *   PUBLIC API
+ * ======================== */
+
+UartReceiver_t* Sys_GetUartReceiver(void) { return &uart_receiver; }
+
+CommandDispatcher_t* Sys_GetCommandDispatcher(void) { return &command_dispatcher; }
 
 void Sys_Init(void) {
 #if RUN_MODE == RUN_MODE_LED
@@ -215,7 +223,3 @@ void Sys_Init(void) {
 #endif
 #endif
 }
-
-UartReceiver_t* Sys_GetUartReceiver(void) { return &uart_receiver; }
-
-CommandDispatcher_t* Sys_GetCommandDispatcher(void) { return &command_dispatcher; }

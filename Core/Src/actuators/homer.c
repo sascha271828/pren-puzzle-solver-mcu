@@ -5,6 +5,10 @@
 
 #include <stdlib.h>
 
+/* ========================
+ *   PRIVATE DECLARATION
+ * ======================== */
+
 typedef enum {
   HS_UNINITIADED = 0,
   HS_COARSE = BIT(0),
@@ -15,15 +19,9 @@ typedef enum {
   HS_IDLE = BIT(5)
 } Homer_States_t;
 
-/* TODO: homing watchdog ??
-
-static uint32_t homing_watchdog = 0;
-// in COARSE:
-if (++homing_watchdog > MAX_HOMING_STEPS) {
-    Interrupt_SetState(IS_ESTOP);
-    return;
-}
-*/
+/* ========================
+ *   PRIVATE VARIABLES
+ * ======================== */
 
 static Homer_States_t homer_Phase = HS_UNINITIADED;
 static uint32_t backoff_ticks_remaining = 0;
@@ -32,6 +30,10 @@ static Stepper_t* motor_x = NULL;
 static Stepper_t* motor_y = NULL;
 static uint32_t x_ticks = 0;
 static uint32_t y_ticks = 0;
+
+/* ========================
+ *   PUBLIC API
+ * ======================== */
 
 void Homer_Init(Stepper_t* mx, Stepper_t* my) {
   motor_x = mx;
