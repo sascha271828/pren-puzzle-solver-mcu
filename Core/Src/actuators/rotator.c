@@ -44,7 +44,7 @@ static Rotator_t rotator = { .motor_rot = NULL, .current_position = 0 };
  * ======================== */
 
 static void Rotator_BuildRampTable(void) {
-  float c = (float)TIMER_FREQ_HZ_ACTUATORS * sqrtf(2.0f / (float)ROT_ACCEL_STEPS_IDEAL);
+  float c = (float)TIMER_FREQ_HZ_ACTUATORS * sqrtf(2.0f / (float)ROT_ACCEL_STEPS_S2);
 
   rotator_table.interval[0] = (uint32_t)(c + 0.5f);
 
@@ -74,6 +74,8 @@ RotateBlock_t Rotator_GenerateBlock(int32_t steps) {
   uint32_t decel_at;
 
   if (path_steps_uint >= 2 * ROT_ACCEL_STEPS_IDEAL) {
+    accel_steps = ROT_ACCEL_STEPS_IDEAL;
+    decel_at = path_steps_uint - ROT_ACCEL_STEPS_IDEAL;
   } else {
     accel_steps = path_steps_uint / 2;
     decel_at = accel_steps;
