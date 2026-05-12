@@ -72,7 +72,7 @@ void Piston_Update(void) {
     }
     /* on */
     if (pwm_count == 0) {
-      pwm_count = CONFIG_PISTON_PWM_ENUMERATER;
+      pwm_count = CONFIG_PISTON_PWM_DIVISOR;
       if (pwm_extending) {
         HAL_GPIO_WritePin(piston.piston_extend.port, piston.piston_extend.pin, GPIO_PIN_RESET);
 

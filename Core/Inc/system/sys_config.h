@@ -27,7 +27,7 @@
 #define RUN_MODE_TEST_STATE 2
 #define RUN_MODE_LED 3
 
-#define RUN_MODE RUN_MODE_APP
+#define RUN_MODE RUN_MODE_TEST_CLI
 #define CONFIG_INIT_WAIT_PERIPHERALS 200u /* [ms] */
 /* ============================================================================
  * TIMER
@@ -43,10 +43,10 @@
  *  1  0    1/4
  *  1  1    1/16 (or higher depending on driver variant)
  * ========================================================================== */
-#define STEPPER_MICRO_FULL 1UL
-#define STEPPER_MICRO_1_2 2UL
-#define STEPPER_MICRO_1_4 4UL
-#define STEPPER_MICRO_1_16 16UL
+#define STEPPER_MICRO_FULL 1ULL
+#define STEPPER_MICRO_1_2 2ULL
+#define STEPPER_MICRO_1_4 4ULL
+#define STEPPER_MICRO_1_16 16ULL
 
 /* ============================================================================
  * PISTON
@@ -54,7 +54,7 @@
 
 #define CONFIG_PISTON_TIME_RETRACT_INIT_MS 800u /* ms — retract from unknown */
 
-#define CONFIG_PISTON_PWM_ENUMERATER 3u
+#define CONFIG_PISTON_PWM_ENUMERATER 6u
 #define CONFIG_PISTON_PWM_DIVISOR 12u
 
 /* absolute time from start position [ms]*/
@@ -65,7 +65,7 @@
 
 /* Derived tick counts — do not edit.
  * Result fits in int32_t: max = 120000 * 2000 / 1000 = 240000 << INT32_MAX  */
-#define PISTON_MS_TO_TICKS(ms) ((int32_t)((TIMER_FREQ_HZ_ACTUATORS) * (ms) / 1000UL))
+#define PISTON_MS_TO_TICKS(ms) ((int32_t)((TIMER_FREQ_HZ_ACTUATORS) * (ms) / 1000ULL))
 
 #define CONFIG_PISTON_TICKS_RETRACT_INIT PISTON_MS_TO_TICKS(CONFIG_PISTON_TIME_RETRACT_INIT_MS)
 
@@ -101,17 +101,18 @@
  * ========================================================================== */
 
 /* --- Settings (edit these) ------------------------------------------------ */
-#define CONFIG_AXIS_STEPS_PER_REV 200UL /* Full steps per revolution   */
+#define CONFIG_AXIS_STEPS_PER_REV 200ULL /* Full steps per revolution   */
 #define CONFIG_AXIS_MICRO STEPPER_MICRO_1_16
 /* Options: 1, 2, 4, 16       */
 
-/** Circumference of the drive pulley / shaft [mm].
- * 15 mm * pi = 50 mm
- *  Adjust if using a different pulley or leadscrew pitch. */
-#define CONFIG_AXIS_CIRCUMFERENCE_MM 50UL
+#define CONFIG_AXIS_CIRCUMFERENCE_MM 40ULL /* [mm] */
 
-#define CONFIG_AXIS_MAX_SPEED_MM_S 150UL /* Cruise speed        [mm/s]  */
-#define CONFIG_AXIS_ACCEL_MM_S2 700UL    /* Acceleration        [mm/s²] */
+/* MAX TESTED */
+/* speed: 500 */
+/* accel: 5000 */
+
+#define CONFIG_AXIS_MAX_SPEED_MM_S 300ULL /* Cruise speed        [mm/s]  */
+#define CONFIG_AXIS_ACCEL_MM_S2 3000ULL   /* Acceleration        [mm/s²] */
 
 /* --- Derived: steps/mm (kept as NUM/DEN fraction to avoid truncation) ----- */
 #define AXIS_STEPS_PER_MM_NUM (CONFIG_AXIS_MICRO * CONFIG_AXIS_STEPS_PER_REV)
@@ -143,16 +144,16 @@
  * ========================================================================== */
 
 /* --- Settings (edit these) ------------------------------------------------ */
-#define CONFIG_ROT_STEPS_PER_REV 200UL      /* Full steps per revolution   */
+#define CONFIG_ROT_STEPS_PER_REV 200ULL     /* Full steps per revolution   */
 #define CONFIG_ROT_MICRO STEPPER_MICRO_1_16 /* Microstepping divisor (1/16)*/
                                             /* Options: 1, 2, 4, 16       */
 
 /** Circumference of the rotating stage / belt [mm].
  *  Measure the actual travel distance for one full shaft revolution. */
-#define CONFIG_ROT_CIRCUMFERENCE_MM 100UL
+#define CONFIG_ROT_CIRCUMFERENCE_MM 100ULL
 
-#define CONFIG_ROT_MAX_SPEED_MM_S 100UL /* Cruise speed        [mm/s]  */
-#define CONFIG_ROT_ACCEL_MM_S2 300UL    /* Acceleration        [mm/s²] */
+#define CONFIG_ROT_MAX_SPEED_MM_S 600ULL /* Cruise speed        [mm/s]  */
+#define CONFIG_ROT_ACCEL_MM_S2 2000ULL   /* Acceleration        [mm/s²] */
 
 /* --- Derived: steps/mm ---------------------------------------------------- */
 #define ROT_STEPS_PER_MM_NUM (CONFIG_ROT_MICRO * CONFIG_ROT_STEPS_PER_REV)
@@ -197,7 +198,7 @@
  * ========================================================================== */
 
 /* Speeds as fraction of cruise speed */
-#define CONFIG_HOMING_COARSE_SPEED_MM_S 80UL  /* fast search          */
+#define CONFIG_HOMING_COARSE_SPEED_MM_S 120UL /* fast search          */
 #define CONFIG_HOMING_FINE_SPEED_MM_S 10UL    /* slow precise touch   */
 #define CONFIG_HOMING_BACKOFF_SPEED_MM_S 40UL /* retreat              */
 #define CONFIG_HOMING_BACKOFF_DIST_MM 5UL     /* retreat distance     */

@@ -74,6 +74,8 @@ RotateBlock_t Rotator_GenerateBlock(int32_t steps) {
   uint32_t decel_at;
 
   if (path_steps_uint >= 2 * ROT_ACCEL_STEPS_IDEAL) {
+    accel_steps = ROT_ACCEL_STEPS_IDEAL;
+    decel_at = path_steps_uint - ROT_ACCEL_STEPS_IDEAL;
   } else {
     accel_steps = path_steps_uint / 2;
     decel_at = accel_steps;
