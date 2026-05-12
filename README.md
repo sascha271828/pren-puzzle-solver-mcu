@@ -1,83 +1,143 @@
 # PuzzleSolver MCU
 
+Embedded C firmware for the PREN2 pick-and-place puzzle solver.
+Runs on an **STM32H753ZI** (Cortex-M7) Nucleo-144 board.
+
 ## How the System Works
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                          Raspberry Pi  (camera + AI)                        │
 │                                                                             │
-│  1. Captures image of puzzle                                                │
-│  2. Determines piece positions & required rotation                          │
-│  3. Sends: start_pos, end_pos, rotation                                     │
+│  1. Captures image of puzzle board                                          │
+│  2. Determines piece pick positions, place positions & required rotation    │
+│  3. Encodes up to 9 pieces as a PuzzleCommand (protobuf) and sends it       │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │  Serial / UART
+                                    │  UART (length-prefixed protobuf frames)
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                        STM32 MCU  (this repo)                               │
 │                                                                             │
-│  Receives the target, then handles everything else autonomously:            │
-│  • Path planning (how to get from A to B)                                   │
-│  • Move sequencing & timing                                                 │
-│  • Stepper motor signals                                                    │
+│  Receives the command, then handles everything autonomously:                │
+│  • Homing (finds machine zero via X/Y limit switches)                       │
+│  • Piece-by-piece pick & place loop                                         │
+│    – XY motion planning (mm → steps, trapezoidal acceleration)              │
+│    – Simultaneous rotation of the piece during XY travel                    │
+│    – Piston (lower / raise) + electromagnet (grab / release)                │
+│  • Emergency stop monitoring and state recovery                             │
+│  • Status LED feedback (green / yellow / red)                               │
+│  • Sends Ack responses back to the Raspberry Pi                             │
 └──────────────────────────────────┬──────────────────────────────────────────┘
-                                   │  GPIO / Step+Dir signals
+                                   │  GPIO / Step+Dir / H-bridge signals
                                    ▼
-                       ┌───────────────────────┐
-                       │   Stepper Motors /    │
-                       │   Actuators           │
-                       └───────────────────────┘
+                       ┌───────────────────────────────┐
+                       │   DRV8886 stepper drivers (×3) │
+                       │   Piston H-bridge              │
+                       │   Electromagnet                │
+                       └───────────────────────────────┘
 ```
 
+### Operating Modes (`RUN_MODE` in `sys_config.h`)
+
+| Mode                  | Behaviour                                                        |
+|-----------------------|------------------------------------------------------------------|
+| `RUN_MODE_APP`        | Production loop — polls UART for `PuzzleCommand`, runs solver   |
+| `RUN_MODE_TEST_CLI`   | Interactive ASCII CLI over ST-Link UART for subsystem testing   |
+| `RUN_MODE_TEST_STATE` | Single-shot state machine test with hard-coded piece coordinates |
+| `RUN_MODE_LED`        | LED toggle test driven by Start/Reset buttons only              |
+
+### Top-level State Machine
+
+```
+[power-on]
+    │
+    ▼
+ IS_INIT ──► IS_HOMING ──► IS_READY ──► IS_RUNNING
+                                              │
+ IS_ESTOP ◄───────────────────────────────────┘
+   │
+   └──(E-stop released + Reset pressed)──► IS_HOMING
+```
+
+---
 
 ## Repository Structure
 
 ```
-PuzzleSolver/
+PuzzleSolver_MCU/
 ├── Core/
-│   ├── Inc/                   # Header files (.h) — function declarations & config
-│   │   ├── actuators/         # low-level implementation of actuators
-│   │   ├── communication/     # communication between Raspberry and MCU
-│   │   ├── coordination/      # coordination of process
-│   │   └── system/            # general system init, application function
-│   ├── main.h                 # ⚠️ only edit between USER...BEGIN and USER...END
-│   │   ...                    # auto-generated files from STM32 (don't touch)
-│   ├── Src/
+│   ├── Inc/                      # Header files (.h)
+│   │   ├── actuators/            # Stepper, step generator, piston, magnet,
+│   │   │                         #   rotator, limit switches, LEDs, homing, buttons
+│   │   ├── communication/        # UART framing, protobuf dispatcher, generated pb headers
+│   │   ├── coordination/         # Motion planner, high-level state machine
+│   │   ├── system/               # sys_config.h, sys_init, app, interrupt state, utils
+│   │   └── tests/                # test_cli — interactive UART test interface
+│   │
+│   ├── Src/                      # Implementation files (.c) — mirrors Inc/ layout
 │   │   ├── actuators/
 │   │   ├── communication/
 │   │   ├── coordination/
-│   │   └── system/
-│   ├── main.c                 # ⚠️ only edit between USER...BEGIN and USER...END
-│   │   ...                    # auto-generated files from STM32 (don't touch)
-│   └── third_party/           # place for third-party libraries / implementations
+│   │   ├── system/
+│   │   └── tests/
+│   │
+│   └── third_party/
+│       └── nanopb/               # Lightweight protobuf library for bare-metal C
 │
-├── tests/
+├── tests/                        # Host-side (native) tests — no hardware required
+│   ├── test_communication.c      # Native roundtrip test for UART framing + protobuf decode
+│   ├── test_cross_language.py    # Python-to-C cross-language protobuf encode/decode test
+│   └── …
 │
 ├── Drivers/
-│   ├── CMSIS/                 # ARM low-level hardware abstraction (don't touch)
-│   └── STM32xxxx_HAL_Driver/  # ST's Hardware Abstraction Layer (don't touch)
+│   ├── CMSIS/                    # ARM Cortex-M low-level definitions (do not modify)
+│   └── STM32H7xx_HAL_Driver/     # ST HAL for STM32H7 (do not modify)
 │
-├── cmake/                     # CMake toolchain config for arm-none-eabi-gcc
-├── CMakeLists.txt             # Build definition — update when adding new .c files
-├── PuzzleSolver_MCU.ioc       # STM32CubeMX project file (pin/clock configuration)
-├── .vscode/
-│   ├── extensions.json        # Recommended extensions — VS Code will prompt to install
-│   ├── launch.json            # Debugger config (Cortex-Debug)
-│   └── c_cpp_properties.json  # IntelliSense config
-└── docs/                      # Reference documents
+├── cmake/                        # CMake toolchain config for arm-none-eabi-gcc
+├── CMakeLists.txt                # Build definition — add new .c files here
+├── CMakePresets.json             # Debug and Release presets
+├── PuzzleSolver_MCU.ioc          # STM32CubeMX project (pin/clock config)
+├── STM32H753XX_FLASH.ld          # Linker script
+├── startup_stm32h753xx.s         # Startup assembly
+├── .vscode/                      # VS Code config (extensions, launch, tasks, settings)
+└── docs/                         # Hardware reference documents
 ```
 
-### Key details when working in an STM32 project
+### Key Details for STM32CubeMX Projects
 
-Some files are auto-generated when the project config (`.ioc`) is updated. The project is structured so that all user-written code lives in subfolders like `actuators/`, `communication/`, etc. If `main.h` or `main.c` needs to be changed, **only do so between the `/* USER CODE BEGIN */` and `/* USER CODE END */` comment markers** — everything outside those markers gets overwritten the next time STM32CubeMX regenerates the project.
+Some files are auto-generated when the `.ioc` is updated in STM32CubeMX. All user code lives in subfolders (`actuators/`, `communication/`, etc.). If `main.h` or `main.c` must change, **only edit between `/* USER CODE BEGIN */` and `/* USER CODE END */` markers** — everything outside is overwritten on regeneration.
 
-> **For proper IntelliSense support:** when you add a new `.c` file, register it in `CMakeLists.txt`, then re-run the build and reload the VS Code window (`Ctrl+Shift+P` → `Developer: Reload Window`). IntelliSense reads from `build/Debug/compile_commands.json`, which is generated by CMake — so it only knows about files listed there.
+> **IntelliSense:** after adding a new `.c` file, register it in `CMakeLists.txt`, rebuild, then reload VS Code (`Ctrl+Shift+P` → `Developer: Reload Window`). IntelliSense reads from `build/Debug/compile_commands.json`, generated by CMake.
 
+---
+
+## Communication Protocol
+
+Frames are length-prefixed over UART:
+
+```
+[ len_hi ][ len_lo ][ protobuf payload ... ]
+```
+
+The payload is a serialised `PuzzleCommand` (nanopb / protobuf). Up to 9 `PieceCommand` entries are packed into one command, each carrying `pick_x`, `pick_y`, `place_x`, `place_y` (all in mm) and `rotation` (degrees).
+
+The MCU responds to every frame with an `Ack` message containing a `Status` code:
+
+| Status             | Meaning                                        |
+|--------------------|------------------------------------------------|
+| `STATUS_OK`        | Frame decoded successfully                     |
+| `STATUS_ERROR`     | Protobuf decode failed                         |
+| `STATUS_BUSY`      | Command accepted, execution started            |
+| `STATUS_READY`     | Machine homed and waiting for a command        |
+| `STATUS_DONE`      | All pieces placed, machine returned to idle    |
+
+Proto definition lives in `Core/Inc/communication/puzzle.pb.h` (nanopb-generated).
+
+---
 
 ## Prerequisites
 
 ### 1. ARM GCC Toolchain
-
-This is the compiler that turns C code into firmware the STM32 can run.
 
 ```bash
 # macOS
@@ -91,16 +151,16 @@ sudo pacman -S arm-none-eabi-gcc arm-none-eabi-newlib
 
 # Windows
 # Download from: https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
-# Install it, then note the path to the bin/ folder (e.g. C:\ArmGNUToolchain\14.3.rel1\bin)
+# Install, then note the path to the bin/ folder (e.g. C:\ArmGNUToolchain\14.3.rel1\bin)
 ```
 
-> **Arch Linux note:** `arm-none-eabi-newlib` is required alongside the compiler — it provides the C standard library (`printf`, `malloc`, etc.) for bare-metal targets. The project uses `--specs=nano.specs` in its linker flags, which depends on it.
+> **Arch Linux:** `arm-none-eabi-newlib` is required — it provides the C standard library for bare-metal targets (`--specs=nano.specs`).
 
 Verify: `arm-none-eabi-gcc --version`
 
 ### 2. OpenOCD
 
-Used to flash firmware and connect the debugger to the board via ST-Link.
+Used to flash firmware and attach the debugger via ST-Link.
 
 ```bash
 # macOS
@@ -114,7 +174,6 @@ sudo pacman -S openocd
 
 # Windows
 # Download from: https://github.com/openocd-org/openocd/releases
-# Note the path to the bin/ folder (e.g. C:\openocd\bin)
 ```
 
 ### 3. CMake & Ninja
@@ -129,17 +188,14 @@ sudo apt install cmake ninja-build
 # Arch Linux
 sudo pacman -S cmake ninja
 
-# Windows
-# https://cmake.org/download/ and https://ninja-build.org/
+# Windows: https://cmake.org/download/ and https://ninja-build.org/
 ```
 
 ### 4. VS Code Extensions
 
-VS Code will automatically prompt you to install the recommended extensions when you open this project — just click **Install** on the notification.
+VS Code will prompt to install recommended extensions when the project is opened. Or open the Extensions panel (`Ctrl+Shift+X`), type `@recommended`, and install all **Workspace Recommendations**.
 
-If the prompt doesn't appear: open the Extensions panel (`Ctrl+Shift+X`), type `@recommended`, and install everything listed under **Workspace Recommendations**.
-
-The extensions are defined in `.vscode/extensions.json`:
+Extensions are defined in `.vscode/extensions.json`:
 
 | Extension | Purpose |
 |---|---|
@@ -147,50 +203,92 @@ The extensions are defined in `.vscode/extensions.json`:
 | **Cortex-Debug** (marus25.cortex-debug) | Flashing & debugging via ST-Link |
 | **CMake Tools** (ms-vscode.cmake-tools) | Build integration |
 | **Clang-Format** (xaver.clang-format) | Auto-formatting on save |
-| **Doxygen Documentation Generator** (cschlosser.doxdocgen) | generate doxygen |
-| **vscode-pdf** (tomoki1207.pdf) | pdf-Viewer for VSCode |
+| **Doxygen Documentation Generator** (cschlosser.doxdocgen) | Generate Doxygen comments |
+| **vscode-pdf** (tomoki1207.pdf) | PDF viewer for datasheets |
 
+---
+
+## Build
+
+```bash
+# Configure (Debug)
+cmake --preset Debug
+
+# Build
+cmake --build build/Debug
+
+# Configure + Build (Release)
+cmake --preset Release && cmake --build build/Release
+```
+
+Output: `build/Debug/PuzzleSolver_MCU.elf`
+
+There are no on-target test or lint commands — this is bare-metal firmware flashed to hardware.
 
 ---
 
 ## Local Path Configuration
 
-The debug and IntelliSense configs use environment variables so no one has to commit their own machine paths. You need to set two variables pointing to the `bin/` folders of the tools installed above.
+Debug and IntelliSense configs use environment variables so no machine-specific paths are committed. Set two variables pointing to the `bin/` folders of the installed tools.
 
-**Windows** — add to your user environment variables (search "Edit environment variables" in the Start menu):
+**Windows** (Start menu → "Edit environment variables"):
 
 ```
 ARM_TOOLCHAIN_PATH = C:\ArmGNUToolchain\14.3.rel1\bin
 OPENOCD_PATH       = C:\openocd\bin
 ```
 
-**macOS / Linux** — add to your shell profile (`~/.zshrc`, `~/.bashrc`, etc.):
+**macOS / Linux** (add to `~/.zshrc` or `~/.bashrc`):
 
 ```bash
 export ARM_TOOLCHAIN_PATH=$(dirname $(which arm-none-eabi-gcc))
 export OPENOCD_PATH=$(dirname $(which openocd))
 ```
 
-After setting the variables, **restart VS Code** so it picks them up.
+Restart VS Code after setting the variables.
 
-> If you prefer not to use environment variables, you can edit `.vscode/launch.json` and `.vscode/c_cpp_properties.json` directly with your full paths — just don't commit those changes to git.
+> If you prefer not to use environment variables, edit `.vscode/launch.json` directly with full paths — but do not commit those changes.
 
 ---
 
+## Test CLI (`RUN_MODE_TEST_CLI`)
 
+Set `RUN_MODE RUN_MODE_TEST_CLI` in `sys_config.h`, flash, then connect a serial terminal to the ST-Link Virtual COM Port (USART3, 115200 8N1).
+
+| Command        | Description                                           |
+|----------------|-------------------------------------------------------|
+| `?`            | Print help                                            |
+| `s`            | Print system state and actuator busy flags            |
+| `h`            | Start homing sequence (blocks until done or timeout)  |
+| `m <x> <y>`    | Move X/Y axes by step count (signed int32)            |
+| `r <steps>`    | Move rotator by step count (signed int32)             |
+| `p <0..3>`     | Set piston: 0=START, 1=MOVE, 2=GRAB, 3=RELEASE       |
+| `g <0\|1>`     | Magnet off / on                                       |
+| `l <0\|1>`     | Work-area LED off / on                                |
+| `a <0..29>`    | Status LED: 0-9=green, 10-19=yellow, 20-29=red; last digit: 0=off, 1=blink, 2=on |
+| `b <x> <y>`    | Move to absolute position in µm (via motion planner)  |
 
 ---
 
 ## Reference Docs
 
-The `docs/` folder contains hardware references — mainly useful if you're tracking down something electrical:
+The `docs/` folder contains hardware references:
 
+| Document | Content |
+|---|---|
+| `drv8886.pdf` | DRV8886 stepper motor driver datasheet |
+| `ips4260lm.pdf` | IPS4260LM piston/H-bridge driver datasheet |
+| `mb1364-h753zi-e01-schematic.pdf` | Nucleo-H753ZI board schematic |
+| `um2407-stm32h7-nucleo144-boards-mb1364-stmicroelectronics.pdf` | Nucleo-144 user manual |
+| `stm32h753zi.pdf` | STM32H753ZI datasheet |
+| `pren_pinout_stm32.csv` | Project-specific pin assignment table |
+| `PREN_schematic.pdf` | Project electrical schematic |
 
-For software questions, the most useful external references are:
-- [STM32 HAL Documentation](https://www.st.com/resource/en/user_manual/um1725-description-of-stm32f4-hal-and-lowlayer-drivers-stmicroelectronics.pdf) — the HAL functions used throughout this codebase
-- [STM32CubeMX User Guide](https://www.st.com/resource/en/user_manual/um1718-stm32cubemx-for-stm32-configuration-and-initialization-c-code-generation-stmicroelectronics.pdf) — if you need to understand the `.ioc` file
+Software references:
+- [STM32H7 HAL Documentation](https://www.st.com/resource/en/user_manual/um2217-description-of-stm32h7-hal-and-lowlayer-drivers-stmicroelectronics.pdf)
+- [STM32CubeMX User Guide](https://www.st.com/resource/en/user_manual/um1718-stm32cubemx-for-stm32-configuration-and-initialization-c-code-generation-stmicroelectronics.pdf)
+- [nanopb documentation](https://jpa.kapsi.fi/nanopb/)
 
----
 ---
 
 ## Pin Assignment (STM32H753ZI)
@@ -235,38 +333,38 @@ Only assigned pins are listed. Power, reset, oscillator, and unassigned I/O pins
 
 ### UART / Communication
 
-| Pin  | Signal      | Label      | Peripheral        |
-|------|-------------|------------|-------------------|
-| PD8  | USART3_TX   | STLINK_RX  | ST-Link VCP (CLI) |
-| PD9  | USART3_RX   | STLINK_TX  | ST-Link VCP (CLI) |
-| PB12 | UART5_RX    | UART_RX    | Raspberry Pi      |
-| PB13 | UART5_TX    | UART_TX    | Raspberry Pi      |
+| Pin  | Signal      | Label      | Usage                          |
+|------|-------------|------------|--------------------------------|
+| PD8  | USART3_TX   | STLINK_RX  | ST-Link VCP — test CLI         |
+| PD9  | USART3_RX   | STLINK_TX  | ST-Link VCP — test CLI         |
+| PB12 | UART5_RX    | UART_RX    | Raspberry Pi — protobuf frames |
+| PB13 | UART5_TX    | UART_TX    | Raspberry Pi — protobuf frames |
 
 ### Digital Outputs (DOUT)
 
-| Pin  |  Signal      | Label  |
-|------|--------------|--------|
-| PB4  |  MAGNET      | DOUT_1 |
-| PF3  |  LED         | DOUT_2 |
-| PA4  |              | DOUT_3 |
-| PD14 |              | DOUT_4 |
-| PB3  |  PISTON_IN1  | DOUT_5 |
-| PD15 |  PISOTN_IN2  | DOUT_6 |
-| PC7  |              | DOUT_7 |
-| PB5  |              | DOUT_8 |
+| Pin  | Signal              | Label  |
+|------|---------------------|--------|
+| PB4  | MAGNET              | DOUT_1 |
+| PF3  | LED (work area)     | DOUT_2 |
+| PA4  | PISTON_EXTEND       | DOUT_3 |
+| PD14 | PISTON_RETRACT      | DOUT_4 |
+| PB3  | STATUS_LED_GREEN    | DOUT_5 |
+| PD15 | STATUS_LED_YELLOW   | DOUT_6 |
+| PC7  | STATUS_LED_RED      | DOUT_7 |
+| PB5  | ISR_TIMING (test)   | DOUT_8 |
 
 ### Digital Inputs (DIN)
 
-| Pin  | Signal         | Label   |
-|------|----------------|---------|
-| PE5  | LIM_X_MIN      | DIN_1   |
-| PF10 | LIM_X_MAX      | DIN_2   |
-| PE3  | LIM_Y_MIN      | DIN_3   |
-| PB2  | LIM_Y_MAX      | DIN_4   |
-| PF8  |                | DIN_5   |
-| PE9  |                | DIN_6   |
-| PF7  |                | DIN_7   |
-| PF2  |                | DIN_8   |
-| PF9  | EMERGENCY_STOP | DIN_9   |
-| PF1  | BUTTON_START   | DIN_10  |
-| PF0  |                | DIN_12  |
+| Pin  | Signal         | Label  |
+|------|----------------|--------|
+| PE5  | LIM_X_MIN      | DIN_1  |
+| PF10 | LIM_X_MAX      | DIN_2  |
+| PE3  | LIM_Y_MIN      | DIN_3  |
+| PB2  | LIM_Y_MAX      | DIN_4  |
+| PF8  | —              | DIN_5  |
+| PE9  | —              | DIN_6  |
+| PF7  | —              | DIN_7  |
+| PF2  | —              | DIN_8  |
+| PF9  | EMERGENCY_STOP | DIN_9  |
+| PF1  | BUTTON_START   | DIN_10 |
+| PF0  | BUTTON_RESET   | DIN_11 |
