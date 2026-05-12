@@ -11,8 +11,8 @@
  * This avoids continuous GPIO polling in the main loop.
  *
  * Hardware:
- *   - Start button: DIN_10, active-high (GPIO_PIN_SET = pressed)
- *   - Reset button: DIN_12, active-high (GPIO_PIN_SET = pressed)
+ *   - Start button: DIN_10, active-low (GPIO_PIN_RESET = pressed)
+ *   - Reset button: DIN_11, active-low (GPIO_PIN_RESET = pressed)
  */
 
 #include "sys_config.h"

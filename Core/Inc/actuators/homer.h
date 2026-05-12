@@ -95,10 +95,10 @@ void Homer_Update(void);
 void Homer_HomingStart(void);
 
 /**
- * @brief Returns whether the homing sequence has completed.
+ * @brief Returns whether the homing sequence is currently in progress.
  *
- * @return true   Homing is done; system has transitioned to IS_READY.
- * @return false  Homing is still in progress or has not started.
+ * @return true   Homing is active (not in IDLE or DONE state).
+ * @return false  Homing has completed or has not been started.
  */
 bool Homer_IsRunning(void);
 

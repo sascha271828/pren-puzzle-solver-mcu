@@ -30,14 +30,32 @@ void StateMachine_Init(CommandDispatcher_t* dispatcher);
 
 /**
  * @brief Main update routine of the state machine.
- * Evaluates current hardware states (e.g., IsBusy flags) and triggers
- * subsequent actions based on the active puzzle command.
- * * @note  Must be called cyclically from the main application loop. It is
- * strictly non-blocking.
+ *        Evaluates current hardware states (e.g., IsBusy flags) and triggers
+ *        subsequent actions based on the active puzzle command.
+ *
+ * @note  Must be called cyclically from the main application loop. It is
+ *        strictly non-blocking.
  */
 void StateMachine_Update(void);
 
+/**
+ * @brief Returns whether the state machine is currently idle and waiting
+ *        for a new command.
+ *
+ * @return true   State machine is in SM_IDLE; ready to accept a new command.
+ * @return false  A sequence is in progress or the machine is in ESTOP.
+ */
 bool StateMachine_IsIdle(void);
+
+/**
+ * @brief Injects a puzzle command directly, bypassing CommandDispatcher.
+ *        Intended for test mode (RUN_MODE_TEST_STATE) only. Starts execution
+ *        from the first piece immediately.
+ *
+ * @param cmd  Pointer to a PuzzleCommand containing at least one piece.
+ *             The command is copied internally; the pointer need not remain
+ *             valid after this call returns.
+ */
 void StateMachine_StartManual(PuzzleCommand* cmd);
 
 #endif /* __STATE_MACHINE_H__ */

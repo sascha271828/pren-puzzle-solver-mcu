@@ -33,18 +33,32 @@
 #define CONFIG_OFFSET_PLACE_Y_MM (100.0f)
 
 /**
- * @brief Initializes the motion planner.
- * Resets the internal absolute position tracker to (0, 0).
+ * @brief Initialises the motion planner and resets the internal absolute
+ *        position tracker to (0, 0).  Must be called once after homing.
  */
 void MotionPlanner_Init(void);
 
 /**
- * @brief Plans a trajectory to a coordinate within the "Pick" area.
+ * @brief Computes a relative MoveBlock_t from the current tracked position
+ *        to the pick area coordinate (pick_x_mm + CONFIG_OFFSET_PICK_X_MM,
+ *        pick_y_mm + CONFIG_OFFSET_PICK_Y_MM).  Updates the internal
+ *        position tracker.
+ *
+ * @param pick_x_mm  Pick-area X coordinate relative to the pick origin [mm].
+ * @param pick_y_mm  Pick-area Y coordinate relative to the pick origin [mm].
+ * @return MoveBlock_t  Ready-to-execute move block for StepGenerator_StartMove().
  */
 MoveBlock_t MotionPlanner_PlanMoveToPickMM(float pick_x_mm, float pick_y_mm);
 
 /**
- * @brief Plans a trajectory to a coordinate within the "Place" area.
+ * @brief Computes a relative MoveBlock_t from the current tracked position
+ *        to the place area coordinate (place_x_mm + CONFIG_OFFSET_PLACE_X_MM,
+ *        place_y_mm + CONFIG_OFFSET_PLACE_Y_MM).  Updates the internal
+ *        position tracker.
+ *
+ * @param place_x_mm  Place-area X coordinate relative to the place origin [mm].
+ * @param place_y_mm  Place-area Y coordinate relative to the place origin [mm].
+ * @return MoveBlock_t  Ready-to-execute move block for StepGenerator_StartMove().
  */
 MoveBlock_t MotionPlanner_PlanMoveToPlaceMM(float place_x_mm, float place_y_mm);
 

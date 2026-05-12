@@ -4,7 +4,7 @@
 #include "stepper.h"
 
 /**
- * @file rotation.h
+ * @file rotator.h
  * @brief Single-axis rotation driver with trapezoidal speed profile.
  *
  * Drives one stepper motor at maximum microstepping resolution.
@@ -112,6 +112,11 @@ bool Rotator_IsBusy(void);
  */
 void Rotator_Update(void);
 
+/**
+ * @brief Immediately stops the rotator and disables the motor.
+ *        Clears the active move block so Rotator_IsBusy() returns false.
+ *        Safe to call at any time, including from the ISR context.
+ */
 void Rotator_Abort(void);
 
 #endif /* __ROTATION_H__ */

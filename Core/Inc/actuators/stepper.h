@@ -115,7 +115,8 @@ typedef struct {
  * @param self    Pointer to the Stepper_t instance to initialise.
  * @param pins    GPIO pin assignments for this motor.
  * @param micro   Initial microstepping resolution.
- * @param enable  If true, assert the ENABLE pin immediately after init.
+ * @param enable  Reserved — currently unused. Call Stepper_Enable() separately
+ *                after init to control the ENABLE pin.
  */
 void Stepper_Init(Stepper_t* self,
                   StepperPin_t pins,

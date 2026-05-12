@@ -75,8 +75,6 @@ bool StepGenerator_StartMove(const MoveBlock_t* block);
  */
 bool StepGenerator_IsBusy(void);
 
-/* void StepGenerator_Abort(void); */ /* TODO: stop mid-move and clear state */
-
 /**
  * @brief Step generator update routine — must be called from the timer ISR
  *        on every tick. Handles pulse clearing, DDA stepping, interval
@@ -86,6 +84,12 @@ bool StepGenerator_IsBusy(void);
  */
 void StepGenerator_Update(void);
 
+/**
+ * @brief Immediately aborts any in-progress move.
+ *        Clears both step pulses, disables both motor drivers, and resets
+ *        the active block pointer so StepGenerator_IsBusy() returns false.
+ *        Safe to call from the TIM2 ISR or from the main context.
+ */
 void StepGenerator_Abort(void);
 
 #endif /* __STEP_GENERATOR_H__ */

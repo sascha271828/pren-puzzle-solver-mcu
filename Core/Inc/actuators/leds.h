@@ -26,7 +26,7 @@
  * @brief Initialises the LED driver and turns the LEDs off.
  *
  * Stores the GPIO descriptor for subsequent calls and drives the pin to the
- * on state.  Must be called before Leds_Set() or Leds_Get().
+ * off state.  Must be called before Leds_Set() or Leds_Get().
  *
  * @param pin  GPIO port/pin descriptor for the LED output.
  */

@@ -16,11 +16,11 @@
  * Controlled by `STATUSLED_BLINK_FREQUENCY` in sys_config.h (in mHz).
  * Blink period = 1 / frequency
  *
- * **Reentrancy protection:**
- * StatusLeds_On() and StatusLeds_Blink() use TIM2 interrupt masking to
- * ensure atomic updates to shared state (led_blinking_mode,
- * led_blinking_index). Safe to call from main context while
- * StatusLeds_Blink_ISR() runs in TIM2 ISR.
+ * **Reentrancy note:**
+ * StatusLeds_On(), StatusLeds_Off() and StatusLeds_Blink() write directly to
+ * shared state (led_blinking_mode[]) without interrupt masking. They are
+ * intended to be called from the main context only; concurrent calls from
+ * the TIM2 ISR may cause a brief race on the blinking flag.
  *
  * Usage pattern:
  * @code
@@ -135,8 +135,8 @@ StatusLeds_Type_e StatusLed_Read(StatusLeds_e led);
  * @pre TIM2 interrupt must be running and calling StatusLeds_Blink_ISR()
  * @post LED enters blinking mode; led_blinking_mode[led] = true
  *
- * @note Thread-safe: Uses NVIC disable/enable for atomic update
  * @note To stop blinking, call StatusLeds_On() or StatusLeds_Off()
+ * @note Call from main context only; no interrupt masking is applied.
  *
  * @warning Does not validate led parameter — UB if led >= STATUSLED_SENTINEL
  */
@@ -153,7 +153,7 @@ void StatusLeds_Blink(StatusLeds_e led);
  * @pre StatusLeds_Init() must have been called
  * @post LED on; led_blinking_mode[led] = false
  *
- * @note Thread-safe: Uses NVIC disable/enable for atomic mode update
+ * @note Call from main context only; no interrupt masking is applied.
  * @warning Does not validate led parameter — UB if led >= STATUSLED_SENTINEL
  */
 void StatusLeds_On(StatusLeds_e led);
@@ -169,7 +169,7 @@ void StatusLeds_On(StatusLeds_e led);
  * @pre StatusLeds_Init() must have been called
  * @post LED off; led_blinking_mode[led] = false
  *
- * @note Thread-safe: Uses NVIC disable/enable for atomic mode update
+ * @note Call from main context only; no interrupt masking is applied.
  * @warning Does not validate led parameter — UB if led >= STATUSLED_SENTINEL
  */
 void StatusLeds_Off(StatusLeds_e led);
@@ -185,12 +185,10 @@ void StatusLeds_Off(StatusLeds_e led);
  * STATUSLED_BLINK_FREQUENCY)
  * - All blinking LEDs toggle simultaneously (synchronized)
  *
- * @pre TIM2 running at SYSTEM_TICK_FREQ (120 kHz)
+ * @pre TIM2 running at TIMER_FREQ_HZ_ACTUATORS (120 kHz)
  * @post Decrements led_blinking_tick; toggles LEDs if tick == 0
  *
  * @note Execution time must fit within 8.33 µs ISR budget
- * @note Shared state (led_blinking_mode[]) protected by NVIC masking in
- * caller functions
  *
  * Usage:
  * @code

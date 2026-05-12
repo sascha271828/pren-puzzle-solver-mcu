@@ -21,7 +21,9 @@
  *     (any state → IS_ESTOP on emergency-stop input)
  * @endverbatim
  *
- * @note  IS_ESTOP is a terminal state; recovery requires a full system reset.
+ * @note  IS_ESTOP clears automatically once the emergency-stop input is
+ *        deactivated and the reset button is pressed, which triggers a new
+ *        homing sequence via Homer_HomingStart().
  */
 
 /**

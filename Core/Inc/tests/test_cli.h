@@ -14,12 +14,16 @@
  *
  * Available commands:
  *   ?              Print help
- *   s              Print status of all axes
- *   h              Start homing sequence
- *   m <x> <y>      Move X/Y axes (steps, signed int32)
- *   r <steps>      Move rotator  (steps, signed int32)
- *   p <0|1>        Piston retract (0) / extend (1)
+ *   s              Print status of all axes and system state
+ *   h              Start homing sequence (blocks until done or timeout)
+ *   m <x> <y>      Move X/Y axes by relative step count (signed int32)
+ *   r <steps>      Move rotator by step count (signed int32)
+ *   p <0..3>       Set piston position (0=START, 1=MOVE, 2=GRAB, 3=RELEASE)
  *   g <0|1>        Magnet off (0) / on (1)
+ *   l <0|1>        Work-area LED off (0) / on (1)
+ *   a <0..29>      Status LED control: 0-9=green, 10-19=yellow, 20-29=red;
+ *                  last digit selects mode: 0=off, 1=blink, 2=on
+ *   b <x> <y>      Move to absolute position in µm (converts to steps)
  */
 
 #include "main.h"
