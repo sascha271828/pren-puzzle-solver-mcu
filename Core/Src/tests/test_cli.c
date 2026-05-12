@@ -9,7 +9,6 @@
 #include "motion_planner.h"
 #include "piston.h"
 #include "rotator.h"
-#include "state_machine.h"
 #include "status_leds.h"
 #include "step_generator.h"
 #include "sys_config.h"
@@ -21,20 +20,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* ── Configuration ─────────────────────────────────────────────────────── */
-
+/* --- Configuration --- */
 #define CLI_LINE_BUF_SIZE 64
 #define CLI_HOMING_TIMEOUT_MS 30000
 
-/* ── Internal state ─────────────────────────────────────────────────────── */
-
+/* --- Internal state --- */
 static UART_HandleTypeDef* cli_huart = NULL;
 
-/* ── Low-level I/O ──────────────────────────────────────────────────────── */
-
-static void cli_putstr(const char* s) {
-  HAL_UART_Transmit(cli_huart, (const uint8_t*)s, strlen(s), HAL_MAX_DELAY);
-}
+/* --- I/O --- */
+static void cli_putstr(const char* s) { HAL_UART_Transmit(cli_huart, (const uint8_t*)s, strlen(s), HAL_MAX_DELAY); }
 
 static void cli_ok(void) { cli_putstr("OK\r\n"); }
 
@@ -84,7 +78,7 @@ static uint16_t cli_readline(char* buf, uint16_t max_len) {
   }
 }
 
-/* ── Busy-wait helpers ──────────────────────────────────────────────────── */
+/* --- Busy-wait helpers --- */
 
 static void cli_wait_step_generator(void) {
   while (StepGenerator_IsBusy()) {
@@ -116,8 +110,7 @@ static bool cli_wait_homing(void) {
   return true;
 }
 
-/* ── Command handlers ───────────────────────────────────────────────────── */
-
+/* --- Command handlers --- */
 static void cmd_help(void) {
   cli_putstr("Commands:\r\n");
   cli_putstr("  ?              This help\r\n");
@@ -131,8 +124,6 @@ static void cmd_help(void) {
   cli_putstr("  a <0|1>        Leds signal (0:g 10:y 20:r)\r\n");
   cli_putstr("                 +0: off, +1: blink, +2 on\r\n");
   cli_putstr("  b <x> <y>      move planner [um] absolut \r\n");
-  // cli_putstr(
-  //     "  t              Testmachine sequence (with Hardware Button)\r\n");
 }
 
 static void cmd_status(void) {
@@ -163,14 +154,10 @@ static void cmd_status(void) {
   snprintf(buf, sizeof(buf), "SYS:  %s\r\n", sys_state);
   cli_putstr(buf);
 
-  snprintf(buf,
-           sizeof(buf),
-           "XY:   %s\r\n",
-           StepGenerator_IsBusy() ? "busy" : "idle");
+  snprintf(buf, sizeof(buf), "XY:   %s\r\n", StepGenerator_IsBusy() ? "busy" : "idle");
   cli_putstr(buf);
 
-  snprintf(
-      buf, sizeof(buf), "ROT:  %s\r\n", Rotator_IsBusy() ? "busy" : "idle");
+  snprintf(buf, sizeof(buf), "ROT:  %s\r\n", Rotator_IsBusy() ? "busy" : "idle");
 
   snprintf(buf, sizeof(buf), "PST:  %s\r\n", Piston_IsBusy() ? "busy" : "idle");
   cli_putstr(buf);
@@ -360,7 +347,7 @@ static void cmd_led(const char* args) {
   cli_ok();
 }
 
-/* ── Dispatcher ─────────────────────────────────────────────────────────── */
+/* --- Dispatcher --- */
 
 /**
  * @brief Parses and dispatches one null-terminated command line.
@@ -408,9 +395,6 @@ static void cli_dispatch(char* line) {
     case 'b':
       cmd_move_planner(args);
       break;
-      //    case 't':
-      //      cmd_testmachine_sequence();
-      //      break;
     case 'a':
       cmd_led_signal(args);
       break;
@@ -420,7 +404,7 @@ static void cli_dispatch(char* line) {
   }
 }
 
-/* ── Public API ─────────────────────────────────────────────────────────── */
+/* --- Public API --- */
 
 void TestCLI_Init(UART_HandleTypeDef* huart) { cli_huart = huart; }
 

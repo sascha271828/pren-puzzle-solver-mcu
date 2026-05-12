@@ -17,8 +17,10 @@
 
 /* ── Run-mode selection ──────────────────────────────────────────────────
  * Set exactly one of these to select what App_Run() executes.
- * RUN_MODE_TEST_CLI : interactive UART command interface (development)
- * RUN_MODE_APP      : production loop driven by CommandDispatcher
+ * RUN_MODE_TEST_CLI     : interactive UART command interface (development)
+ * RUN_MODE_APP          : production loop driven by CommandDispatcher
+ * RUN_MODE_TEST_STATE   : test loop for state machine
+ * RUN_MODE_LED          : only LEDs for camera thourhg start and reset
  * ─────────────────────────────────────────────────────────────────────── */
 #define RUN_MODE_TEST_CLI 0
 #define RUN_MODE_APP 1
@@ -26,7 +28,7 @@
 #define RUN_MODE_LED 3
 
 #define RUN_MODE RUN_MODE_APP
-#define TEST_ISR_TIME 0
+#define CONFIG_INIT_WAIT_PERIPHERALS 200u /* [ms] */
 /* ============================================================================
  * TIMER
  * ========================================================================== */
@@ -50,9 +52,7 @@
  * PISTON
  * ========================================================================== */
 
-#define CONFIG_PISTON_TIME_RETRACT_INIT_MS \
-  800u /* ms — retract from unknown      \
-        */
+#define CONFIG_PISTON_TIME_RETRACT_INIT_MS 800u /* ms — retract from unknown */
 
 #define CONFIG_PISTON_PWM_ENUMERATER 3u
 #define CONFIG_PISTON_PWM_DIVISOR 12u
@@ -65,39 +65,30 @@
 
 /* Derived tick counts — do not edit.
  * Result fits in int32_t: max = 120000 * 2000 / 1000 = 240000 << INT32_MAX  */
-#define PISTON_MS_TO_TICKS(ms) \
-  ((int32_t)((TIMER_FREQ_HZ_ACTUATORS) * (ms) / 1000UL))
+#define PISTON_MS_TO_TICKS(ms) ((int32_t)((TIMER_FREQ_HZ_ACTUATORS) * (ms) / 1000UL))
 
-#define CONFIG_PISTON_TICKS_RETRACT_INIT \
-  PISTON_MS_TO_TICKS(CONFIG_PISTON_TIME_RETRACT_INIT_MS)
+#define CONFIG_PISTON_TICKS_RETRACT_INIT PISTON_MS_TO_TICKS(CONFIG_PISTON_TIME_RETRACT_INIT_MS)
 
-#define CONFIG_PISTON_TICKS_START_MOVE \
-  PISTON_MS_TO_TICKS(CONFIG_PISTON_TIME_START_MOVE_MS)
+#define CONFIG_PISTON_TICKS_START_MOVE PISTON_MS_TO_TICKS(CONFIG_PISTON_TIME_START_MOVE_MS)
 
-#define CONFIG_PISTON_TICKS_MOVE_GRAB \
-  PISTON_MS_TO_TICKS(CONFIG_PISTON_TIME_MOVE_GRAB_MS)
+#define CONFIG_PISTON_TICKS_MOVE_GRAB PISTON_MS_TO_TICKS(CONFIG_PISTON_TIME_MOVE_GRAB_MS)
 
-#define CONFIG_PISTON_TICKS_MOVE_RELEASE \
-  PISTON_MS_TO_TICKS(CONFIG_PISTON_TIME_MOVE_RELEASE_MS)
+#define CONFIG_PISTON_TICKS_MOVE_RELEASE PISTON_MS_TO_TICKS(CONFIG_PISTON_TIME_MOVE_RELEASE_MS)
 
 /* Multi-hop shortcuts (START→GRAB skips through MOVE implicitly) */
-#define CONFIG_PISTON_TICKS_START_GRAB                    \
-  PISTON_MS_TO_TICKS((CONFIG_PISTON_TIME_START_MOVE_MS) + \
-                     (CONFIG_PISTON_TIME_MOVE_GRAB_MS))
+#define CONFIG_PISTON_TICKS_START_GRAB \
+  PISTON_MS_TO_TICKS((CONFIG_PISTON_TIME_START_MOVE_MS) + (CONFIG_PISTON_TIME_MOVE_GRAB_MS))
 
-#define CONFIG_PISTON_TICKS_START_RELEASE                 \
-  PISTON_MS_TO_TICKS((CONFIG_PISTON_TIME_START_MOVE_MS) + \
-                     (CONFIG_PISTON_TIME_MOVE_RELEASE_MS))
+#define CONFIG_PISTON_TICKS_START_RELEASE \
+  PISTON_MS_TO_TICKS((CONFIG_PISTON_TIME_START_MOVE_MS) + (CONFIG_PISTON_TIME_MOVE_RELEASE_MS))
 
-#define CONFIG_PISTON_TICKS_GRAB_RELEASE                 \
-  PISTON_MS_TO_TICKS((CONFIG_PISTON_TIME_MOVE_GRAB_MS) + \
-                     (CONFIG_PISTON_TIME_MOVE_RELEASE_MS))
+#define CONFIG_PISTON_TICKS_GRAB_RELEASE \
+  PISTON_MS_TO_TICKS((CONFIG_PISTON_TIME_MOVE_GRAB_MS) + (CONFIG_PISTON_TIME_MOVE_RELEASE_MS))
 
 /* ============================================================================
  * MAGNET
  * ========================================================================== */
-#define CONFIG_MAGNET_DELAY_MS \
-  500UL /* Zeit in ms zum Auf-/Abbau des Magnetfelds */
+#define CONFIG_MAGNET_DELAY_MS 500UL /* Zeit in ms zum Auf-/Abbau des Magnetfelds */
 
 /* ============================================================================
  * DRIVER FEATURE FLAGS
@@ -129,11 +120,9 @@
  * e.g. 4×200/40 = 20 steps/mm  */
 
 /* --- Derived: velocity and acceleration in steps/s and steps/s² ----------- */
-#define AXIS_MAX_V_STEPS \
-  (CONFIG_AXIS_MAX_SPEED_MM_S * AXIS_STEPS_PER_MM_NUM / AXIS_STEPS_PER_MM_DEN)
+#define AXIS_MAX_V_STEPS (CONFIG_AXIS_MAX_SPEED_MM_S * AXIS_STEPS_PER_MM_NUM / AXIS_STEPS_PER_MM_DEN)
 
-#define AXIS_ACCEL_STEPS_S2 \
-  (CONFIG_AXIS_ACCEL_MM_S2 * AXIS_STEPS_PER_MM_NUM / AXIS_STEPS_PER_MM_DEN)
+#define AXIS_ACCEL_STEPS_S2 (CONFIG_AXIS_ACCEL_MM_S2 * AXIS_STEPS_PER_MM_NUM / AXIS_STEPS_PER_MM_DEN)
 
 /* --- Derived: cruise timer-tick interval -----------------------------------
  */
@@ -147,9 +136,7 @@
  *  The discrete approximation needs ~2.15× more steps to actually converge
  *  to cruise speed, so we apply that factor here.
  *  The result is used as the interval-table array size and the ramp length. */
-#define AXIS_ACCEL_STEPS_IDEAL                     \
-  (300UL * (AXIS_MAX_V_STEPS * AXIS_MAX_V_STEPS) / \
-   (200UL * AXIS_ACCEL_STEPS_S2))
+#define AXIS_ACCEL_STEPS_IDEAL (300UL * (AXIS_MAX_V_STEPS * AXIS_MAX_V_STEPS) / (200UL * AXIS_ACCEL_STEPS_S2))
 
 /* ============================================================================
  * ROTATION — NEMA 11
@@ -174,19 +161,16 @@
  * e.g. 16×200/100 = 32 steps/mm  */
 
 /* --- Derived: velocity and acceleration in steps/s and steps/s² ----------- */
-#define ROT_MAX_V_STEPS \
-  (CONFIG_ROT_MAX_SPEED_MM_S * ROT_STEPS_PER_MM_NUM / ROT_STEPS_PER_MM_DEN)
+#define ROT_MAX_V_STEPS (CONFIG_ROT_MAX_SPEED_MM_S * ROT_STEPS_PER_MM_NUM / ROT_STEPS_PER_MM_DEN)
 
-#define ROT_ACCEL_STEPS_S2 \
-  (CONFIG_ROT_ACCEL_MM_S2 * ROT_STEPS_PER_MM_NUM / ROT_STEPS_PER_MM_DEN)
+#define ROT_ACCEL_STEPS_S2 (CONFIG_ROT_ACCEL_MM_S2 * ROT_STEPS_PER_MM_NUM / ROT_STEPS_PER_MM_DEN)
 
 /* --- Derived: cruise interval ----------------------------------------------
  */
 #define ROT_CRUISE_INTERVAL (TIMER_FREQ_HZ_ACTUATORS / ROT_MAX_V_STEPS)
 
 /* --- Derived: ramp table length ------------------------------------------- */
-#define ROT_ACCEL_STEPS_IDEAL \
-  (215UL * (ROT_MAX_V_STEPS * ROT_MAX_V_STEPS) / (200UL * ROT_ACCEL_STEPS_S2))
+#define ROT_ACCEL_STEPS_IDEAL (215UL * (ROT_MAX_V_STEPS * ROT_MAX_V_STEPS) / (200UL * ROT_ACCEL_STEPS_S2))
 
 /* ============================================================================
  * COMPILE-TIME SANITY CHECKS
@@ -194,12 +178,10 @@
 
 /* Cruise interval must be reachable within a single 32-bit tick counter */
 #if AXIS_CRUISE_INTERVAL == 0
-#error \
-    "AXIS_CRUISE_INTERVAL is 0 — MAX_SPEED too high or CIRCUMFERENCE too small"
+#error "AXIS_CRUISE_INTERVAL is 0 — MAX_SPEED too high or CIRCUMFERENCE too small"
 #endif
 #if ROT_CRUISE_INTERVAL == 0
-#error \
-    "ROT_CRUISE_INTERVAL is 0 — ROT_MAX_SPEED too high or CIRCUMFERENCE too small"
+#error "ROT_CRUISE_INTERVAL is 0 — ROT_MAX_SPEED too high or CIRCUMFERENCE too small"
 #endif
 
 /* Ramp table must have at least a few entries */
@@ -207,8 +189,7 @@
 #error "AXIS_ACCEL_STEPS_IDEAL < 4 — increase MAX_SPEED or decrease ACCEL"
 #endif
 #if ROT_ACCEL_STEPS_IDEAL < 4
-#error \
-    "ROT_ACCEL_STEPS_IDEAL < 4 — increase ROT_MAX_SPEED or decrease ROT_ACCEL"
+#error "ROT_ACCEL_STEPS_IDEAL < 4 — increase ROT_MAX_SPEED or decrease ROT_ACCEL"
 #endif
 
 /* ============================================================================
@@ -222,30 +203,35 @@
 #define CONFIG_HOMING_BACKOFF_DIST_MM 5UL     /* retreat distance     */
 
 /* Derived: ticks between steps (= ISR interval) */
-#define HOMING_COARSE_INTERVAL                       \
-  (TIMER_FREQ_HZ_ACTUATORS * AXIS_STEPS_PER_MM_DEN / \
-   (CONFIG_HOMING_COARSE_SPEED_MM_S * AXIS_STEPS_PER_MM_NUM))
+#define HOMING_COARSE_INTERVAL \
+  (TIMER_FREQ_HZ_ACTUATORS * AXIS_STEPS_PER_MM_DEN / (CONFIG_HOMING_COARSE_SPEED_MM_S * AXIS_STEPS_PER_MM_NUM))
 
-#define HOMING_FINE_INTERVAL                         \
-  (TIMER_FREQ_HZ_ACTUATORS * AXIS_STEPS_PER_MM_DEN / \
-   (CONFIG_HOMING_FINE_SPEED_MM_S * AXIS_STEPS_PER_MM_NUM))
+#define HOMING_FINE_INTERVAL \
+  (TIMER_FREQ_HZ_ACTUATORS * AXIS_STEPS_PER_MM_DEN / (CONFIG_HOMING_FINE_SPEED_MM_S * AXIS_STEPS_PER_MM_NUM))
 
-#define HOMING_BACKOFF_INTERVAL                      \
-  (TIMER_FREQ_HZ_ACTUATORS * AXIS_STEPS_PER_MM_DEN / \
-   (CONFIG_HOMING_BACKOFF_SPEED_MM_S * AXIS_STEPS_PER_MM_NUM))
+#define HOMING_BACKOFF_INTERVAL \
+  (TIMER_FREQ_HZ_ACTUATORS * AXIS_STEPS_PER_MM_DEN / (CONFIG_HOMING_BACKOFF_SPEED_MM_S * AXIS_STEPS_PER_MM_NUM))
 
 /* Derived: total ticks for backoff distance */
-#define HOMING_BACKOFF_TICKS                               \
-  (CONFIG_HOMING_BACKOFF_DIST_MM * AXIS_STEPS_PER_MM_NUM / \
-   AXIS_STEPS_PER_MM_DEN * HOMING_BACKOFF_INTERVAL)
+#define HOMING_BACKOFF_TICKS \
+  (CONFIG_HOMING_BACKOFF_DIST_MM * AXIS_STEPS_PER_MM_NUM / AXIS_STEPS_PER_MM_DEN * HOMING_BACKOFF_INTERVAL)
 
 /* ============================================================================
  * STATUS LEDS
  * ========================================================================== */
-#define STATUSLED_BLINK_FREQUENCY 1000 /* mHz*/
+#define STATUSLED_BLINK_FREQUENCY 1000u /* [mHz] */
 
-#define STATUSLED_BLINK_TICKS                                                 \
-  ((uint32_t)(((TIMER_FREQ_HZ_ACTUATORS) / (STATUSLED_BLINK_FREQUENCY * 2)) * \
-              1000))
+#define STATUSLED_BLINK_TICKS ((uint32_t)(((TIMER_FREQ_HZ_ACTUATORS) / (STATUSLED_BLINK_FREQUENCY * 2)) * 1000))
+
+/* ============================================================================
+ * STATE MACHINE
+ * ========================================================================== */
+#define CONIFG_SM_WAIT_BEFORE_LOWER_PICK 200u
+#define CONIFG_SM_WAIT_BEFORE_PICK 200u        /* [ms] after lowering */
+#define CONIFG_SM_WAIT_AFTER_PICK 200u         /* [ms] before lift */
+#define CONIFG_SM_WAIT_AFTER_LIFT 200u         /* [ms] before move */
+#define CONIFG_SM_WAIT_BEFORE_LOWER_PLACE 200u /* [ms] after move */
+#define CONIFG_SM_WAIT_BEFORE_RELEASE 200u     /* [ms] after lower */
+#define CONIFG_SM_WAIT_AFTER_RELEASE 200u      /* [ms] before lift */
 
 #endif /* __SYS_CONFIG_MY_H__ */

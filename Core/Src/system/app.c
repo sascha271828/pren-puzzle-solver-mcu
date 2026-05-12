@@ -28,18 +28,16 @@
 static PuzzleCommand test_cmd = PuzzleCommand_init_zero;
 #endif
 
-/* ── Entry point ───────────────────────────────────────────────────────────
- */
 void App_Run(void) {
-  HAL_Delay(500); /* let peripherals settle */
+  HAL_Delay(CONFIG_INIT_WAIT_PERIPHERALS); /* let peripherals settle */
 
 #if RUN_MODE == RUN_MODE_TEST_CLI
-
+  /* --- TEST MODE STATE MACHINE --- */
   TestCLI_Init(&huart3);
   // TestCLI_Init(&huart2);
   TestCLI_Run();
 #elif RUN_MODE == RUN_MODE_TEST_STATE
-
+  /* --- TEST MODE STATE MACHINE --- */
   CommandDispatcher_t* dispatcher = Sys_GetCommandDispatcher();
   StateMachine_Init(dispatcher);
 
@@ -81,13 +79,9 @@ void App_Run(void) {
   }
 
 #elif RUN_MODE == RUN_MODE_APP
-  /* --- STATE MACHINE MODUS --- */
+  /* --- PRODUCTION MODE --- */
   CommandDispatcher_t* dispatcher = Sys_GetCommandDispatcher();
-
   StateMachine_Init(dispatcher);
-
-  // Piston_Set(PISTON_POS_START);
-  // Magnet_SetState(false);
 
   for (;;) {
     CommandDispatcher_Poll(dispatcher);
@@ -112,9 +106,9 @@ void App_Run(void) {
 #endif
 }
 
-/* ── ISR ───────────────────────────────────────────────────────────────────
- */
-
+/* ----------- */
+/* --- ISR --- */
+/* ----------- */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
   if (htim->Instance == TIM2) {
 #if RUN_MODE == RUN_MODE_LED
@@ -134,8 +128,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
         Rotator_Update();
         break;
       case IS_READY:
-        // StatusLeds_On(STATUSLED_YELLOW);
-        // break;
       case IS_RUNNING:
         if (LimitSwitch_Activated()) {
           Interrupt_SetState(IS_ESTOP);
@@ -171,6 +163,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
 #endif
   }
 }
+
+/* --------------------- */
+/* --- UART CALLBACK --- */
+/* --------------------- */
 #if RUN_MODE == RUN_MODE_APP
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
   if (huart->Instance == UART5) {
