@@ -13,6 +13,8 @@ void UartReceiver_Start(UartReceiver_t *self) {
   self->header_idx = 0;
   self->buf_idx = 0;
   self->frame_ready = false;
+  /* Abort any stale RX (clears ORE/FE/NE flags and resets RxState to READY) */
+  HAL_UART_AbortReceive(self->huart);
   HAL_UART_Receive_IT(self->huart, &self->rx_byte, 1);
 }
 
