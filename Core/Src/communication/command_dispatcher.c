@@ -41,6 +41,7 @@ PuzzleCommand *CommandDispatcher_GetCommand(CommandDispatcher_t *self) {
 
 void CommandDispatcher_SendAck(CommandDispatcher_t *self, Status status,
                                uint32_t piece_id) {
+  if (self == NULL) return;
   Ack ack = Ack_init_zero;
   ack.status = status;
   ack.piece_id = piece_id;

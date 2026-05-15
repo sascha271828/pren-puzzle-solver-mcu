@@ -3,7 +3,6 @@
 #include "test_cli.h"
 
 #include "buttons.h"
-#include "command_dispatcher.h"
 #include "emergency_stop.h"
 #include "homer.h"
 #include "interrupt.h"
@@ -17,8 +16,6 @@
 #include "status_leds.h"
 #include "step_generator.h"
 #include "sys_config.h"
-#include "sys_init.h"
-#include "uart_receiver.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -43,12 +40,6 @@ static UART_HandleTypeDef* cli_huart = NULL;
 /* Local absolute position tracker for the 'b' command */
 static int32_t current_pos_steps_x = 0;
 static int32_t current_pos_steps_y = 0;
-
-/* Dispatcher used by the state machine in CLI test mode.
- * Ack messages (binary protobuf) will be sent over the CLI UART —
- * expect a few garbled bytes in the terminal when a sequence finishes. */
-static UartReceiver_t     cli_sm_uart;
-static CommandDispatcher_t cli_sm_dispatcher;
 
 /* ========================
  *   PRIVATE FUNCTIONS — I/O helpers
@@ -483,14 +474,8 @@ static void cli_dispatch(char* line) {
 
 void TestCLI_Init(UART_HandleTypeDef* huart) {
   cli_huart = huart;
-
-  /* Set up a local dispatcher so the state machine can send Ack messages
-   * without crashing. Acks are binary protobuf blobs sent over the CLI
-   * UART — a few garbled bytes may appear in the terminal when a sequence
-   * finishes; this is expected and harmless. */
-  UartReceiver_Init(&cli_sm_uart, huart);
-  CommandDispatcher_Init(&cli_sm_dispatcher, &cli_sm_uart);
-  StateMachine_Init(&cli_sm_dispatcher);
+  /* NULL dispatcher: state machine acks are silently dropped in CLI mode */
+  StateMachine_Init(NULL);
 }
 
 void TestCLI_Run(void) {
