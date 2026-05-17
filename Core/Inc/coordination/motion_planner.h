@@ -13,24 +13,21 @@
 /* --- Hardware Scaling Factors (Derived from sys_config.h) --- */
 
 /** @brief Steps per millimeter for X/Y axis */
-#define CONFIG_STEPS_PER_MM_X \
-  ((float)AXIS_STEPS_PER_MM_NUM / (float)AXIS_STEPS_PER_MM_DEN)
-#define CONFIG_STEPS_PER_MM_Y \
-  ((float)AXIS_STEPS_PER_MM_NUM / (float)AXIS_STEPS_PER_MM_DEN)
+#define CONFIG_STEPS_PER_MM_X ((float)AXIS_STEPS_PER_MM_NUM / (float)AXIS_STEPS_PER_MM_DEN)
+#define CONFIG_STEPS_PER_MM_Y ((float)AXIS_STEPS_PER_MM_NUM / (float)AXIS_STEPS_PER_MM_DEN)
 
 /** @brief Steps per 0.1 degree for rotation */
-#define CONFIG_STEPS_PER_01_DEGREE \
-  (((float)CONFIG_ROT_STEPS_PER_REV * (float)CONFIG_ROT_MICRO) / 3600.0f)
+#define CONFIG_STEPS_PER_01_DEGREE (((float)CONFIG_ROT_STEPS_PER_REV * (float)CONFIG_ROT_MICRO) / 3600.0f)
 
 /* --- Work Area Offsets (Must be measured on physical hardware) --- */
 
 /** @brief Distance from endstops to the pick area origin */
-#define CONFIG_OFFSET_PICK_X_MM (10.0f)
-#define CONFIG_OFFSET_PICK_Y_MM (10.0f)
+#define CONFIG_OFFSET_PICK_X_MM (-6.0f)
+#define CONFIG_OFFSET_PICK_Y_MM (128.0f)
 
 /** @brief Distance from endstops to the place area origin */
-#define CONFIG_OFFSET_PLACE_X_MM (50.0f)
-#define CONFIG_OFFSET_PLACE_Y_MM (100.0f)
+#define CONFIG_OFFSET_PLACE_X_MM (49.0f)
+#define CONFIG_OFFSET_PLACE_Y_MM (-14.0f)
 
 /**
  * @brief Initialises the motion planner and resets the internal absolute

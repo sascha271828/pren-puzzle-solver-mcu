@@ -155,9 +155,6 @@ void Sys_Init(void) {
   HAL_TIM_Base_Start_IT(&htim2);
 #else
 
-  /* --- INTERRUPT --- */
-  Interrupt_Init();
-
   /* --- STEPPER --- */
   Stepper_Init(&stepper_x, pins_stepper_x, CONFIG_AXIS_MICRO, true);
   Stepper_Init(&stepper_y, pins_stepper_y, CONFIG_AXIS_MICRO, true);
@@ -210,6 +207,9 @@ void Sys_Init(void) {
     .pin = DOUT_1_Pin,
   };
   Magnet_Init(magnet_pin);
+
+  /* --- INTERRUPT --- */
+  Interrupt_Init();
 
   /* --- TIMER --- */
   HAL_TIM_Base_Start_IT(&htim2);

@@ -43,6 +43,7 @@ typedef enum {
   SM_LIFT_EMPTY,
   SM_NEXT_PIECE,
   SM_ESTOP,
+  SM_DONE,
   SM_ERROR
 } State_e;
 
@@ -59,7 +60,6 @@ static uint32_t wait_start_tick;
 static PieceCommand* piece;
 static MoveBlock_t active_xy_move;
 static RotateBlock_t active_rot_move;
-
 
 /* ========================
  *   PUBLIC API
@@ -202,7 +202,7 @@ void StateMachine_Update(void) {
       active_xy_move = MotionPlanner_PlanMoveToPlaceMM(piece->place_x, piece->place_y);
       StepGenerator_StartMove(&active_xy_move);
 
-      int32_t rot_steps = (int32_t)(piece->rotation * 10.0f) * CONFIG_STEPS_PER_01_DEGREE;
+      int32_t rot_steps = (int32_t)(piece->rotation * 10.0f * CONFIG_STEPS_PER_01_DEGREE);
       if (rot_steps != 0) {
         active_rot_move = Rotator_GenerateBlock(rot_steps);
         Rotator_StartMove(&active_rot_move);
@@ -259,6 +259,8 @@ void StateMachine_Update(void) {
         if (current_piece_idx + 1 >= current_puzzle.pieces_count) {
           active_xy_move = MotionPlanner_PlanMoveToPickMM(0, 0);
           StepGenerator_StartMove(&active_xy_move);
+          current_state = SM_DONE;
+          break;
         }
         current_state = SM_NEXT_PIECE;
       }
@@ -275,14 +277,16 @@ void StateMachine_Update(void) {
         } else {
           Rotator_ReturnStart();
           CommandDispatcher_SendAck(sm_dispatcher, Status_STATUS_DONE, 0);
+          Piston_Set(PISTON_POS_START);
           StatusLeds_On(STATUSLED_GREEN);
-          current_state = SM_ESTOP;
+          current_state = SM_DONE;
         }
       }
       break;
-
+    case SM_DONE:
+      /* do nothing -> reset over estop */
+      break;
     case SM_ERROR:
       break;
   }
 }
-

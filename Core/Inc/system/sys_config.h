@@ -27,7 +27,7 @@
 #define RUN_MODE_TEST_STATE 2
 #define RUN_MODE_LED 3
 
-#define RUN_MODE RUN_MODE_TEST_CLI
+#define RUN_MODE RUN_MODE_APP
 #define CONFIG_INIT_WAIT_PERIPHERALS 200u /* [ms] */
 /* ============================================================================
  * TIMER

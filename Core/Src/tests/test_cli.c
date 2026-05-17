@@ -34,7 +34,6 @@ static UART_HandleTypeDef* cli_huart = NULL;
 static int32_t current_pos_steps_x = 0;
 static int32_t current_pos_steps_y = 0;
 
-
 /* ========================
  *   PRIVATE FUNCTIONS
  * ======================== */
@@ -140,9 +139,6 @@ static void cmd_status(void) {
   const char* sys_state;
 
   switch (Interrupt_GetState()) {
-    case IS_INIT:
-      sys_state = "INIT";
-      break;
     case IS_HOMING:
       sys_state = "HOMING";
       break;
@@ -217,7 +213,6 @@ static void cmd_move(const char* args) {
   cli_wait_step_generator();
   cli_ok();
 }
-
 
 /* move to absolute position */
 static void cmd_move_planner(const char* args) {
