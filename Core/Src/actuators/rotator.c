@@ -44,7 +44,7 @@ static Rotator_t rotator = { .motor_rot = NULL, .current_position = 0 };
  * ======================== */
 
 static void Rotator_BuildRampTable(void) {
-  float c = (float)TIMER_FREQ_HZ_ACTUATORS * sqrtf(2.0f / (float)ROT_ACCEL_STEPS_IDEAL);
+  float c = (float)TIMER_FREQ_HZ_ACTUATORS * sqrtf(2.0f / (float)ROT_ACCEL_STEPS_S2);
 
   rotator_table.interval[0] = (uint32_t)(c + 0.5f);
 

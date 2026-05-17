@@ -6,34 +6,54 @@
  * @brief Interactive ASCII command-line interface for subsystem testing.
  *
  * Receives single-line ASCII commands over any UART instance and dispatches
- * them directly to the subsystem APIs.  Intended for use during development
- * only; excluded from production builds via RUN_MODE in sys_config.h.
+ * them to the subsystem APIs.  Intended for development and integration
+ * testing only; excluded from production builds via RUN_MODE in sys_config.h.
  *
  * Command format:  <cmd> [arg1] [arg2]\n
  * Response format: OK\r\n | ERR: <reason>\r\n | BUSY\r\n
  *
  * Available commands:
- *   ?              Print help
- *   s              Print status of all axes and system state
- *   h              Start homing sequence (blocks until done or timeout)
- *   m <x> <y>      Move X/Y axes by relative step count (signed int32)
- *   r <steps>      Move rotator by step count (signed int32)
- *   p <0..3>       Set piston position (0=START, 1=MOVE, 2=GRAB, 3=RELEASE)
- *   g <0|1>        Magnet off (0) / on (1)
- *   l <0|1>        Work-area LED off (0) / on (1)
- *   a <0..29>      Status LED control: 0-9=green, 10-19=yellow, 20-29=red;
- *                  last digit selects mode: 0=off, 1=blink, 2=on
- *   b <x> <y>      Move to absolute position in µm (converts to steps)
+ *
+ *   Motion (home required first):
+ *     h                   Home X and Y axes (blocks, 30 s timeout)
+ *     m <x> <y>           Move X/Y by relative step count (signed int32)
+ *     r <steps>           Move rotator by step count (signed int32)
+ *     b <x> <y>           Move to absolute position in µm (via motion planner)
+ *
+ *   Actuators:
+ *     p <0..3>            Piston: 0=START  1=MOVE  2=GRAB  3=RELEASE
+ *     g <0|1>             Magnet: 0=off  1=on
+ *
+ *   State Machine Test:
+ *     x                   Run default 2-piece test sequence (blocks, 5 min timeout)
+ *     x <px> <py> <plx> <ply> [rot]
+ *                         Run 1-piece sequence with custom coordinates [mm, degrees]
+ *
+ *   LEDs:
+ *     l <0|1>             Work-area LED: 0=off  1=on
+ *     a <n>               Status LED — n encodes LED and mode:
+ *                           0-9  = green   (0=off, 1=blink, 2=on)
+ *                           10-19= yellow  (10=off, 11=blink, 12=on)
+ *                           20-29= red     (20=off, 21=blink, 22=on)
+ *
+ *   Info:
+ *     s                   Full system status (state, actuators, limits, LEDs)
+ *     ?                   Print this help
  */
 
 #include "main.h"
 
 /**
- * @brief Initialises the CLI with the UART instance to use.
+ * @brief Initialises the CLI with the UART instance to use and prepares
+ *        the internal state machine dispatcher for the 'x' command.
  *        Must be called once before TestCLI_Run().
  *
  * @param huart  Pointer to an initialised UART_HandleTypeDef.
  *               On Nucleo-H753ZI use &huart3 (ST-Link Virtual COM Port).
+ *
+ * @note  When the state machine completes a test sequence ('x' command),
+ *        it sends a binary Ack frame over this UART. A few garbled bytes
+ *        may appear in the terminal at that point — this is expected.
  */
 void TestCLI_Init(UART_HandleTypeDef* huart);
 
@@ -44,6 +64,9 @@ void TestCLI_Init(UART_HandleTypeDef* huart);
  *        the next command is accepted.
  *
  * @note  Call from App_Run() when RUN_MODE == RUN_MODE_TEST_CLI.
+ * @note  The 'x' command blocks for up to 5 minutes while driving the
+ *        full state machine sequence; all other commands block only for
+ *        the duration of the physical move.
  */
 void TestCLI_Run(void);
 

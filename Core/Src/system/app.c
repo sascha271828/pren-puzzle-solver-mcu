@@ -171,8 +171,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
 
 #if RUN_MODE == RUN_MODE_APP
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
-  if (huart->Instance == UART5) {
+  if (huart->Instance == USART2) {
     UartReceiver_RxCallback(Sys_GetUartReceiver());
+  }
+}
+
+/* Re-arm reception after any UART error (overrun, framing, noise).
+ * Without this, the first error permanently kills interrupt-driven RX. */
+void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
+  if (huart->Instance == USART2) {
+    UartReceiver_Start(Sys_GetUartReceiver());
   }
 }
 #endif

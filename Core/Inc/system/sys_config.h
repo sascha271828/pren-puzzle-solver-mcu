@@ -137,7 +137,7 @@
  *  The discrete approximation needs ~2.15× more steps to actually converge
  *  to cruise speed, so we apply that factor here.
  *  The result is used as the interval-table array size and the ramp length. */
-#define AXIS_ACCEL_STEPS_IDEAL (300UL * (AXIS_MAX_V_STEPS * AXIS_MAX_V_STEPS) / (200UL * AXIS_ACCEL_STEPS_S2))
+#define AXIS_ACCEL_STEPS_IDEAL (215ULL * AXIS_MAX_V_STEPS * AXIS_MAX_V_STEPS / (200ULL * AXIS_ACCEL_STEPS_S2))
 
 /* ============================================================================
  * ROTATION — NEMA 11
