@@ -153,8 +153,9 @@ void Sys_Init(void) {
   GPIO_Pin_t led = { .port = DOUT_2_GPIO_Port, .pin = DOUT_2_Pin };
   Leds_Init(led);
   HAL_TIM_Base_Start_IT(&htim2);
-#else
+  HAL_GPIO_WritePin(pins_stepper_rot.enable.port, pins_stepper_rot.enable.pin, GPIO_PIN_RESET);
 
+#else
   /* --- STEPPER --- */
   Stepper_Init(&stepper_x, pins_stepper_x, CONFIG_AXIS_MICRO, true);
   Stepper_Init(&stepper_y, pins_stepper_y, CONFIG_AXIS_MICRO, true);

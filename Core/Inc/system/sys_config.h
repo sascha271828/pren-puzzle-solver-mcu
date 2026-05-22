@@ -27,7 +27,7 @@
 #define RUN_MODE_TEST_STATE 2
 #define RUN_MODE_LED 3
 
-#define RUN_MODE RUN_MODE_APP
+#define RUN_MODE RUN_MODE_TEST_CLI
 #define CONFIG_INIT_WAIT_PERIPHERALS 200u /* [ms] */
 /* ============================================================================
  * TIMER
@@ -54,14 +54,14 @@
 
 #define CONFIG_PISTON_TIME_RETRACT_INIT_MS 800u /* ms — retract from unknown */
 
-#define CONFIG_PISTON_PWM_ENUMERATER 6u
+#define CONFIG_PISTON_PWM_ENUMERATER 12u
 #define CONFIG_PISTON_PWM_DIVISOR 12u
 
 /* absolute time from start position [ms]*/
 #define PISTON_OFFSET_START_MS 0u
 #define PISTON_OFFSET_MOVE_MS 100u
-#define PISTON_OFFSET_GRAB_MS 400u
-#define PISTON_OFFSET_RELEASE_MS 500u
+#define PISTON_OFFSET_GRAB_MS 800u
+#define PISTON_OFFSET_RELEASE_MS 800u
 
 /* Derived tick counts — do not edit.
  * Result fits in int32_t: max = 120000 * 2000 / 1000 = 240000 << INT32_MAX  */
@@ -111,8 +111,8 @@
 /* speed: 500 */
 /* accel: 5000 */
 
-#define CONFIG_AXIS_MAX_SPEED_MM_S 300ULL /* Cruise speed        [mm/s]  */
-#define CONFIG_AXIS_ACCEL_MM_S2 3000ULL   /* Acceleration        [mm/s²] */
+#define CONFIG_AXIS_MAX_SPEED_MM_S 200ULL /* Cruise speed        [mm/s]  */
+#define CONFIG_AXIS_ACCEL_MM_S2 1500ULL   /* Acceleration        [mm/s²] */
 
 /* --- Derived: steps/mm (kept as NUM/DEN fraction to avoid truncation) ----- */
 #define AXIS_STEPS_PER_MM_NUM (CONFIG_AXIS_MICRO * CONFIG_AXIS_STEPS_PER_REV)
