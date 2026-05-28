@@ -138,6 +138,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
         StepGenerator_Update();
         Rotator_Update();
         Piston_Update();
+        Magnet_Process();
         break;
       case IS_ESTOP:
         Magnet_SetState(false);

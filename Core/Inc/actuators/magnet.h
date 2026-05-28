@@ -37,6 +37,9 @@ void Magnet_Init(GPIO_Pin_t pin);
  */
 void Magnet_SetState(bool state);
 
+
+void Magnet_Process(void);
+
 /**
  * @brief Returns the raw GPIO readback of the magnet output pin.
  *

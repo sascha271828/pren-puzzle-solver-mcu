@@ -12,10 +12,10 @@ static volatile bool pwm_extending;
 static volatile bool pwm_change;
 
 /* clang-format off*/
-static const uint32_t pos_offsets_ms[PISTON_POS_COUNT] = { PISTON_MS_TO_TICKS(PISTON_OFFSET_START_MS),
-                                                           PISTON_MS_TO_TICKS(PISTON_OFFSET_MOVE_MS),
-                                                           PISTON_MS_TO_TICKS(PISTON_OFFSET_GRAB_MS),
-                                                           PISTON_MS_TO_TICKS(PISTON_OFFSET_RELEASE_MS) };
+static const uint32_t pos_offsets_ms[PISTON_POS_COUNT] = { MS_TO_TICKS(PISTON_OFFSET_START_MS),
+                                                           MS_TO_TICKS(PISTON_OFFSET_MOVE_MS),
+                                                           MS_TO_TICKS(PISTON_OFFSET_GRAB_MS),
+                                                           MS_TO_TICKS(PISTON_OFFSET_RELEASE_MS) };
 /* clang-format on*/
 
 /* ========================
