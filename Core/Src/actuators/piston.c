@@ -83,10 +83,11 @@ void Piston_Update(void) {
   } else {
     pwm_change = true;
     piston.ticks_until--;
-    if (piston.ticks_until <= 0) {
-      Piston_Stop();
-      piston.current = piston.target;
-    }
+  }
+
+  if (piston.ticks_until <= 0) {
+    Piston_Stop();
+    piston.current = piston.target;
   }
 }
 
@@ -95,16 +96,20 @@ void Piston_Set(PistonLogical_e target_pos) {
 
   /* Berechnung der Zeit-Differenz (immer positiv durch abs oder check) */
   uint32_t duration_ms;
+  bool extend = false;
   if (target_pos > piston.current) {
     duration_ms = pos_offsets_ms[target_pos] - pos_offsets_ms[piston.current];
-    Piston_SetExtend();
+    extend = true;
   } else {
     duration_ms = pos_offsets_ms[piston.current] - pos_offsets_ms[target_pos];
+  }
+  piston.ticks_until = duration_ms;
+  piston.target = target_pos;
+  if (extend) {
+    Piston_SetExtend();
+  } else {
     Piston_SetRetract();
   }
-
-  piston.target = target_pos;
-  piston.ticks_until = duration_ms;
 }
 
 void Piston_Abort(void) {

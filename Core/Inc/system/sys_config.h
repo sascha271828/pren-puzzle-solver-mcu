@@ -54,7 +54,7 @@
 
 #define CONFIG_PISTON_TIME_RETRACT_INIT_MS 800u /* ms — retract from unknown */
 
-#define CONFIG_PISTON_PWM_ENUMERATER 12u
+#define CONFIG_PISTON_PWM_ENUMERATER 6u
 #define CONFIG_PISTON_PWM_DIVISOR 12u
 
 /* absolute time from start position [ms]*/
@@ -228,7 +228,7 @@
  * STATE MACHINE
  * ========================================================================== */
 #define CONIFG_SM_WAIT_BEFORE_LOWER_PICK 200u
-#define CONIFG_SM_WAIT_BEFORE_PICK 200u        /* [ms] after lowering */
+#define CONIFG_SM_WAIT_BEFORE_PICK 500u        /* [ms] after lowering */
 #define CONIFG_SM_WAIT_AFTER_PICK 200u         /* [ms] before lift */
 #define CONIFG_SM_WAIT_AFTER_LIFT 200u         /* [ms] before move */
 #define CONIFG_SM_WAIT_BEFORE_LOWER_PLACE 200u /* [ms] after move */

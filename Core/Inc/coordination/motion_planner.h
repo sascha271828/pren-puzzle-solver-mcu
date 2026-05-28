@@ -22,12 +22,12 @@
 /* --- Work Area Offsets (Must be measured on physical hardware) --- */
 
 /** @brief Distance from endstops to the pick area origin */
-#define CONFIG_OFFSET_PICK_X_MM (-8.7f)
-#define CONFIG_OFFSET_PICK_Y_MM (121.6f)
+#define CONFIG_OFFSET_PICK_X_MM (-10.0f)
+#define CONFIG_OFFSET_PICK_Y_MM (128.5f)
 
 /** @brief Distance from endstops to the place area origin */
-#define CONFIG_OFFSET_PLACE_X_MM (44.5f)
-#define CONFIG_OFFSET_PLACE_Y_MM (-16.8f)
+#define CONFIG_OFFSET_PLACE_X_MM (42.0f)
+#define CONFIG_OFFSET_PLACE_Y_MM (-9.5f)
 
 /**
  * @brief Initialises the motion planner and resets the internal absolute

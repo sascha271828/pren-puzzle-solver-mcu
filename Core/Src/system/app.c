@@ -10,6 +10,7 @@
 #include "leds.h"
 #include "limit_switch.h"
 #include "magnet.h"
+#include "motion_planner.h"
 #include "piston.h"
 #include "rotator.h"
 #include "state_machine.h"
@@ -143,6 +144,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
         StepGenerator_Abort();
         Rotator_Abort();
         Piston_Abort();
+        Leds_Set(false);
+        MotionPlanner_Init();
         if (EmergencyStop_IsActivated() == false) {
           StatusLeds_On(STATUSLED_RED);
           if (Buttons_Reset_Pressed() == true) {
