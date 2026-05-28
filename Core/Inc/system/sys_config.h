@@ -96,7 +96,7 @@
 
 /* derived */
 #define CONFIG_MAGNET_DELAY_TICKS MS_TO_TICKS(CONFIG_MAGNET_DELAY_MS)
-#define CONFIG_MAGNET_TIMEOUT_TICKS MS_TO_TICKS(CONFIG_MAGNET_TIMOUT_MS)
+#define CONFIG_MAGNET_TIMEOUT_TICKS MS_TO_TICKS(CONFIG_MAGNET_TIMEOUT_MS)
 
 /* ============================================================================
  * DRIVER FEATURE FLAGS

@@ -7,7 +7,7 @@
  * ======================== */
 
 static Piston_t piston;
-static uint32_t pwm_count;
+static uint32_t pwm_count = 0;
 static volatile bool pwm_extending;
 static volatile bool pwm_change;
 
@@ -60,9 +60,9 @@ void Piston_Update(void) {
   if (!piston.is_moving) {
     return;
   }
-  pwm_count--;
+  pwm_count++;
   /* off */
-  if (pwm_count <= CONFIG_PISTON_PWM_ENUMERATER) {
+  if (pwm_count >= CONFIG_PISTON_PWM_ENUMERATER) {
     if (pwm_change) {
       if (pwm_extending) {
         HAL_GPIO_WritePin(piston.piston_extend.port, piston.piston_extend.pin, GPIO_PIN_SET);
@@ -71,8 +71,8 @@ void Piston_Update(void) {
       }
     }
     /* on */
-    if (pwm_count == 0) {
-      pwm_count = CONFIG_PISTON_PWM_DIVISOR;
+    if (pwm_count >= CONFIG_PISTON_PWM_DIVISOR) {
+      pwm_count = 0;
       if (pwm_extending) {
         HAL_GPIO_WritePin(piston.piston_extend.port, piston.piston_extend.pin, GPIO_PIN_RESET);
 

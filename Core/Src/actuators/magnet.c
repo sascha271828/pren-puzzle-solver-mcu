@@ -22,7 +22,7 @@ void Magnet_Init(GPIO_Pin_t pin) { MagnetPin = pin; }
 void Magnet_SetState(bool state) {
   if (state) {
     CountDelay = 0;
-    MagnetPwm = CONFIG_MAGNET_PWM_DIVISOR;
+    PwmCount = 0;
     MagnetActive = true;
     HAL_GPIO_WritePin(MagnetPin.port, MagnetPin.pin, GPIO_PIN_RESET);
   } else {
@@ -35,25 +35,25 @@ void Magnet_Process(void) {
   if (!MagnetActive) {
     HAL_GPIO_WritePin(MagnetPin.port, MagnetPin.pin, GPIO_PIN_SET);
   } else {
+    if (CountDelay >= CONFIG_MAGNET_TIMEOUT_TICKS) {
+      Magnet_SetState(false);
+      return;
+    }
     CountDelay++;
     if (CountDelay >= CONFIG_MAGNET_DELAY_TICKS) {
-      PwmCount--;
+      PwmCount++;
 
-      if (PwmCount <= CONFIG_PISTON_PWM_ENUMERATER) {
-        HAL_GPIO_WritePin(MagnetPin.port, MagnetPin.pin, GPIO_PIN_RESET);
-      } else {
+      if (PwmCount >= CONFIG_MAGNET_PWM_ENUMERATER) {
         HAL_GPIO_WritePin(MagnetPin.port, MagnetPin.pin, GPIO_PIN_SET);
+      } else {
+        HAL_GPIO_WritePin(MagnetPin.port, MagnetPin.pin, GPIO_PIN_RESET);
       }
 
-      if (PwmCount == 0) {
-        PwmCount = CONFIG_PISTON_PWM_DIVISOR;
+      if (PwmCount >= CONFIG_MAGNET_PWM_DIVISOR) {
+        PwmCount = 0;
       }
-
-    }   
+    }
   }
-  if (CountDelay >= CONFIG_MAGNET_TIMEOUT_TICKS){
-    Magnet_SetState(false);
-  } 
 }
 
 bool Magnet_GetState(void) { return MagnetActive; }
