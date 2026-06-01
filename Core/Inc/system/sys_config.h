@@ -33,7 +33,7 @@
  * TIMER
  * ========================================================================== */
 #define TIMER_FREQ_HZ_ACTUATORS 120000UL /* TIM2 ISR frequency [Hz] */
-#define MS_TO_TICKS(ms) ((int32_t)((TIMER_FREQ_HZ_ACTUATORS) * (ms) / 1000ULL))
+#define MS_TO_TICKS(ms) ((uint32_t)((TIMER_FREQ_HZ_ACTUATORS) * (ms) / 1000ULL))
 
 /* ============================================================================
  * STEPPER DRIVER — microstepping pin encoding (DRV8886)
@@ -89,7 +89,7 @@
  * ========================================================================== */
 #define CONFIG_MAGNET_DELAY_MS 100UL /* Time in ms to build up magnetic field */
 /* PWM after */
-#define CONFIG_MAGNET_PWM_ENUMERATER 600UL
+#define CONFIG_MAGNET_PWM_ENUMERATER 400UL
 #define CONFIG_MAGNET_PWM_DIVISOR 600UL
 /* Timeout */
 #define CONFIG_MAGNET_TIMEOUT_MS 10000UL

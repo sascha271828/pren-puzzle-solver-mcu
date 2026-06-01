@@ -9,9 +9,9 @@
  * ======================== */
 
 static GPIO_Pin_t MagnetPin;
-static bool MagnetActive = false;
-static uint32_t CountDelay = 0;
-static uint32_t PwmCount = 0;
+static volatile bool MagnetActive = false;
+static volatile uint32_t CountDelay = 0;
+static volatile uint32_t PwmCount = 0;
 
 /* ========================
  *   PUBLIC API
@@ -33,25 +33,24 @@ void Magnet_SetState(bool state) {
 
 void Magnet_Process(void) {
   if (!MagnetActive) {
-    HAL_GPIO_WritePin(MagnetPin.port, MagnetPin.pin, GPIO_PIN_SET);
-  } else {
-    if (CountDelay >= CONFIG_MAGNET_TIMEOUT_TICKS) {
-      Magnet_SetState(false);
-      return;
+    return;
+  }
+  if (CountDelay >= CONFIG_MAGNET_TIMEOUT_TICKS) {
+    Magnet_SetState(false);
+    return;
+  }
+  CountDelay++;
+  if (CountDelay >= CONFIG_MAGNET_DELAY_TICKS) {
+    PwmCount++;
+
+    if (PwmCount >= CONFIG_MAGNET_PWM_ENUMERATER) {
+      HAL_GPIO_WritePin(MagnetPin.port, MagnetPin.pin, GPIO_PIN_SET);
+    } else {
+      HAL_GPIO_WritePin(MagnetPin.port, MagnetPin.pin, GPIO_PIN_RESET);
     }
-    CountDelay++;
-    if (CountDelay >= CONFIG_MAGNET_DELAY_TICKS) {
-      PwmCount++;
 
-      if (PwmCount >= CONFIG_MAGNET_PWM_ENUMERATER) {
-        HAL_GPIO_WritePin(MagnetPin.port, MagnetPin.pin, GPIO_PIN_SET);
-      } else {
-        HAL_GPIO_WritePin(MagnetPin.port, MagnetPin.pin, GPIO_PIN_RESET);
-      }
-
-      if (PwmCount >= CONFIG_MAGNET_PWM_DIVISOR) {
-        PwmCount = 0;
-      }
+    if (PwmCount >= CONFIG_MAGNET_PWM_DIVISOR) {
+      PwmCount = 0;
     }
   }
 }

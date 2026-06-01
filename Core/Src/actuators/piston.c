@@ -7,7 +7,7 @@
  * ======================== */
 
 static Piston_t piston;
-static uint32_t pwm_count = 0;
+static volatile uint32_t pwm_count = 0;
 static volatile bool pwm_extending;
 static volatile bool pwm_change;
 
@@ -49,8 +49,8 @@ void Piston_Init(GPIO_Pin_t pin_extend, GPIO_Pin_t pin_retract) {
   piston.piston_extend = pin_extend;
   piston.piston_retract = pin_retract;
 
-  piston.current = PISTON_POS_RELEASE; /* assuming worst case scenario */
-  piston.ticks_until = 1.2 * (PISTON_OFFSET_RELEASE_MS);
+  piston.current = PISTON_POS_RELEASE;
+  piston.ticks_until = 1.1 * (MS_TO_TICKS(PISTON_OFFSET_RELEASE_MS));
   piston.target = PISTON_POS_START;
   Piston_SetRetract();
 }

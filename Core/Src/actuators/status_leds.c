@@ -25,27 +25,19 @@ static GPIO_Pin_t status_leds[STATUSLED_SENTINEL] = {
 };
 /* clang-format on */
 
-static bool led_blinking_mode[STATUSLED_SENTINEL] = { false, false, false };
-static bool led_blinking_on = false;
-static uint32_t led_blinking_tick = 0;
-
+static volatile bool led_blinking_mode[STATUSLED_SENTINEL] = { false, false, false };
+static volatile bool led_blinking_on = false;
+static volatile uint32_t led_blinking_tick = 0;
 
 /* ========================
  *   PRIVATE FUNCTIONS
  * ======================== */
 
 static void StatusLeds_Off_All(void) {
-  HAL_GPIO_WritePin(status_leds[STATUSLED_GREEN].port,
-                    status_leds[STATUSLED_GREEN].pin,
-                    GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(status_leds[STATUSLED_YELLOW].port,
-                    status_leds[STATUSLED_YELLOW].pin,
-                    GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(status_leds[STATUSLED_RED].port,
-                    status_leds[STATUSLED_RED].pin,
-                    GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(status_leds[STATUSLED_GREEN].port, status_leds[STATUSLED_GREEN].pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(status_leds[STATUSLED_YELLOW].port, status_leds[STATUSLED_YELLOW].pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(status_leds[STATUSLED_RED].port, status_leds[STATUSLED_RED].pin, GPIO_PIN_RESET);
 }
-
 
 /* ========================
  *   PUBLIC API
@@ -57,10 +49,8 @@ StatusLeds_Type_e StatusLed_Read(StatusLeds_e led) {
   if (led_blinking_mode[led] == true) {
     return STATUSLED_TYPE_BLINK;
   }
-  return (HAL_GPIO_ReadPin(status_leds[led].port, status_leds[led].pin) ==
-          GPIO_PIN_SET)
-             ? STATUSLED_TYPE_ON
-             : STATUSLED_TYPE_OFF;
+  return (HAL_GPIO_ReadPin(status_leds[led].port, status_leds[led].pin) == GPIO_PIN_SET) ? STATUSLED_TYPE_ON
+                                                                                         : STATUSLED_TYPE_OFF;
 }
 
 void StatusLeds_On(StatusLeds_e led) {
@@ -70,8 +60,7 @@ void StatusLeds_On(StatusLeds_e led) {
 
 void StatusLeds_Off(StatusLeds_e led) {
   led_blinking_mode[led] = false;
-  HAL_GPIO_WritePin(
-      status_leds[led].port, status_leds[led].pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(status_leds[led].port, status_leds[led].pin, GPIO_PIN_RESET);
 }
 
 void StatusLeds_Blink(StatusLeds_e led) {

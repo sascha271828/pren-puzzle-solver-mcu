@@ -37,7 +37,7 @@ static MoveExec_t current_block;
 static RotateBlock_t home_block;
 static interval_table_rot_t rotator_table;
 
-static Rotator_t rotator = { .motor_rot = NULL, .current_position = 0 };
+volatile static Rotator_t rotator = { .motor_rot = NULL, .current_position = 0 };
 
 /* ========================
  *   PRIVATE FUNCTIONS

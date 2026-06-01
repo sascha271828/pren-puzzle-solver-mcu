@@ -18,8 +18,8 @@ static GPIO_Pin_t btn_Reset = {
   .pin = DIN_11_Pin,
 };
 
-static bool btn_Start_Pressed = false;
-static bool btn_Reset_Pressed = false;
+static volatile bool btn_Start_Pressed = false;
+static volatile bool btn_Reset_Pressed = false;
 
 /* ========================
  *   PUBLIC API

@@ -23,13 +23,13 @@ typedef enum {
  *   PRIVATE VARIABLES
  * ======================== */
 
-static Homer_States_t homer_Phase = HS_UNINITIADED;
-static uint32_t backoff_ticks_remaining = 0;
+static volatile Homer_States_t homer_Phase = HS_UNINITIADED;
+static volatile uint32_t backoff_ticks_remaining = 0;
 
 static Stepper_t* motor_x = NULL;
 static Stepper_t* motor_y = NULL;
-static uint32_t x_ticks = 0;
-static uint32_t y_ticks = 0;
+static volatile uint32_t x_ticks = 0;
+static volatile uint32_t y_ticks = 0;
 
 /* ========================
  *   PUBLIC API
