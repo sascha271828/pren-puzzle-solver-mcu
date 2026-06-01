@@ -47,9 +47,13 @@
  * Do not reorder without updating the transition table layout.
  *
  *   START   : fully retracted home position.
- *   MOVE    : intermediate travel height, safe for XY motion.
+ *   MOVE    : travel height — currently configured with the same offset as
+ *             START (PISTON_OFFSET_MOVE_MS = 0), so MOVE and START map to the
+ *             same physical position. Kept as a distinct enum value so the
+ *             state machine can express intent without changing the position
+ *             table layout.
  *   GRAB    : extended to pick-up depth.
- *   RELEASE : extended to place depth.
+ *   RELEASE : extended to place depth (same offset as GRAB in current config).
  */
 typedef enum {
   PISTON_POS_START = 0,
@@ -119,8 +123,11 @@ bool Piston_IsBusy(void);
 /**
  * @brief Advances the piston state machine. Call from timer ISR.
  *
- * Decrements the internal tick counter. When it reaches zero, de-energises
- * the H-bridge and updates current position to target.
+ * Generates a PWM signal on the active H-bridge output
+ * (duty = CONFIG_PISTON_PWM_ENUMERATER / CONFIG_PISTON_PWM_DIVISOR).
+ * The tick countdown (ticks_until) is decremented only during the on-phase
+ * of each PWM cycle. When it reaches zero, the H-bridge is de-energised and
+ * the current position is updated to the target.
  * No-op if no move is in progress.
  */
 void Piston_Update(void);

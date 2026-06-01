@@ -19,7 +19,7 @@
  * Set exactly one of these to select what App_Run() executes.
  * RUN_MODE_TEST_CLI     : interactive UART command interface (development)
  * RUN_MODE_APP          : production loop driven by CommandDispatcher
- * RUN_MODE_TEST_STATE   : test loop for state machinAPPe
+ * RUN_MODE_TEST_STATE   : test loop for state machine
  * RUN_MODE_LED          : only LEDs for camera thourhg start and reset
  * ─────────────────────────────────────────────────────────────────────── */
 #define RUN_MODE_TEST_CLI 0
@@ -33,6 +33,12 @@
  * TIMER
  * ========================================================================== */
 #define TIMER_FREQ_HZ_ACTUATORS 120000UL /* TIM2 ISR frequency [Hz] */
+
+/** @brief Convert milliseconds to ISR tick counts.
+ *  Result type is int32_t. Safe range: 0 … ~17 895 ms (fits INT32_MAX).
+ *  Use for time constants that are compared against int32_t tick counters.
+ *  Compare with uint32_t counters requires caution — see MS_TO_TICKS note in
+ *  magnet.c. */
 #define MS_TO_TICKS(ms) ((uint32_t)((TIMER_FREQ_HZ_ACTUATORS) * (ms) / 1000ULL))
 
 /* ============================================================================
@@ -66,32 +72,31 @@
 
 /* Derived tick counts — do not edit.
  * Result fits in int32_t: max = 120000 * 2000 / 1000 = 240000 << INT32_MAX  */
+
+/** @brief Ticks for the init retract (worst-case full extension → START). */
 #define CONFIG_PISTON_TICKS_RETRACT_INIT MS_TO_TICKS(CONFIG_PISTON_TIME_RETRACT_INIT_MS)
 
-#define CONFIG_PISTON_TICKS_START_MOVE MS_TO_TICKS(CONFIG_PISTON_TIME_START_MOVE_MS)
+/** @brief Per-segment tick counts derived from the absolute offset table. */
+#define CONFIG_PISTON_TICKS_START_TO_GRAB \
+  MS_TO_TICKS(PISTON_OFFSET_GRAB_MS - PISTON_OFFSET_START_MS)
 
-#define CONFIG_PISTON_TICKS_MOVE_GRAB MS_TO_TICKS(CONFIG_PISTON_TIME_MOVE_GRAB_MS)
+#define CONFIG_PISTON_TICKS_START_TO_RELEASE \
+  MS_TO_TICKS(PISTON_OFFSET_RELEASE_MS - PISTON_OFFSET_START_MS)
 
-#define CONFIG_PISTON_TICKS_MOVE_RELEASE MS_TO_TICKS(CONFIG_PISTON_TIME_MOVE_RELEASE_MS)
-
-/* Multi-hop shortcuts (START→GRAB skips through MOVE implicitly) */
-#define CONFIG_PISTON_TICKS_START_GRAB \
-  MS_TO_TICKS((CONFIG_PISTON_TIME_START_MOVE_MS) + (CONFIG_PISTON_TIME_MOVE_GRAB_MS))
-
-#define CONFIG_PISTON_TICKS_START_RELEASE \
-  MS_TO_TICKS((CONFIG_PISTON_TIME_START_MOVE_MS) + (CONFIG_PISTON_TIME_MOVE_RELEASE_MS))
-
-#define CONFIG_PISTON_TICKS_GRAB_RELEASE \
-  MS_TO_TICKS((CONFIG_PISTON_TIME_MOVE_GRAB_MS) + (CONFIG_PISTON_TIME_MOVE_RELEASE_MS))
+#define CONFIG_PISTON_TICKS_GRAB_TO_RELEASE \
+  MS_TO_TICKS(PISTON_OFFSET_RELEASE_MS - PISTON_OFFSET_GRAB_MS)
 
 /* ============================================================================
  * MAGNET
  * ========================================================================== */
-#define CONFIG_MAGNET_DELAY_MS 100UL /* Time in ms to build up magnetic field */
-/* PWM after */
-#define CONFIG_MAGNET_PWM_ENUMERATER 400UL
+/** @brief Full-power duration after activation before PWM hold begins [ms]. */
+#define CONFIG_MAGNET_DELAY_MS 100UL
+
+/** @brief PWM hold duty cycle = ENUMERATER / DIVISOR (on-ticks / total-ticks).*/
+#define CONFIG_MAGNET_PWM_ENUMERATER 600UL
 #define CONFIG_MAGNET_PWM_DIVISOR 600UL
-/* Timeout */
+
+/** @brief Auto-deactivation timeout after activation [ms]. */
 #define CONFIG_MAGNET_TIMEOUT_MS 10000UL
 
 /* derived */
