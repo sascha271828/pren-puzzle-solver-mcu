@@ -11,7 +11,7 @@
 static GPIO_Pin_t MagnetPin;
 static bool MagnetActive = false;
 static uint32_t CountDelay = 0;
-static uint32_t PwmCount = CONFIG_MAGNET_PWM_DIVISOR;
+static uint32_t PwmCount = 0;
 
 /* ========================
  *   PUBLIC API

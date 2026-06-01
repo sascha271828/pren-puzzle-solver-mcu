@@ -23,11 +23,15 @@
 
 /** @brief Distance from endstops to the pick area origin */
 #define CONFIG_OFFSET_PICK_X_MM (-10.0f)
-#define CONFIG_OFFSET_PICK_Y_MM (128.5f)
+#define CONFIG_OFFSET_PICK_Y_MM (128.0f)
+
+#define CONFIG_CORRECTION_PICK_X (0.995f)
+#define CONFIG_CORRECTION_PICK_Y (0.995f)
 
 /** @brief Distance from endstops to the place area origin */
-#define CONFIG_OFFSET_PLACE_X_MM (42.0f)
+#define CONFIG_OFFSET_PLACE_X_MM (44.0f) /* from 42*/
 #define CONFIG_OFFSET_PLACE_Y_MM (-9.5f)
+/* 128.5mm x 190.5mm */
 
 /**
  * @brief Initialises the motion planner and resets the internal absolute

@@ -35,7 +35,6 @@ void MotionPlanner_Init(void) {
   current_pos_steps_y = 0;
 }
 
-
 MoveBlock_t MotionPlanner_PlanMoveToPickMM(float pick_x_mm, float pick_y_mm) {
   float abs_x = pick_x_mm + CONFIG_OFFSET_PICK_X_MM;
   float abs_y = pick_y_mm + CONFIG_OFFSET_PICK_Y_MM;

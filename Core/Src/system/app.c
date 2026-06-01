@@ -32,6 +32,7 @@ static PuzzleCommand test_cmd = PuzzleCommand_init_zero;
 void App_Run(void) {
   HAL_Delay(CONFIG_INIT_WAIT_PERIPHERALS); /* let peripherals settle */
 
+
 #if RUN_MODE == RUN_MODE_TEST_CLI
   /* --- TEST MODE STATE MACHINE --- */
   TestCLI_Init(&huart3);
@@ -136,8 +137,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
           break;
         }
         StepGenerator_Update();
-        Rotator_Update();
         Piston_Update();
+        Rotator_Update();
         Magnet_Process();
         break;
       case IS_ESTOP:

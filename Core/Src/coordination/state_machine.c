@@ -23,6 +23,7 @@
  */
 typedef enum {
   SM_WAIT_FOR_START,
+  SM_WAIT_FOR_LED,
   SM_IDLE,
   SM_CALC_TO_PICK,
   SM_MOVE_TO_PICK,
@@ -105,9 +106,16 @@ void StateMachine_Update(void) {
     case SM_WAIT_FOR_START:
       StatusLeds_Off(STATUSLED_GREEN);
       if (Buttons_Start_Pressed()) {
+        Leds_Set(true);
+        wait_start_tick = HAL_GetTick();
         StatusLeds_Blink(STATUSLED_YELLOW);
         Buttons_Start_RearmPressDetection();
-        Leds_Set(true);
+        current_state = SM_WAIT_FOR_LED;
+      }
+      break;
+
+    case SM_WAIT_FOR_LED:
+      if (HAL_GetTick() - wait_start_tick >= CONIFG_SM_WAIT_BEFORE_SEND) {
         CommandDispatcher_SendAck(sm_dispatcher, Status_STATUS_READY, 0);
         current_state = SM_IDLE;
       }
@@ -133,7 +141,7 @@ void StateMachine_Update(void) {
     /*--------------------*/
     case SM_CALC_TO_PICK:
       piece = &current_puzzle.pieces[current_piece_idx];
-      active_xy_move = MotionPlanner_PlanMoveToPickMM(piece->pick_x, piece->pick_y);
+      active_xy_move = MotionPlanner_PlanMoveToPickMM((piece->pick_x * CONFIG_CORRECTION_PICK_X) , (piece->pick_y * CONFIG_CORRECTION_PICK_Y));
       StepGenerator_StartMove(&active_xy_move);
       current_state = SM_MOVE_TO_PICK;
       break;
