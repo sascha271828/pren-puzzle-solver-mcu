@@ -52,12 +52,14 @@ Runs on an **STM32H753ZI** (Cortex-M7) Nucleo-144 board.
 [power-on]
     │
     ▼
- IS_INIT ──► IS_HOMING ──► IS_READY ──► IS_RUNNING
-                                              │
- IS_ESTOP ◄───────────────────────────────────┘
-   │
-   └──(E-stop released + Reset pressed)──► IS_HOMING
+ IS_ESTOP ──(E-stop clear + Reset pressed)──► IS_HOMING ──► IS_READY ──► IS_RUNNING
+    ▲                                                                           │
+    └───────────────────── (any state → IS_ESTOP on emergency-stop) ───────────┘
 ```
+
+The system always starts in **IS_ESTOP** (safe-start mode). All actuators are held
+idle until the operator clears the E-stop input and presses Reset, which starts
+the homing sequence.
 
 ---
 
