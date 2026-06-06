@@ -265,8 +265,9 @@ void StateMachine_Update(void) {
     case SM_LIFT_EMPTY:
       if (!Piston_IsBusy()) {
         if (current_piece_idx + 1 >= current_puzzle.pieces_count) {
-          active_xy_move = MotionPlanner_PlanMoveToPickMM(0, 0);
-          StepGenerator_StartMove(&active_xy_move);
+          CommandDispatcher_SendAck(sm_dispatcher, Status_STATUS_DONE, 0);
+          Piston_Set(PISTON_POS_START);
+          StatusLeds_On(STATUSLED_GREEN);
           current_state = SM_DONE;
           break;
         }
