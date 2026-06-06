@@ -27,7 +27,8 @@
 #define RUN_MODE_TEST_STATE 2
 #define RUN_MODE_LED 3
 
-#define RUN_MODE RUN_MODE_APP
+#define RUN_MODE RUN_MODE_TEST_CLI
+#define TEST_ISR_TIME 1
 #define CONFIG_INIT_WAIT_PERIPHERALS 200u /* [ms] */
 /* ============================================================================
  * TIMER
@@ -77,24 +78,21 @@
 #define CONFIG_PISTON_TICKS_RETRACT_INIT MS_TO_TICKS(CONFIG_PISTON_TIME_RETRACT_INIT_MS)
 
 /** @brief Per-segment tick counts derived from the absolute offset table. */
-#define CONFIG_PISTON_TICKS_START_TO_GRAB \
-  MS_TO_TICKS(PISTON_OFFSET_GRAB_MS - PISTON_OFFSET_START_MS)
+#define CONFIG_PISTON_TICKS_START_TO_GRAB MS_TO_TICKS(PISTON_OFFSET_GRAB_MS - PISTON_OFFSET_START_MS)
 
-#define CONFIG_PISTON_TICKS_START_TO_RELEASE \
-  MS_TO_TICKS(PISTON_OFFSET_RELEASE_MS - PISTON_OFFSET_START_MS)
+#define CONFIG_PISTON_TICKS_START_TO_RELEASE MS_TO_TICKS(PISTON_OFFSET_RELEASE_MS - PISTON_OFFSET_START_MS)
 
-#define CONFIG_PISTON_TICKS_GRAB_TO_RELEASE \
-  MS_TO_TICKS(PISTON_OFFSET_RELEASE_MS - PISTON_OFFSET_GRAB_MS)
+#define CONFIG_PISTON_TICKS_GRAB_TO_RELEASE MS_TO_TICKS(PISTON_OFFSET_RELEASE_MS - PISTON_OFFSET_GRAB_MS)
 
 /* ============================================================================
  * MAGNET
  * ========================================================================== */
 /** @brief Full-power duration after activation before PWM hold begins [ms]. */
-#define CONFIG_MAGNET_DELAY_MS 100UL
+#define CONFIG_MAGNET_DELAY_MS 150UL
 
 /** @brief PWM hold duty cycle = ENUMERATER / DIVISOR (on-ticks / total-ticks).*/
-#define CONFIG_MAGNET_PWM_ENUMERATER 600UL
-#define CONFIG_MAGNET_PWM_DIVISOR 600UL
+#define CONFIG_MAGNET_PWM_ENUMERATER 300UL
+#define CONFIG_MAGNET_PWM_DIVISOR 300UL
 
 /** @brief Auto-deactivation timeout after activation [ms]. */
 #define CONFIG_MAGNET_TIMEOUT_MS 10000UL
@@ -124,8 +122,8 @@
 /* speed: 500 */
 /* accel: 5000 */
 
-#define CONFIG_AXIS_MAX_SPEED_MM_S 150ULL /* Cruise speed        [mm/s]  */
-#define CONFIG_AXIS_ACCEL_MM_S2 1000ULL   /* Acceleration        [mm/s²] */
+#define CONFIG_AXIS_MAX_SPEED_MM_S 250ULL /* Cruise speed        [mm/s]  */
+#define CONFIG_AXIS_ACCEL_MM_S2 1500ULL   /* Acceleration        [mm/s²] */
 
 /* --- Derived: steps/mm (kept as NUM/DEN fraction to avoid truncation) ----- */
 #define AXIS_STEPS_PER_MM_NUM (CONFIG_AXIS_MICRO * CONFIG_AXIS_STEPS_PER_REV)
@@ -184,7 +182,7 @@
 #define ROT_CRUISE_INTERVAL (TIMER_FREQ_HZ_ACTUATORS / ROT_MAX_V_STEPS)
 
 /* --- Derived: ramp table length ------------------------------------------- */
-#define ROT_ACCEL_STEPS_IDEAL (215UL * (ROT_MAX_V_STEPS * ROT_MAX_V_STEPS) / (200UL * ROT_ACCEL_STEPS_S2))
+#define ROT_ACCEL_STEPS_IDEAL (250UL * (ROT_MAX_V_STEPS * ROT_MAX_V_STEPS) / (200UL * ROT_ACCEL_STEPS_S2))
 
 /* ============================================================================
  * COMPILE-TIME SANITY CHECKS
