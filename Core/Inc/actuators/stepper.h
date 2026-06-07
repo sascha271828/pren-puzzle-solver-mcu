@@ -16,7 +16,7 @@
  *  - Pulse generation is split across two ISR calls: Stepper_SetStep()
  *    asserts the STEP pin and Stepper_ClearStep() de-asserts it one tick
  *    later. The DRV8886 requires a minimum pulse width of 1 µs; at
- *    120 kHz ISR rate one tick ≈ 8.3 µs, so this is always satisfied.
+ *    100 kHz ISR rate one tick ≈ 10 µs, so this is always satisfied.
  *
  * Microstepping truth table (DRV8886 M1/M0):
  * @verbatim

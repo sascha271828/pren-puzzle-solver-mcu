@@ -33,7 +33,7 @@
 /* ============================================================================
  * TIMER
  * ========================================================================== */
-#define TIMER_FREQ_HZ_ACTUATORS 120000UL /* TIM2 ISR frequency [Hz] */
+#define TIMER_FREQ_HZ_ACTUATORS 100000UL /* TIM2 ISR frequency [Hz] */
 
 /** @brief Convert milliseconds to ISR tick counts.
  *  Result type is int32_t. Safe range: 0 … ~17 895 ms (fits INT32_MAX).
@@ -72,7 +72,7 @@
 #define PISTON_OFFSET_RELEASE_MS 800u
 
 /* Derived tick counts — do not edit.
- * Result fits in int32_t: max = 120000 * 2000 / 1000 = 240000 << INT32_MAX  */
+ * Result fits in int32_t: max = 100000 * 2000 / 1000 = 200000 << INT32_MAX  */
 
 /** @brief Ticks for the init retract (worst-case full extension → START). */
 #define CONFIG_PISTON_TICKS_RETRACT_INIT MS_TO_TICKS(CONFIG_PISTON_TIME_RETRACT_INIT_MS)

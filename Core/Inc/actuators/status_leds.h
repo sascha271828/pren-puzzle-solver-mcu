@@ -28,7 +28,7 @@
  * StatusLeds_Init();
  *
  *
- * // In ISR (e.g., TIM2 at 120 kHz)
+ * // In ISR (e.g., TIM2 at 100 kHz)
  * void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  *   if (htim == &htim2) {
  *     StatusLeds_Blink_ISR();  // Update blink state
