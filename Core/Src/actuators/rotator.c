@@ -106,9 +106,9 @@ bool Rotator_StartMove(const RotateBlock_t* block) {
   if (Rotator_IsBusy()) {
     return false;
   }
-  current_block.block = block;
   current_block.ticks_until_next = 0;
   current_block.step_index = 0;
+  current_block.block = block;
 
   Stepper_Enable(rotator.motor_rot, true);
   Stepper_SetDirection(rotator.motor_rot, (current_block.block->steps > 0));
@@ -165,4 +165,5 @@ void Rotator_Abort(void) {
   current_block.block = NULL;
   Stepper_ClearStep(rotator.motor_rot);
   Stepper_Enable(rotator.motor_rot, false);
+  rotator.current_position = 0;
 }

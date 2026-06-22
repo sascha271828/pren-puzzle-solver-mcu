@@ -163,8 +163,8 @@
  *  Measure the actual travel distance for one full shaft revolution. */
 #define CONFIG_ROT_CIRCUMFERENCE_MM 100ULL
 
-#define CONFIG_ROT_MAX_SPEED_MM_S 600ULL /* Cruise speed        [mm/s]  */
-#define CONFIG_ROT_ACCEL_MM_S2 2000ULL   /* Acceleration        [mm/s²] */
+#define CONFIG_ROT_MAX_SPEED_MM_S 500ULL /* Cruise speed        [mm/s]  */
+#define CONFIG_ROT_ACCEL_MM_S2 1500ULL   /* Acceleration        [mm/s²] */
 
 /* --- Derived: steps/mm ---------------------------------------------------- */
 #define ROT_STEPS_PER_MM_NUM (CONFIG_ROT_MICRO * CONFIG_ROT_STEPS_PER_REV)
