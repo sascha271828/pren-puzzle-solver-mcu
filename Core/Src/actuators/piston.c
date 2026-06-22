@@ -101,7 +101,7 @@ void Piston_Set(PistonLogical_e target_pos) {
     duration_ms = pos_offsets_ms[target_pos] - pos_offsets_ms[piston.current];
     extend = true;
   } else {
-    duration_ms = pos_offsets_ms[piston.current] - pos_offsets_ms[target_pos];
+    duration_ms = (pos_offsets_ms[piston.current] - pos_offsets_ms[target_pos]) * 1.2;
   }
   piston.ticks_until = duration_ms;
   piston.target = target_pos;

@@ -141,7 +141,8 @@ void StateMachine_Update(void) {
     /*--------------------*/
     case SM_CALC_TO_PICK:
       piece = &current_puzzle.pieces[current_piece_idx];
-      active_xy_move = MotionPlanner_PlanMoveToPickMM((piece->pick_x * CONFIG_CORRECTION_PICK_X) , (piece->pick_y * CONFIG_CORRECTION_PICK_Y));
+      active_xy_move = MotionPlanner_PlanMoveToPickMM((piece->pick_x * CONFIG_CORRECTION_PICK_X),
+                                                      (piece->pick_y * CONFIG_CORRECTION_PICK_Y));
       StepGenerator_StartMove(&active_xy_move);
       current_state = SM_MOVE_TO_PICK;
       break;
@@ -268,6 +269,7 @@ void StateMachine_Update(void) {
           Rotator_ReturnStart();
           CommandDispatcher_SendAck(sm_dispatcher, Status_STATUS_DONE, 0);
           Piston_Set(PISTON_POS_START);
+          StatusLeds_Off(STATUSLED_YELLOW);
           StatusLeds_On(STATUSLED_GREEN);
           current_state = SM_DONE;
           break;
@@ -288,6 +290,7 @@ void StateMachine_Update(void) {
           Rotator_ReturnStart();
           CommandDispatcher_SendAck(sm_dispatcher, Status_STATUS_DONE, 0);
           Piston_Set(PISTON_POS_START);
+          StatusLeds_Off(STATUSLED_YELLOW);
           StatusLeds_On(STATUSLED_GREEN);
           current_state = SM_DONE;
         }

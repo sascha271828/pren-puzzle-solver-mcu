@@ -27,8 +27,8 @@
 #define RUN_MODE_TEST_STATE 2
 #define RUN_MODE_LED 3
 
-#define RUN_MODE RUN_MODE_TEST_CLI
-#define TEST_ISR_TIME 1
+#define RUN_MODE RUN_MODE_APP
+#define TEST_ISR_TIME 0
 #define CONFIG_INIT_WAIT_PERIPHERALS 200u /* [ms] */
 /* ============================================================================
  * TIMER
@@ -60,7 +60,7 @@
  * PISTON
  * ========================================================================== */
 
-#define CONFIG_PISTON_TIME_RETRACT_INIT_MS 800u /* ms — retract from unknown */
+#define CONFIG_PISTON_TIME_RETRACT_INIT_MS 1200u /* ms — retract from unknown */
 
 #define CONFIG_PISTON_PWM_ENUMERATER 12u
 #define CONFIG_PISTON_PWM_DIVISOR 12u
@@ -68,8 +68,8 @@
 /* absolute time from start position [ms]*/
 #define PISTON_OFFSET_START_MS 0u
 #define PISTON_OFFSET_MOVE_MS 0u
-#define PISTON_OFFSET_GRAB_MS 800u
-#define PISTON_OFFSET_RELEASE_MS 800u
+#define PISTON_OFFSET_GRAB_MS 950u
+#define PISTON_OFFSET_RELEASE_MS 950u
 
 /* Derived tick counts — do not edit.
  * Result fits in int32_t: max = 100000 * 2000 / 1000 = 200000 << INT32_MAX  */
@@ -122,8 +122,8 @@
 /* speed: 500 */
 /* accel: 5000 */
 
-#define CONFIG_AXIS_MAX_SPEED_MM_S 250ULL /* Cruise speed        [mm/s]  */
-#define CONFIG_AXIS_ACCEL_MM_S2 1500ULL   /* Acceleration        [mm/s²] */
+#define CONFIG_AXIS_MAX_SPEED_MM_S 220ULL /* Cruise speed        [mm/s]  */
+#define CONFIG_AXIS_ACCEL_MM_S2 1200ULL   /* Acceleration        [mm/s²] */
 
 /* --- Derived: steps/mm (kept as NUM/DEN fraction to avoid truncation) ----- */
 #define AXIS_STEPS_PER_MM_NUM (CONFIG_AXIS_MICRO * CONFIG_AXIS_STEPS_PER_REV)
@@ -209,9 +209,9 @@
  * ========================================================================== */
 
 /* Speeds as fraction of cruise speed */
-#define CONFIG_HOMING_COARSE_SPEED_MM_S 120UL /* fast search          */
+#define CONFIG_HOMING_COARSE_SPEED_MM_S 80UL  /* fast search          */
 #define CONFIG_HOMING_FINE_SPEED_MM_S 10UL    /* slow precise touch   */
-#define CONFIG_HOMING_BACKOFF_SPEED_MM_S 40UL /* retreat              */
+#define CONFIG_HOMING_BACKOFF_SPEED_MM_S 20UL /* retreat              */
 #define CONFIG_HOMING_BACKOFF_DIST_MM 5UL     /* retreat distance     */
 
 /* Derived: ticks between steps (= ISR interval) */

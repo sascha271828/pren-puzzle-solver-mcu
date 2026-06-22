@@ -177,11 +177,11 @@ void Sys_Init(void) {
   Rotator_Init(&stepper_rot);
 
   /* --- PISTON --- */
-  GPIO_Pin_t piston_1_extend = {
+  GPIO_Pin_t piston_1_retract = {
     .port = DOUT_3_GPIO_Port,
     .pin = DOUT_3_Pin,
   };
-  GPIO_Pin_t piston_1_retract = {
+  GPIO_Pin_t piston_1_extend = {
     .port = DOUT_4_GPIO_Port,
     .pin = DOUT_4_Pin,
   };
