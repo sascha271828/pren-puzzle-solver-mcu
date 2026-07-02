@@ -22,7 +22,7 @@
 /* --- Work Area Offsets (Must be measured on physical hardware) --- */
 
 /** @brief Distance from endstops to the pick area origin [mm]. */
-#define CONFIG_OFFSET_PICK_X_MM (-5.5f)
+#define CONFIG_OFFSET_PICK_X_MM (-5.2f)
 #define CONFIG_OFFSET_PICK_Y_MM (126.0f)
 
 /**
@@ -31,7 +31,7 @@
  *        error of the pick area. Applied by the caller (state_machine.c)
  *        before passing coordinates to MotionPlanner_PlanMoveToPickMM().
  */
-#define CONFIG_CORRECTION_PICK_X (0.9965f)  //(0.995f)
+#define CONFIG_CORRECTION_PICK_X (0.9975f)  //(0.995f)
 #define CONFIG_CORRECTION_PICK_Y (0.9945f)  //(0.995f)
 
 /** @brief Distance from endstops to the place area origin [mm]. */
