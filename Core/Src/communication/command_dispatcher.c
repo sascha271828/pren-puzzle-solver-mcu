@@ -11,6 +11,8 @@ void CommandDispatcher_Init(CommandDispatcher_t *self, UartReceiver_t *uart) {
 }
 
 void CommandDispatcher_Poll(CommandDispatcher_t *self) {
+  UartReceiver_CheckTimeout(self->uart);
+
   if (!UartReceiver_IsFrameReady(self->uart)) return;
   if (self->command_pending) return;
 
