@@ -13,10 +13,13 @@ void UartReceiver_Start(UartReceiver_t *self) {
   self->header_idx = 0;
   self->buf_idx = 0;
   self->frame_ready = false;
+  self->last_rx_tick = HAL_GetTick();
   HAL_UART_Receive_IT(self->huart, &self->rx_byte, 1);
 }
 
 void UartReceiver_RxCallback(UartReceiver_t *self) {
+  self->last_rx_tick = HAL_GetTick();
+
   if (self->frame_ready) {
     /* Previous frame not consumed yet, re-arm and drop */
     HAL_UART_Receive_IT(self->huart, &self->rx_byte, 1);
@@ -46,6 +49,20 @@ void UartReceiver_RxCallback(UartReceiver_t *self) {
   }
 
   HAL_UART_Receive_IT(self->huart, &self->rx_byte, 1);
+}
+
+void UartReceiver_CheckTimeout(UartReceiver_t *self) {
+  bool mid_frame = !self->reading_header || self->header_idx > 0;
+  if (!mid_frame || self->frame_ready) return;
+
+  /* Only touch parser state after UART_RX_FRAME_TIMEOUT_MS of silence, so
+   * the RX ISR cannot be mid-frame concurrently (byte time at 115200 baud
+   * is ~87 us). */
+  if (HAL_GetTick() - self->last_rx_tick > UART_RX_FRAME_TIMEOUT_MS) {
+    self->reading_header = true;
+    self->header_idx = 0;
+    self->buf_idx = 0;
+  }
 }
 
 bool UartReceiver_IsFrameReady(const UartReceiver_t *self) {

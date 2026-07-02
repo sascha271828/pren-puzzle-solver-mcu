@@ -32,6 +32,9 @@
 /** @brief Maximum payload size in bytes (limits expected_len check). */
 #define UART_RX_BUF_SIZE (512)
 
+/** @brief Silence on the line after which a partial frame is discarded. */
+#define UART_RX_FRAME_TIMEOUT_MS (100)
+
 /**
  * @brief Runtime state for one UART receiver instance.
  *        All fields are managed by the module; treat as private.
@@ -46,6 +49,7 @@ typedef struct {
   uint8_t header_bytes[2];         /**< Raw header bytes [len_hi, len_lo]      */
   uint8_t header_idx;              /**< Number of header bytes received so far */
   volatile bool frame_ready;       /**< True when a complete frame is in buf[] */
+  volatile uint32_t last_rx_tick;  /**< HAL tick of the most recent RX byte    */
 } UartReceiver_t;
 
 /**
@@ -72,6 +76,16 @@ void UartReceiver_Start(UartReceiver_t *self);
  * @param self  Receiver instance.
  */
 void UartReceiver_RxCallback(UartReceiver_t *self);
+
+/**
+ * @brief Discards a partially received frame if the line has been silent
+ *        for more than UART_RX_FRAME_TIMEOUT_MS. Call periodically from the
+ *        main loop; without this, a single stray byte desyncs the framing
+ *        permanently (parser waits forever for a bogus payload length).
+ *
+ * @param self  Receiver instance.
+ */
+void UartReceiver_CheckTimeout(UartReceiver_t *self);
 
 /**
  * @brief Returns true if a complete frame has been received and is
