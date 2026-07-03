@@ -36,7 +36,7 @@
 
 /** @brief Distance from endstops to the place area origin [mm]. */
 #define CONFIG_OFFSET_PLACE_X_MM (48.5f)
-#define CONFIG_OFFSET_PLACE_Y_MM (-10.0f)
+#define CONFIG_OFFSET_PLACE_Y_MM (-12.0f)
 
 /**
  * @brief Initialises the motion planner and resets the internal absolute
